@@ -28,7 +28,6 @@ namespace Çizelgeç
 
             Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_Kıstas);
             Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAralığı_Sn);
-            Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAşımı_Sn);
             Çevirici.Yazıdan_NoktalıSayıya(S.Dosyalama_AzamiDosyaBoyutu_Bayt);
 
             if (!string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü))
@@ -181,16 +180,27 @@ namespace Çizelgeç
 
                             if (!biri.Değeri.ZamanAşımıOldu)
                             {
-                                if (biri.Uyarı != null)
+                                if (biri.Hesaplamalar != null)
                                 {
-                                    string kıstas = biri.Uyarı.Kıstas.Replace("<Sinyal>", S.Sayı.Yazıya(kayıt_dizisi[i]));
-                                    if (Çevirici.Yazıdan_NoktalıSayıya(kıstas) > 0.0)
+                                    foreach (var hsp in biri.Hesaplamalar)
                                     {
-                                        string mesaj = Çevirici.Uyarıdan_Yazıya(biri.Uyarı.Uyarı, kayıt_dizisi[i]);
-                                        mesaj = biri.Adı.Csv + ";" + S.Sayı.Yazıya(kayıt_dizisi[i]) + ";" + mesaj;
+                                        Sinyaller.Yaz(hsp.Değişken, Çevirici.Yazıdan_NoktalıSayıya(hsp.İşlem.Replace("<Sinyal>", S.Sayı.Yazıya(kayıt_dizisi[i]))));
+                                    }
+                                }
 
-                                        Kaydedici.Ekle(new double[1] { kayıt_dizisi[kayıt_dizisi.Length - 1] }, mesaj);
-                                        Günlük.Ekle(mesaj);
+                                if (biri.Uyarılar != null)
+                                {
+                                    foreach (var uyr in biri.Uyarılar)
+                                    {
+                                        string kıstas = uyr.Kıstas.Replace("<Sinyal>", S.Sayı.Yazıya(kayıt_dizisi[i]));
+                                        if (Çevirici.Yazıdan_NoktalıSayıya(kıstas) > 0.0)
+                                        {
+                                            string mesaj = Çevirici.Uyarıdan_Yazıya(uyr.Açıklama, kayıt_dizisi[i]);
+                                            mesaj = biri.Adı.Csv + ";" + S.Sayı.Yazıya(kayıt_dizisi[i]) + ";" + mesaj;
+
+                                            Kaydedici.Ekle(new double[1] { kayıt_dizisi[kayıt_dizisi.Length - 1] }, mesaj);
+                                            Günlük.Ekle(mesaj);
+                                        }
                                     }
                                 }
                             }

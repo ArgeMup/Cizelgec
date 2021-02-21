@@ -312,7 +312,10 @@ namespace Çizelgeç
                         double[] sınır_d = new double[e.Node.Nodes.Count], sınır_y = new double[e.Node.Nodes.Count];
                         for (int i = 0; i < e.Node.Nodes.Count; i++)
                         {
-                            EnDüşükEnYüksek((e.Node.Nodes[i].Tag as Sinyal_).Değeri.DeğerEkseni, out sınır_d[i], out sınır_y[i]);
+                            if ((e.Node.Nodes[i].Tag as Sinyal_).Değeri.DeğerEkseni != null)
+                            {
+                                EnDüşükEnYüksek((e.Node.Nodes[i].Tag as Sinyal_).Değeri.DeğerEkseni, out sınır_d[i], out sınır_y[i]);
+                            }  
                         }
                         EnDüşükEnYüksek(sınır_d, out double düşük, out double d_y);
                         EnDüşükEnYüksek(sınır_y, out double y_d, out double yüksek);
@@ -334,7 +337,7 @@ namespace Çizelgeç
                 }
                 else if (enazbirtanekalınvar)
                 {
-                    foreach (var biri in Sinyaller.Tümü) { biri.Value.Çizikler.lineWidth = 1; }
+                    foreach (var biri in Sinyaller.Tümü) { if (biri.Value.Çizikler != null) biri.Value.Çizikler.lineWidth = 1; }
 
                     Çizelge.plt.AxisBounds();
                     Çizelge.plt.YLabel("Tümü", true, null, null, Color.Black);
@@ -346,9 +349,11 @@ namespace Çizelgeç
             }
             else
             {
+                if (e.Node.Tag == null || (e.Node.Tag as Sinyal_).Çizikler == null || (e.Node.Tag as Sinyal_).Değeri.DeğerEkseni == null) return;
+
                 if (SeçiliOlanıBelirgenleştir.Checked)
                 {
-                    foreach (var biri in Sinyaller.Tümü) { biri.Value.Çizikler.lineWidth = 1; }
+                    foreach (var biri in Sinyaller.Tümü) { if (biri.Value.Çizikler != null) biri.Value.Çizikler.lineWidth = 1; }
                     (e.Node.Tag as Sinyal_).Çizikler.lineWidth = 2;
                 }
 

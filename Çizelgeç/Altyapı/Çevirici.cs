@@ -13,21 +13,21 @@ namespace Çizelgeç
         static public double Yazıdan_NoktalıSayıya(string Girdi)
         {
             //<Değişken Adı> veya 1 veya <TM[0]> veya dört işlem karakterleri
-
+            
             try
             {
                 while (Girdi.Contains("<") && Girdi.Contains(">"))
                 {
-                    int buyuktur = Girdi.IndexOf('>');
+                    int buyuktur = Girdi.LastIndexOf('>');
 
                     for (int i = buyuktur; i >= 0; i--)
                     {
                         if (Girdi[i] == '<')
                         {
                             string değişken = Girdi.Substring(i, buyuktur - i + 1);
+                            if (değişken.Count(x => x == '>') > 1) değişken = değişken.Substring(i, değişken.IndexOf('>') + 1);
 
-                            Girdi = Girdi.Remove(i, buyuktur - i + 1);
-                            Girdi = Girdi.Insert(i, S.Sayı.Yazıya(Sinyaller.Oku(değişken)));
+                            Girdi = Girdi.Replace(değişken, S.Sayı.Yazıya(Sinyaller.Oku(değişken)));
                             break;
                         }
                     }

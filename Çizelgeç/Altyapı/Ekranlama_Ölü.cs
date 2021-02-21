@@ -81,11 +81,11 @@ namespace Çizelgeç
                 if (_sinyaller[i].Contains("|"))
                 {
                     string[] _a = _sinyaller[i].Split('|');
-                    grup = _a[0] + " " + _a[1];
+                    grup = (_a[0] + " " + _a[1]).Trim();
                     dal = _a[2];
                 }
                 else dal = _sinyaller[i];
-                uzun = _sinyaller[i].Replace('|', ' ').Trim('<', '>', ' ');
+                uzun = _sinyaller[i].Replace('|', ' ').Trim('<', '>', ' ').Replace("  ", " ");
 
                 Sinyal_ sinyal = Sinyaller.Ekle("<" + uzun + ">");
                 sinyal.Adı.Grup = grup;
@@ -215,11 +215,10 @@ namespace Çizelgeç
 
             #region ayarlar dosyası varmı kontrolü
             string kla = Path.GetDirectoryName(MupDosyasıYolu) + "\\Ayarlar.json";
-            if (File.Exists(kla)) json_Ayıkla.Ayarlar(kla);
-            Bağlantılar.Tümü.Clear();
+            if (File.Exists(kla)) json_Ayıkla.Ayarlar(kla, true, true);
             foreach (var biri in Sinyaller.Tümü.Values)
             {
-                biri.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
+               biri.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
             }
             #endregion
 
@@ -239,7 +238,7 @@ namespace Çizelgeç
                     string okunan = sr.ReadLine();
                     try
                     {
-                        int başlangıç = okunan.IndexOf(S.BilgiToplama_SinyallerCümleBaşlangıcı + S.BilgiToplama_KelimeAyracı);
+                        int başlangıç = okunan.IndexOf(S.MupDosyasındanOkuma_CümleBaşlangıcı + S.MupDosyasındanOkuma_KelimeAyracı);
                         if (başlangıç >= 0)
                         {
                             if (ÖlçümSayısı >= S.CanliÇizdirme_ÖlçümSayısı)
@@ -258,8 +257,8 @@ namespace Çizelgeç
                                 biri.Değeri.DeğerEkseni[ÖlçümSayısı] = biri.Değeri.DeğerEkseni[ÖlçümSayısı - 1];
                             }
 
-                            string gelen = okunan.Substring(başlangıç).Trim(' ', S.BilgiToplama_KelimeAyracı);
-                            string[] dizi = gelen.Split(S.BilgiToplama_KelimeAyracı);
+                            string gelen = okunan.Substring(başlangıç).Trim(' ', S.MupDosyasındanOkuma_KelimeAyracı);
+                            string[] dizi = gelen.Split(S.MupDosyasındanOkuma_KelimeAyracı);
                             for (int i = 2; i < dizi.Length; i++)
                             {
                                 string sinyal_yazı = "<" + dizi[1] + "[" + (i - 2).ToString() + "]>";
@@ -269,7 +268,7 @@ namespace Çizelgeç
                             }
 
                             //tarihi okumaya calış
-                            if (!S.Tarih.Sayıya(okunan.Split(S.BilgiToplama_KelimeAyracı)[0], out S.ZamanEkseni[ÖlçümSayısı])) S.ZamanEkseni[ÖlçümSayısı] = ÖlçümSayısı;
+                            if (!S.Tarih.Sayıya(okunan.Split(S.MupDosyasındanOkuma_KelimeAyracı)[0], out S.ZamanEkseni[ÖlçümSayısı])) S.ZamanEkseni[ÖlçümSayısı] = ÖlçümSayısı;
                             else
                             {
                                 if (S.ZamanEkseni[ÖlçümSayısı] > bir_zamanlar) Enazbirtanedüzgüntarihbulundu = true;
@@ -284,7 +283,7 @@ namespace Çizelgeç
 
             if (Sinyaller.Tümü.Count == 0)
             {
-                throw new Exception("Hiç bilgi alınamadı. Cümle başlangıcı ve kelime ayracı uygun olmayabilir. Kaynak dosyanın olduğu klasörün içerisine kaynak dosya için düzenlenmiş bir Ayarlar.json dosyası kopyalayın");
+                throw new Exception("Hiç bilgi alınamadı. Cümle başlangıcı ve kelime ayracı uygun olmayabilir. Kaynak dosyanın olduğu klasörün içerisine kaynak dosya için düzenlenmiş bir Ayarlar.json dosyası kopyalayın ve Mup Dosyasından Okuma anahtarlarını doldurun");
             }
 
             #region daraltma

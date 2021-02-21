@@ -1,74 +1,88 @@
 {
-  "Ölçümler": [
+  "Sinyaller": [
     {
-      "Adı": "Sıcaklık",
+      "Adı": "<TM1[1]>",
+      "Görünen Adı": "TM1 Sıcaklık",
+      "İşlem": "Kendisi_<Sinyal> ile Sinyal_<a[0]> veya Sayı_1 veya <Değişken>_<d1> veya İşlem_AND_OR_NOT_<_>_<=_>=_<>_=_+_-_*_/_%",
+      "Dosyaya Kaydet": "Evet",
+      "Zaman Aşımı (Saniye)": "İşlem",
+      "Hesapla 1": {
+        "İşlem": "İşlem Kendisi_<Sinyal>",
+        "Degişken": "<Adı>"
+      },
+      "Uyar 1": {
+        "Kıstas": "İşlem Kendisi_<Sinyal> -> sonucu 0 dan büyük mü diye kontrol eder",
+        "Açıklama": [
+          "Uyarı",
+          "İşlem -> yazı karşılığı"
+        ]
+      }
+    }
+  ],
+  "Değişkenler": [
+    {
+      "Adı": "<d1>",
+      "Görünen Adı": "Rakım",
+      "Dosyaya Kaydet": "Hayır"
+    }
+  ],
+  "Sinyal Grupları": [
+    {
+      "Görünen Adı": "Sıcaklık",
       "Birimi": "°C",
       "Sinyaller": [
         "<TM1[1]>",
         "<TM2[1]>"
-      ],
-      "İşlem": "Kendisi_<Sinyal> ile Sinyal_<a[0]> veya Sayı_1 veya <Değişken>_<d1> veya İşlem_AND_OR_NOT_<_>_<=_>=_<>_=_+_-_*_/_%"
-    }
-  ],
-  "Uyarılar": [
-    {
-      "Sinyaller": [
-        "<TM1[1]>",
-        "<TM2[1]>"
-      ],
-      "Kıstas": "İşlem -> sonucu 0 dan büyük mü diye kontrol eder",
-      "Uyarı": [
-        "Uyarı",
-        "İşlem -> yazı karşılığı"
       ]
     }
   ],
   "Bilgi Toplama": {
-    "Sinyaller Cümle Başlangıcı": ">Sinyaller",
-    "Kelime Ayracı": ";",
     "Zaman Aralığı (Saniye)": "İşlem",
-    "Kıstas": "İşlem -> sonucu 0 dan büyük mü diye kontrol eder",
-    "Zaman Aşımı (Saniye)": "İşlem"
+    "Kıstas": "İşlem -> sonucu 0 dan büyük mü diye kontrol eder"
+  },
+  "Dosyalama": {
+    "Azami Dosya Boyutu (Bayt)": "İşlem",
+    "Kayıt Klasörü": "C:\\a"
+  },
+  "Mup Dosyasından Okuma": {
+    "Cümle Başlangıcı": ">Sinyaller",
+    "Kelime Ayracı": ";"
   },
   "Bağlantılar": [
     {
       "Adı": "Bağlantı 1",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Dosyaya Kaydet": "Evet",
       "Yöntem": "Uart",
       "Erişim Noktası": "COM1",
       "Bit Hızı": "921600"
     },
     {
       "Adı": "Bağlantı 2",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Dosyaya Kaydet": "Evet",
       "Yöntem": "Udp veya Tcp",
-      "Sunucu Erişim Noktası":"9999"
+      "Sunucu Erişim Noktası": "9999"
     },
     {
       "Adı": "Bağlantı 3",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Dosyaya Kaydet": "Evet",
       "Yöntem": "Udp veya Tcp",
-      "İstemci IP veya Adresi" : "127.0.0.1",
-      "İstemci Erişim Noktası" : "9998"
+      "İstemci IP veya Adresi": "127.0.0.1",
+      "İstemci Erişim Noktası": "9998"
     },
     {
       "Adı": "Bağlantı 4",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Dosyaya Kaydet": "Evet",
       "Yöntem": "Komut Satırı",
       "Uygulama": "C:\\a.exe",
       "Parametre": "--a 5"
     }
-  ],
-  "Dosyalama": {
-    "Azami Dosya Boyutu (Bayt)": "İşlem",
-    "Kaydedilecek Değişkenler": [
-      "<d1>",
-      "<d2>"
-    ],
-    "Kaydedilmeyecek Sinyaller": [
-      "<TM1[0]>",
-      "<TM2[0]>"
-    ],
-    "Kaydedilmeyecek Bağlantılar": [
-      "Bağlantı 1",
-      "Bağlantı 2"
-    ],
-    "Kayıt Klasörü": "C:\\a"
-  }
+  ]
 }

@@ -117,12 +117,12 @@ namespace Çizelgeç
 
         public static string BilgiToplama_Kıstas = "1";
         public static string BilgiToplama_ZamanAralığı_Sn = "15";
-        public static string BilgiToplama_ZamanAşımı_Sn = "60";
-        public static string BilgiToplama_SinyallerCümleBaşlangıcı = ">Sinyaller";
-        public static char BilgiToplama_KelimeAyracı = ';';
 
         public static string Dosyalama_AzamiDosyaBoyutu_Bayt = "1000000";
         public static string Dosyalama_KayıtKlasörü = Kulanıcı_Klasörü;
+
+        public static string MupDosyasındanOkuma_CümleBaşlangıcı = ">Sinyaller";
+        public static char MupDosyasındanOkuma_KelimeAyracı = ';';
 
         public static double[] ZamanEkseni;
         #endregion
@@ -143,7 +143,7 @@ namespace Çizelgeç
         public static TreeView Ağaç;
         public static ScottPlot.FormsPlot Çizelge;
         public static ArgeMup.HazirKod.Ayarlar_ Ayarlar;
-        public static ArgeMup.HazirKod.PencereVeTepsiIkonuKontrolu_ PeTeİkKo;
+        //public static ArgeMup.HazirKod.PencereVeTepsiIkonuKontrolu_ PeTeİkKo;
         public static AnaEkran AnaEkran;
         public static HScrollBar Kaydırıcı;
         public static TrackBar AralıkSeçici;

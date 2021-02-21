@@ -84,10 +84,10 @@ namespace Çizelgeç
                             }
                             else if (jsonSıralayıcı.Current.Name.StartsWith("Bağlantı Üzerinden Gönder"))
                             {
-                                bool sonuc = false;
+                                bool sonuc = true;
 
-                                sonuc |= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Bağlantı", out string Bağlantı);
-                                sonuc |= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "İçerik", JsonValueKind.Array, out JsonElement j);
+                                sonuc &= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Bağlantı", out string Bağlantı);
+                                sonuc &= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "İçerik", JsonValueKind.Array, out JsonElement j);
 
                                 string İçerik = Çevirici.Uyarıdan_Yazıya(j);
 
@@ -100,10 +100,10 @@ namespace Çizelgeç
                             }
                             else if (jsonSıralayıcı.Current.Name.StartsWith("Hesapla"))
                             {
-                                bool sonuc = false;
+                                bool sonuc = true;
 
-                                sonuc |= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "İşlem", out string İşlem);
-                                sonuc |= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Degisken", out string Degisken);
+                                sonuc &= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "İşlem", out string İşlem);
+                                sonuc &= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Degisken", out string Degisken);
 
                                 if (!sonuc || (string.IsNullOrEmpty(İşlem) && string.IsNullOrEmpty(Degisken)))
                                 {
@@ -114,10 +114,10 @@ namespace Çizelgeç
                             }
                             else if (jsonSıralayıcı.Current.Name.StartsWith("Bekle"))
                             {
-                                bool sonuc = false;
+                                bool sonuc = true;
 
-                                sonuc |= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Kıstas", out string Kıstas);
-                                sonuc |= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Saniye", out string Saniye);
+                                sonuc &= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Kıstas", out string Kıstas);
+                                sonuc &= json_Ayıkla.Oku(jsonSıralayıcı.Current.Value, "Saniye", out string Saniye);
 
                                 if (!sonuc || (string.IsNullOrEmpty(Kıstas) && string.IsNullOrEmpty(Saniye)))
                                 {

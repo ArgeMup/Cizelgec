@@ -12,17 +12,21 @@ using System.Windows.Forms;
 namespace Çizelgeç
 {
     #region Sinyaller
-    public class Ölçüm_
+    public class Grup_
     {
         public string Adı;
         public string Birimi;
-        public string İşlem;
     };
-   
+
+    public class Hesaplama_
+    {
+        public string İşlem;
+        public string Değişken;
+    };
     public class Uyarı_
     {
         public string Kıstas;
-        public string[] Uyarı;
+        public string[] Açıklama;
     };
 
     public class Değeri_
@@ -32,12 +36,14 @@ namespace Çizelgeç
         public DateTime SonDeğerinAlındığıAn = DateTime.Now;
         public double[] DeğerEkseni = null;
         public bool ZamanAşımıOldu = false;
+        public string Önİşlem = "<Sinyal>";
+        public string ZamanAşımı_Sn = "0";
     }
 
     public class Adı_
     {
         public string Grup;
-        public string Dal;
+        public string Dal; //Görünen Adı
         public string Uzun;
         public string Csv;
     }
@@ -49,14 +55,14 @@ namespace Çizelgeç
         public Tür_ Tür = Tür_.Boşta;
         public Adı_ Adı = new Adı_(); 
         public Değeri_ Değeri = new Değeri_();
-        public Uyarı_ Uyarı = null;
-        public Ölçüm_ Ölçüm = null;
+        public Hesaplama_[] Hesaplamalar = null;
+        public Uyarı_[] Uyarılar = null;
 
         public TreeNode Dal = null;
         public ScottPlot.PlottableSignalXY Çizikler = null;
         public List<ScottPlot.PlottableText> Uyarı_Yazıları = null;
 
-        public void Güncelle_Ölçüm(Ölçüm_ ÖlçümNesnesi = null, string SinyalAdı = "")
+        public void Güncelle_Adı(string SinyalAdı, string Grubu = "", string Birimi = "", string GörünenAdı = "")
         {
             if (SinyalAdı.Contains('[') && SinyalAdı.Contains(']')) Tür = Tür_.Sinyal;
             else
@@ -65,25 +71,27 @@ namespace Çizelgeç
                 Değeri.Kaydedilsin = false;
             }
 
-            if (ÖlçümNesnesi == null)
+            if (string.IsNullOrEmpty(Grubu))
             {
                 Adı.Grup = "";
-                Adı.Dal = SinyalAdı;
-                Adı.Uzun = SinyalAdı;
-                Adı.Csv = (Tür == Tür_.Değişken ? "Değişkenler||" : "") + SinyalAdı;
+                Adı.Dal = string.IsNullOrEmpty(GörünenAdı) ? SinyalAdı : GörünenAdı;
+                Adı.Uzun = Adı.Dal;
+                Adı.Csv = (Tür == Tür_.Değişken ? "Değişkenler||" : "") + Adı.Dal;
             }
             else
             {
-                Ölçüm = ÖlçümNesnesi;
-
-                Adı.Grup = Ölçüm.Adı + " " + Ölçüm.Birimi;
+                Adı.Grup = Grubu + " " + Birimi;
                 
-                Adı.Dal = SinyalAdı.Trim('<','>', ' ');
-                int k = Adı.Dal.IndexOf('[');
-                if (k >= 0) Adı.Dal = Adı.Dal.Remove(k);
+                if (string.IsNullOrEmpty(GörünenAdı))
+                {
+                    Adı.Dal = SinyalAdı.Trim('<', '>', ' ');
+                    int k = Adı.Dal.IndexOf('[');
+                    if (k >= 0) Adı.Dal = Adı.Dal.Remove(k);
+                }
+                else Adı.Dal = GörünenAdı;
 
-                Adı.Uzun = Ölçüm.Adı + " " + Adı.Dal;
-                Adı.Csv = Ölçüm.Adı + "|" + Ölçüm.Birimi + "|" + Adı.Dal;
+                Adı.Uzun = Grubu + " " + Adı.Dal;
+                Adı.Csv = Grubu + "|" + Birimi + "|" + Adı.Dal;
             }
         }
         public void Güncelle_SonDeğer(double Girdi)
@@ -93,9 +101,9 @@ namespace Çizelgeç
         public void Güncelle_SonDeğer(string Girdi)
         {
             double değer;
-            if (Ölçüm != null)
+            if (!string.IsNullOrEmpty(Değeri.Önİşlem))
             {
-                string işlem = Ölçüm.İşlem.Replace("<Sinyal>", Girdi);
+                string işlem = Değeri.Önİşlem.Replace("<Sinyal>", Girdi);
                 değer = Çevirici.Yazıdan_NoktalıSayıya(işlem);
             }
             else değer = S.Sayı.Yazıdan(Girdi);
@@ -106,10 +114,10 @@ namespace Çizelgeç
         }
         public double Güncelle_Dizi()
         {
-            if (Tür == Tür_.Sinyal) 
+            if (Tür == Tür_.Sinyal && Değeri.ZamanAşımı_Sn != "0") 
             {
                 TimeSpan fark = DateTime.Now - Değeri.SonDeğerinAlındığıAn;
-                if (fark.TotalSeconds > Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAşımı_Sn)) Değeri.ZamanAşımıOldu = true;
+                if (fark.TotalSeconds > Çevirici.Yazıdan_NoktalıSayıya(Değeri.ZamanAşımı_Sn)) Değeri.ZamanAşımıOldu = true;
             }
 
             if (Değeri.DeğerEkseni == null) Değeri.DeğerEkseni = Enumerable.Repeat(Değeri.SonDeğeri, S.CanliÇizdirme_ÖlçümSayısı).ToArray();
@@ -143,7 +151,7 @@ namespace Çizelgeç
             if (MevcutMu(Adı)) return Bul(Adı);
 
             Sinyal_ yeni = new Sinyal_();
-            yeni.Güncelle_Ölçüm(null, Adı);
+            yeni.Güncelle_Adı(Adı);
 
             Mtx.WaitOne();
             Tümü[Adı] = yeni;
@@ -170,7 +178,7 @@ namespace Çizelgeç
         }
         public static double Oku(string Adı)
         {
-            return Bul(Adı).Değeri.SonDeğeri;
+            return Ekle(Adı).Değeri.SonDeğeri;
         }
     }
     #endregion
@@ -179,6 +187,8 @@ namespace Çizelgeç
     public class Bağlantı_
     {
         public string Adı = "";
+        public string CümleBaşlangıcı = ">Sinyaller";
+        public char KelimeAyracı = ';';
         public string Yöntem = "";
         public string P1 = "";
         public string P2 = "";
@@ -249,7 +259,7 @@ namespace Çizelgeç
                         Bağlantı.Uygulama.BeginErrorReadLine();
                     }
 
-                    int sn = (int)Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAşımı_Sn) + 1;
+                    int sn = 5;
                     while (S.Çalışşsın && (sn-- > 0)) Thread.Sleep(1000);
                 }
                 catch (Exception ex) { Günlük.Ekle(ex.ToString()); Bağlantı.Kaydet(ex.Message, "Uyarı"); Thread.Sleep(1000); }
@@ -262,7 +272,7 @@ namespace Çizelgeç
         {
             try
             {         
-                if (!string.IsNullOrEmpty(e.Data)) GelenBilgiler.Ekle(Adı, e.Data);
+                if (!string.IsNullOrEmpty(e.Data)) GelenBilgiler.Ekle(this, e.Data);
 
                 Kaydet(e.Data);
             }
@@ -281,7 +291,7 @@ namespace Çizelgeç
                     if (Bağlantı.Uart == null || !Bağlantı.Uart.IsOpen)
                     {
                         Bağlantı.Uart = new SerialPort(Bağlantı.P1, Convert.ToInt32(Bağlantı.P2), Parity.None, 8, StopBits.One);
-                        Bağlantı.Uart.ReadTimeout = (int)Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAşımı_Sn) * 1000;
+                        Bağlantı.Uart.ReadTimeout = 5000;
                         Bağlantı.Uart.Open();
                     }
 
@@ -289,7 +299,7 @@ namespace Çizelgeç
                     while (S.Çalışşsın && Bağlantı.Uart.IsOpen)
                     {
                         string gelen = Bağlantı.Uart.ReadLine();
-                        if (!string.IsNullOrEmpty(gelen)) GelenBilgiler.Ekle(Bağlantı.Adı, gelen);
+                        if (!string.IsNullOrEmpty(gelen)) GelenBilgiler.Ekle(Bağlantı, gelen);
 
                         Bağlantı.Kaydet(gelen);
                         if (sayac++ > 10) { sayac = 0; Thread.Sleep(1); } //cpu yüzdesini düşürmek için
@@ -312,14 +322,14 @@ namespace Çizelgeç
         #region Dosyaya Kaydedici
         string Kaydet_DosyaAdı = "";
         int Kaydet_DosyaBoyutu = 0;
-        int Kaydet_HedefDosyaBoyutu = 1000000;
+        int Kaydet_HedefDosyaBoyutu = 5 * 1024 * 1024;
         Mutex mtx_kaydet = new Mutex();
         /// <param name="Tür">Gelen veya Giden veya Uyarı</param>
         void Kaydet(string Girdi, string Tür = "Gelen")
         {
             Girdi = Girdi.Trim('\r', '\n');
 
-            if (SonGelenBilgiler.Count < 10) SonGelenBilgiler.Add(Tür + S.BilgiToplama_KelimeAyracı + Girdi);
+            if (SonGelenBilgiler.Count < 10) SonGelenBilgiler.Add(Tür + KelimeAyracı + Girdi);
 
             if (Kaydedilsin && !string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü))
             {
@@ -334,7 +344,7 @@ namespace Çizelgeç
                     Kaydet_HedefDosyaBoyutu = (int)Çevirici.Yazıdan_NoktalıSayıya(S.Dosyalama_AzamiDosyaBoyutu_Bayt);
                 }
 
-                string yazı = S.Tarih.Yazıya(DateTime.Now) + S.BilgiToplama_KelimeAyracı + Tür + S.BilgiToplama_KelimeAyracı + Girdi + Environment.NewLine;
+                string yazı = S.Tarih.Yazıya(DateTime.Now) + KelimeAyracı + Tür + KelimeAyracı + Girdi + Environment.NewLine;
                 File.AppendAllText(Kaydet_DosyaAdı, yazı);
 
                 Kaydet_DosyaBoyutu += yazı.Length;
@@ -396,12 +406,12 @@ namespace Çizelgeç
     #region Gelen Bilgi
     public class GelenBilgi_
     {
-        public string BağlantıAdı;
+        public Bağlantı_ Bağlantı;
         public string Bilgi;
     }
     public class GelenBilgiler
     {
-        public static void Ekle(string BağlantıAdı, string Bilgi)
+        public static void Ekle(Bağlantı_ Bağlantı, string Bilgi)
         {
             if (Görev_Nesnesi == null)
             {
@@ -409,10 +419,10 @@ namespace Çizelgeç
                 Görev_Nesnesi.Start();
             }
 
-            if (string.IsNullOrEmpty(BağlantıAdı) || string.IsNullOrEmpty(Bilgi)) return;
+            if (string.IsNullOrEmpty(Bağlantı.Adı) || string.IsNullOrEmpty(Bilgi)) return;
 
             GelenBilgi_ yeni = new GelenBilgi_();
-            yeni.BağlantıAdı = BağlantıAdı;
+            yeni.Bağlantı = Bağlantı;
             yeni.Bilgi = Bilgi;
 
             Mtx.WaitOne();
@@ -439,11 +449,11 @@ namespace Çizelgeç
                     Tümü.RemoveAt(0);
                     Mtx.ReleaseMutex();
 
-                    int başlangıç = sıradaki.Bilgi.IndexOf(S.BilgiToplama_SinyallerCümleBaşlangıcı + S.BilgiToplama_KelimeAyracı);
+                    int başlangıç = sıradaki.Bilgi.IndexOf(sıradaki.Bağlantı.CümleBaşlangıcı + sıradaki.Bağlantı.KelimeAyracı);
                     if (başlangıç >= 0)
                     {
-                        string gelen = sıradaki.Bilgi.Substring(başlangıç).Trim(' ', S.BilgiToplama_KelimeAyracı);
-                        string[] dizi = gelen.Split(S.BilgiToplama_KelimeAyracı);
+                        string gelen = sıradaki.Bilgi.Substring(başlangıç).Trim(' ', sıradaki.Bağlantı.KelimeAyracı);
+                        string[] dizi = gelen.Split(sıradaki.Bağlantı.KelimeAyracı);
                         for (int i = 2; i < dizi.Length; i++)
                         {
                             string sinyal_yazı = "<" + dizi[1] + "[" + (i - 2).ToString() + "]>";
