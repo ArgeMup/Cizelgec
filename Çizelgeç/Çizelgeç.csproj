@@ -106,6 +106,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Altyapı\Ekranlama.cs" />
     <Compile Include="Altyapı\Ekranlama_Canlı.cs" />
     <Compile Include="Altyapı\json.cs" />
     <Compile Include="Altyapı\Sabitler.cs" />
@@ -194,6 +195,9 @@
     <None Include="Resources\Microsoft.Bcl.AsyncInterfaces.dll" />
     <None Include="Resources\ScottPlot.dll" />
     <None Include="Resources\ScottPlot.WinForms.dll" />
+    <None Include="Resources\D_Hata.png" />
+    <None Include="Resources\D_Tamam.png" />
+    <None Include="Resources\D_Yeni.png" />
     <Content Include="user.ico" />
   </ItemGroup>
   <ItemGroup />

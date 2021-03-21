@@ -36,16 +36,16 @@ namespace Çizelgeç
         public DateTime SonDeğerinAlındığıAn = DateTime.Now;
         public double[] DeğerEkseni = null;
         public bool ZamanAşımıOldu = false;
-        public string Önİşlem = "<Sinyal>";
+        public string Önİşlem = null;
         public string ZamanAşımı_Sn = "0";
+        public UInt64 Sayac_Güncelleme = 0;
     }
 
     public class Adı_
     {
-        public string Grup;
-        public string Dal; //Görünen Adı
-        public string Uzun;
-        public string Csv;
+        public string Salkım;       //İklimsel|Sıcaklık
+        public string GörünenAdı;   //TM1
+        public string Csv;          //Salkım + | + GörünenAdı
     }
 
     public enum Tür_ { Boşta, Sinyal, Değişken };
@@ -62,37 +62,22 @@ namespace Çizelgeç
         public ScottPlot.PlottableSignalXY Çizikler = null;
         public List<ScottPlot.PlottableText> Uyarı_Yazıları = null;
 
-        public void Güncelle_Adı(string SinyalAdı, string Grubu = "", string Birimi = "", string GörünenAdı = "")
+        public void Güncelle_Adı(string SinyalAdı, string Soyadı = "", string GörünenAdı = "")
         {
             if (SinyalAdı.Contains('[') && SinyalAdı.Contains(']')) Tür = Tür_.Sinyal;
             else
             {
                 Tür = Tür_.Değişken;
                 Değeri.Kaydedilsin = false;
+
+                if (string.IsNullOrEmpty(Soyadı)) Soyadı = "Değişkenler";
             }
 
-            if (string.IsNullOrEmpty(Grubu))
-            {
-                Adı.Grup = "";
-                Adı.Dal = string.IsNullOrEmpty(GörünenAdı) ? SinyalAdı : GörünenAdı;
-                Adı.Uzun = Adı.Dal;
-                Adı.Csv = (Tür == Tür_.Değişken ? "Değişkenler||" : "") + Adı.Dal;
-            }
-            else
-            {
-                Adı.Grup = Grubu + " " + Birimi;
-                
-                if (string.IsNullOrEmpty(GörünenAdı))
-                {
-                    Adı.Dal = SinyalAdı.Trim('<', '>', ' ');
-                    int k = Adı.Dal.IndexOf('[');
-                    if (k >= 0) Adı.Dal = Adı.Dal.Remove(k);
-                }
-                else Adı.Dal = GörünenAdı;
+            Adı.Salkım = Soyadı;
+            Adı.GörünenAdı = string.IsNullOrEmpty(GörünenAdı) ? SinyalAdı : GörünenAdı;
 
-                Adı.Uzun = Grubu + " " + Adı.Dal;
-                Adı.Csv = Grubu + "|" + Birimi + "|" + Adı.Dal;
-            }
+            if (string.IsNullOrEmpty(Soyadı)) Adı.Csv = (Tür == Tür_.Değişken ? "Değişkenler|" : ""/*(GörünenAdı.Contains("[") && GörünenAdı.Contains("]") ? "" : "Sinyaller|")*/) + Adı.GörünenAdı;
+            else Adı.Csv = (Soyadı + "|" + Adı.GörünenAdı).Trim(' ','|');
         }
         public void Güncelle_SonDeğer(double Girdi)
         {
@@ -100,17 +85,18 @@ namespace Çizelgeç
         }
         public void Güncelle_SonDeğer(string Girdi)
         {
-            double değer;
+            double değer = S.Sayı.Yazıdan(Girdi);
+
             if (!string.IsNullOrEmpty(Değeri.Önİşlem))
             {
-                string işlem = Değeri.Önİşlem.Replace("<Sinyal>", Girdi);
+                string işlem = Değeri.Önİşlem.Replace("<Sinyal>", S.Sayı.Yazıya(değer));
                 değer = Çevirici.Yazıdan_NoktalıSayıya(işlem);
             }
-            else değer = S.Sayı.Yazıdan(Girdi);
 
             Değeri.SonDeğeri = değer;
             Değeri.SonDeğerinAlındığıAn = DateTime.Now;
             Değeri.ZamanAşımıOldu = false;
+            Değeri.Sayac_Güncelleme++;
         }
         public double Güncelle_Dizi()
         {
@@ -153,11 +139,14 @@ namespace Çizelgeç
             Sinyal_ yeni = new Sinyal_();
             yeni.Güncelle_Adı(Adı);
 
+            Doğrudan_Ekle(Adı, yeni);
+            return yeni;
+        }
+        public static void Doğrudan_Ekle(string Adı, Sinyal_ yeni)
+        {
             Mtx.WaitOne();
             Tümü[Adı] = yeni;
             Mtx.ReleaseMutex();
-
-            return yeni;
         }
         public static Sinyal_ Bul(string Adı)
         {
@@ -187,12 +176,14 @@ namespace Çizelgeç
     public class Bağlantı_
     {
         public string Adı = "";
+        public string GöbekAdı = null;
         public string CümleBaşlangıcı = ">Sinyaller";
         public char KelimeAyracı = ';';
         public string Yöntem = "";
         public string P1 = "";
         public string P2 = "";
         public bool Kaydedilsin = true;
+        public bool TanımlanmamışSinyalleriGörmezdenGel = false;
         public List<string> SonGelenBilgiler = new List<string>();
         public TreeNode Dal = null;
         public void Başlat()
@@ -327,9 +318,7 @@ namespace Çizelgeç
         /// <param name="Tür">Gelen veya Giden veya Uyarı</param>
         void Kaydet(string Girdi, string Tür = "Gelen")
         {
-            Girdi = Girdi.Trim('\r', '\n');
-
-            if (SonGelenBilgiler.Count < 10) SonGelenBilgiler.Add(Tür + KelimeAyracı + Girdi);
+            if (SonGelenBilgiler.Count < 10) SonGelenBilgiler.Add(Tür + KelimeAyracı + Girdi.Trim('\r', '\n'));
 
             if (Kaydedilsin && !string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü))
             {
@@ -339,12 +328,12 @@ namespace Çizelgeç
                 {
                     Kaydet_DosyaAdı = S.Dosyalama_KayıtKlasörü + S.DosyaKlasörAdınıDüzelt(Adı);
                     Directory.CreateDirectory(Kaydet_DosyaAdı);
-                    Kaydet_DosyaAdı += "\\" + S.Tarih.Yazıya(DateTime.Now, "dd_MM_yyyy_HH_mm_ss") + ".mup";
+                    Kaydet_DosyaAdı += "\\" + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".mup";
                     Kaydet_DosyaBoyutu = 0;
                     Kaydet_HedefDosyaBoyutu = (int)Çevirici.Yazıdan_NoktalıSayıya(S.Dosyalama_AzamiDosyaBoyutu_Bayt);
                 }
-
-                string yazı = S.Tarih.Yazıya(DateTime.Now) + KelimeAyracı + Tür + KelimeAyracı + Girdi + Environment.NewLine;
+                
+                string yazı = S.Tarih.Yazıya(DateTime.Now) + KelimeAyracı + Tür + KelimeAyracı + Girdi.Trim('\r', '\n') + Environment.NewLine;
                 File.AppendAllText(Kaydet_DosyaAdı, yazı);
 
                 Kaydet_DosyaBoyutu += yazı.Length;
@@ -403,7 +392,7 @@ namespace Çizelgeç
     }
     #endregion
 
-    #region Gelen Bilgi
+    #region Bağlantılardan Gelen Bilgilerin Ayıklanması ve Depolanması
     public class GelenBilgi_
     {
         public Bağlantı_ Bağlantı;
@@ -442,22 +431,31 @@ namespace Çizelgeç
                 {
                     if (Tümü.Count == 0) { Thread.Sleep(1000); continue; }
                     else if (Tümü.Count < 100) Thread.Sleep(10);
-                    else Thread.Sleep(1);
 
                     Mtx.WaitOne();
                     GelenBilgi_ sıradaki = Tümü[0];
-                    Tümü.RemoveAt(0);
+                    if (S.BaşlatDurdur) Tümü.RemoveAt(0);
+                    else Tümü.Clear();
                     Mtx.ReleaseMutex();
 
-                    int başlangıç = sıradaki.Bilgi.IndexOf(sıradaki.Bağlantı.CümleBaşlangıcı + sıradaki.Bağlantı.KelimeAyracı);
+                    int başlangıç = sıradaki.Bilgi.IndexOf(sıradaki.Bağlantı.CümleBaşlangıcı);
                     if (başlangıç >= 0)
                     {
-                        string gelen = sıradaki.Bilgi.Substring(başlangıç).Trim(' ', sıradaki.Bağlantı.KelimeAyracı);
+                        string gelen = sıradaki.Bilgi.Substring(başlangıç + sıradaki.Bağlantı.CümleBaşlangıcı.Length).Trim(' ', sıradaki.Bağlantı.KelimeAyracı);
                         string[] dizi = gelen.Split(sıradaki.Bağlantı.KelimeAyracı);
-                        for (int i = 2; i < dizi.Length; i++)
+                        for (int i = 1; i < dizi.Length; i++)
                         {
-                            string sinyal_yazı = "<" + dizi[1] + "[" + (i - 2).ToString() + "]>";
-                            Sinyaller.Ekle(sinyal_yazı).Güncelle_SonDeğer(dizi[i]);
+                            string sinyal_yazı;
+                            if (string.IsNullOrEmpty(sıradaki.Bağlantı.GöbekAdı)) sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
+                            else sinyal_yazı = "<" + sıradaki.Bağlantı.GöbekAdı + dizi[0] + "[" + (i - 1).ToString() + "]>";
+
+                            if (sıradaki.Bağlantı.TanımlanmamışSinyalleriGörmezdenGel)
+                            {
+                                if (!Sinyaller.MevcutMu(sinyal_yazı)) continue;
+                            }
+
+                            try { Sinyaller.Ekle(sinyal_yazı).Güncelle_SonDeğer(dizi[i]); }
+                            catch (Exception) { Günlük.Ekle(sıradaki.Bağlantı.Adı + " -> " + dizi[i] + " sayıya dönüştürülemedi."); } 
                         }
                     }
                 }
@@ -467,7 +465,7 @@ namespace Çizelgeç
     }
     #endregion
 
-    #region Kaydedici
+    #region Düzenlenmiş Sinyallerin Dosyaya Kaydedilmesi
     public class Kayıt_
     {
         public string mesaj;
@@ -527,7 +525,7 @@ namespace Çizelgeç
 
                     if (!File.Exists(DosyaYolu))
                     {
-                        DosyaYolu = S.Dosyalama_KayıtKlasörü + S.Tarih.Yazıya(DateTime.Now, "dd_MM_yyyy_HH_mm_ss") + ".csv";
+                        DosyaYolu = S.Dosyalama_KayıtKlasörü + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".csv";
                         BaşlıkSayısı = 0;
                         DosyaBütünlüğüKodu = "";
                     }
@@ -561,6 +559,13 @@ namespace Çizelgeç
                             if (string.IsNullOrEmpty(sıradaki.mesaj))
                             {
                                 //sinyaller 
+                                if (sıradaki.sinyaller.Length < 2)
+                                {
+                                    işlenen++;
+                                    Thread.Sleep(1);
+                                    continue;
+                                }
+
                                 yazı += ";Sinyaller";
                                 for (int i = 0; i < sıradaki.sinyaller.Length - 1; i++)
                                 {
@@ -611,7 +616,7 @@ namespace Çizelgeç
                 {
                     if (!File.Exists(DosyaYolu))
                     {
-                        DosyaYolu = S.Dosyalama_KayıtKlasörü + S.Tarih.Yazıya(DateTime.Now, "dd_MM_yyyy_HH_mm_ss") + ".csv";
+                        DosyaYolu = S.Dosyalama_KayıtKlasörü + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".csv";
                         BaşlıkSayısı = 0;
                         DosyaBütünlüğüKodu = "";
                     }
@@ -644,6 +649,12 @@ namespace Çizelgeç
                             if (string.IsNullOrEmpty(sıradaki.mesaj))
                             {
                                 //sinyaller 
+                                if (sıradaki.sinyaller.Length < 2)
+                                {
+                                    işlenen++;
+                                    continue;
+                                }
+
                                 yazı += ";Sinyaller";
                                 for (int i = 0; i < sıradaki.sinyaller.Length - 1; i++)
                                 {

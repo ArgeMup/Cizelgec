@@ -27,13 +27,14 @@ namespace Çizelgeç
         }
         public class Tarih
         {
-            public const string _Şablon1 = "dd.MM.yyyy HH:mm:ss";
-            public const string _Şablon2 = "dd.MM.yyyy HH:mm:ss.fff";
-            public static string Yazıya(DateTime Girdi, string Şablon = _Şablon2)
+            public const string _Şablon_kısa = "dd.MM.yyyy HH:mm:ss";
+            public const string _Şablon_uzun = "dd.MM.yyyy HH:mm:ss.fff";
+            public const string _Şablon_dosyaadı = "dd_MM_yyyy_HH_mm_ss";
+            public static string Yazıya(DateTime Girdi, string Şablon = _Şablon_uzun)
             {
                 return Girdi.ToString(Şablon, System.Globalization.CultureInfo.InvariantCulture);
             }
-            public static string Yazıya(double Girdi, string Şablon = _Şablon2)
+            public static string Yazıya(double Girdi, string Şablon = _Şablon_uzun)
             {
                 return Tarihe(Girdi).ToString(Şablon, System.Globalization.CultureInfo.InvariantCulture);
             }
@@ -53,16 +54,31 @@ namespace Çizelgeç
             }
             public static bool Sayıya(string Girdi, out double Çıktı)
             {
-                if (DateTime.TryParseExact(Girdi, _Şablon2, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out DateTime yeni))
+                if (Girdi.Length >= _Şablon_uzun.Length)
                 {
-                    Çıktı = yeni.ToOADate();
-                    return true;
+                    if (DateTime.TryParseExact(Girdi.Substring(0, _Şablon_uzun.Length), _Şablon_uzun, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out DateTime yeni))
+                    {
+                        Çıktı = yeni.ToOADate();
+                        return true;
+                    }
                 }
 
-                if (DateTime.TryParseExact(Girdi, _Şablon1, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out yeni))
+                if (Girdi.Length >= _Şablon_kısa.Length)
                 {
-                    Çıktı = yeni.ToOADate();
-                    return true;
+                    if (DateTime.TryParseExact(Girdi.Substring(0, _Şablon_kısa.Length), _Şablon_kısa, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out DateTime yeni))
+                    {
+                        Çıktı = yeni.ToOADate();
+                        return true;
+                    }
+                }
+
+                if (Girdi.Length >= _Şablon_dosyaadı.Length)
+                {
+                    if (DateTime.TryParseExact(Girdi.Substring(0, _Şablon_dosyaadı.Length), _Şablon_dosyaadı, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out DateTime yeni))
+                    {
+                        Çıktı = yeni.ToOADate();
+                        return true;
+                    }
                 }
 
                 if (Sayı.Yazıdan(Girdi, out Çıktı))
@@ -96,9 +112,15 @@ namespace Çizelgeç
                 
                 //geçersiz karakterleri sil
                 string yeni = "";
+                bool Enazbirkarakterbulundu = false;
                 foreach (char krt in Girdi)
                 {
-                    if (krt == ondalık_ayraç || krt == '+' || krt == '-' || (krt >= '0' && krt <= '9')) yeni += krt;
+                    if (krt == ondalık_ayraç || krt == '+' || krt == '-' || (krt >= '0' && krt <= '9'))
+                    {
+                        yeni += krt;
+                        Enazbirkarakterbulundu = true;
+                    }
+                    else if (Enazbirkarakterbulundu) break;
                 }
 
                 //tekrar dene
@@ -125,6 +147,7 @@ namespace Çizelgeç
         public static char MupDosyasındanOkuma_KelimeAyracı = ';';
 
         public static double[] ZamanEkseni;
+        public static bool BaşlatDurdur = true;
         #endregion
 
         #region Günlük
@@ -147,9 +170,15 @@ namespace Çizelgeç
         public static AnaEkran AnaEkran;
         public static HScrollBar Kaydırıcı;
         public static TrackBar AralıkSeçici;
+        public static ToolStripButton SolMenu_BaşlatDurdur;
         public static string[] BaşlangıçParametreleri = null;
         #endregion
 
+        #region Çizdirme
+        //public static ScottPlot.PlottableVLine Çizdirme_DikeyÇizgi = null;
+        //public static ScottPlot.PlottableHLine Çizdirme_YatayÇizgi = null;
+        //public static ScottPlot.PlottableScatter[] Çizdirme_Noktacıklar = new ScottPlot.PlottableScatter[0];
+        public static int Çizdirme_Koordinat_Tick = 0;
         public static void Çizdir()
         {
             if (S.Güncelle.Checked && AnaEkran.WindowState != FormWindowState.Minimized)
@@ -158,5 +187,6 @@ namespace Çizelgeç
                 Çizelge.Render(true);
             }
         }
+        #endregion
     }
 }

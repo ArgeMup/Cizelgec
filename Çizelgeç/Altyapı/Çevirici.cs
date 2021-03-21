@@ -16,7 +16,7 @@ namespace Çizelgeç
             
             try
             {
-                while (Girdi.Contains("<") && Girdi.Contains(">"))
+                while (Girdi.Contains("<") && Girdi.Contains(">") && S.Çalışşsın)
                 {
                     int buyuktur = Girdi.LastIndexOf('>');
 
