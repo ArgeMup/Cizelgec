@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -60,7 +62,7 @@ namespace Çizelgeç
 
         public TreeNode Dal = null;
         public ScottPlot.PlottableSignalXY Çizikler = null;
-        public List<ScottPlot.PlottableText> Uyarı_Yazıları = null;
+        //public List<ScottPlot.PlottableText> Uyarı_Yazıları = null;
 
         public void Güncelle_Adı(string SinyalAdı, string Soyadı = "", string GörünenAdı = "")
         {
@@ -76,7 +78,7 @@ namespace Çizelgeç
             Adı.Salkım = Soyadı;
             Adı.GörünenAdı = string.IsNullOrEmpty(GörünenAdı) ? SinyalAdı : GörünenAdı;
 
-            if (string.IsNullOrEmpty(Soyadı)) Adı.Csv = (Tür == Tür_.Değişken ? "Değişkenler|" : ""/*(GörünenAdı.Contains("[") && GörünenAdı.Contains("]") ? "" : "Sinyaller|")*/) + Adı.GörünenAdı;
+            if (string.IsNullOrEmpty(Soyadı)) Adı.Csv = (Tür == Tür_.Değişken ? "Değişkenler|" : "") + Adı.GörünenAdı;
             else Adı.Csv = (Soyadı + "|" + Adı.GörünenAdı).Trim(' ','|');
         }
         public void Güncelle_SonDeğer(double Girdi)
@@ -455,7 +457,7 @@ namespace Çizelgeç
                             }
 
                             try { Sinyaller.Ekle(sinyal_yazı).Güncelle_SonDeğer(dizi[i]); }
-                            catch (Exception) { Günlük.Ekle(sıradaki.Bağlantı.Adı + " -> " + dizi[i] + " sayıya dönüştürülemedi."); } 
+                            catch (Exception) { Günlük.Ekle(sıradaki.Bağlantı.Adı + " bağlantısının " + (i+1) + ". elemanı -> " + dizi[i] + "  <- sayıya dönüştürülemedi."); } 
                         }
                     }
                 }
@@ -680,6 +682,10 @@ namespace Çizelgeç
                     }
                 }
                 catch (Exception) {  }
+            }
+            else if (File.Exists(DosyaYolu) && BaşlıkSayısı > 0 && !string.IsNullOrEmpty(DosyaBütünlüğüKodu))
+            {
+                File.AppendAllText(DosyaYolu, S.Tarih.Yazıya(DateTime.Now) + ";Doğrulama;" + DosyaBütünlüğüKodu);
             }
         }
         static void Ekle(FileStream fs, string yazı)

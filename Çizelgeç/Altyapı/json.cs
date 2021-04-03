@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -145,13 +147,31 @@ namespace Çizelgeç
                 else GünlüğeEkle("Değişkenler başlığı yok veya uygun değil", "Bilgi");
             }
 
+            #region Birbirinin aynı csv adına sahip sinyal varmı kontrolü
+            foreach (var biri in Sinyaller.Tümü)
+            {
+                foreach (var diğeri in Sinyaller.Tümü)
+                {
+                    if (biri.Equals(diğeri)) continue;
+
+                    if (biri.Value.Adı.Csv == diğeri.Value.Adı.Csv)
+                    {
+                        diğeri.Value.Adı.Csv += " " + diğeri.Key;
+                        break;
+                    }
+                }
+            }
+            #endregion
+
             if (Oku(j.RootElement, "Bilgi Toplama", JsonValueKind.Object, out j1))
             {
                 if (!Oku(j1, "Zaman Aralığı (Saniye)", out S.BilgiToplama_ZamanAralığı_Sn, "15")) GünlüğeEkle("Bilgi Toplama başlığı Zaman Aralığı (Saniye) anahtarı yok veya uygun değil", "Bilgi");
                 if (!Oku(j1, "Kıstas", out S.BilgiToplama_Kıstas, "1")) GünlüğeEkle("Bilgi Toplama başlığı Kıstas anahtarı yok veya uygun değil", "Bilgi");
                 if (!Oku(j1, "Canlı Ölçüm Sayısı", out string CanlıÖlçümSayısı, "10000")) GünlüğeEkle("Bilgi Toplama başlığı Canlı Ölçüm Sayısı anahtarı yok veya uygun değil", "Bilgi");
+                if (!Oku(j1, "Birbirinin Aynısı Olan Zaman Dilimlerini Atla", out string BirbirininAynısıOlanZamanDilimleriniAtla, "Evet")) GünlüğeEkle("Bilgi Toplama başlığı Birbirinin Aynısı Olan Zaman Dilimlerini Atla anahtarı yok veya uygun değil", "Bilgi");
 
                 if (!int.TryParse(CanlıÖlçümSayısı, out S.CanliÇizdirme_ÖlçümSayısı)) S.CanliÇizdirme_ÖlçümSayısı = 10000;
+                S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla = BirbirininAynısıOlanZamanDilimleriniAtla == "Evet";
             }
             else GünlüğeEkle("Bilgi Toplama başlığı yok veya uygun değil", "Bilgi");
 

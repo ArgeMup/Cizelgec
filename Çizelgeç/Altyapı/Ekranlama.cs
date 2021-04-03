@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -159,10 +161,10 @@ namespace Çizelgeç
             S.AralıkSeçici.Value = S.AralıkSeçici.Maximum;
         }
 
-        static public void AğaçVeÇizelge_SonradanEkle(Sinyal_ Sinyal)
+        static public void AğaçVeÇizelge_SonradanEkle(KeyValuePair<string, Sinyal_> Sinyal)
         {
             TreeNode bulunan = null;
-            if (Sinyal.Tür == Tür_.Değişken)
+            if (Sinyal.Value.Tür == Tür_.Değişken)
             {
                 TreeNode[] dizi = S.Ağaç.Nodes[0].Nodes.Find("Değişkenler", false);
                 if (dizi != null && dizi.Length > 0) bulunan = dizi[0];
@@ -172,24 +174,33 @@ namespace Çizelgeç
                     bulunan.Checked = true;
                 }  
             }
-            else if (Sinyal.Tür == Tür_.Sinyal)
+            else if (Sinyal.Value.Tür == Tür_.Sinyal)
             {
                 bulunan = S.Ağaç.Nodes[0].Nodes.Find("Sinyaller", false)[0];
+                TreeNode[] dizi = bulunan.Nodes.Find("Tanımlanmamış Sinyaller", false);
+                if (dizi != null && dizi.Length > 0) bulunan = dizi[0];
+                else
+                {
+                    bulunan = bulunan.Nodes.Add("Tanımlanmamış Sinyaller", "Tanımlanmamış Sinyaller");
+                    bulunan.Checked = true;
+                }
+
+                Sinyal.Value.Güncelle_Adı(Sinyal.Key, "Tanımlanmamış Sinyaller");
             }
 
-            bulunan = bulunan.Nodes.Add(Sinyal.Adı.GörünenAdı);
+            bulunan = bulunan.Nodes.Add(Sinyal.Value.Adı.GörünenAdı);
             bulunan.Checked = true;
             bulunan.ExpandAll();
-            bulunan.Tag = Sinyal;
-            Sinyal.Dal = bulunan;
+            bulunan.Tag = Sinyal.Value;
+            Sinyal.Value.Dal = bulunan;
 
-            if (Sinyal.Değeri.DeğerEkseni == null) Sinyal.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
-            if (Sinyal.Çizikler == null)
+            if (Sinyal.Value.Değeri.DeğerEkseni == null) Sinyal.Value.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
+            if (Sinyal.Value.Çizikler == null)
             {
-                Sinyal.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Değeri.DeğerEkseni);
-                Sinyal.Çizikler.minRenderIndex = S.Kaydırıcı.Value;
-                Sinyal.Çizikler.maxRenderIndex = S.Kaydırıcı.Value + S.AralıkSeçici.Value;
-                Sinyal.Dal.ForeColor = Sinyal.Çizikler.color;
+                Sinyal.Value.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Value.Değeri.DeğerEkseni);
+                Sinyal.Value.Çizikler.minRenderIndex = S.Kaydırıcı.Value;
+                Sinyal.Value.Çizikler.maxRenderIndex = S.Kaydırıcı.Value + S.AralıkSeçici.Value;
+                Sinyal.Value.Dal.ForeColor = Sinyal.Value.Çizikler.color;
             }
         }
     }

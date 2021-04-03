@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -139,6 +141,7 @@ namespace Çizelgeç
 
         public static string BilgiToplama_Kıstas = "1";
         public static string BilgiToplama_ZamanAralığı_Sn = "15";
+        public static bool BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla = true;
 
         public static string Dosyalama_AzamiDosyaBoyutu_Bayt = "1000000";
         public static string Dosyalama_KayıtKlasörü = Kulanıcı_Klasörü;

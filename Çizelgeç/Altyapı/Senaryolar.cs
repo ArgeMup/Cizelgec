@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
@@ -39,6 +41,12 @@ namespace Çizelgeç
             {
                 while (S.Çalışşsın && Senaryo.Çalışsın && !string.IsNullOrEmpty(SonrakiAdım))
                 {
+                    while (!S.BaşlatDurdur)
+                    {
+                        Senaryo.Durum = " -> Durduruldu";
+                        Thread.Sleep(1000); 
+                    }
+
                     Thread.Sleep(1); //cpu yüzdesini düşürmek için
 
                     int a = 0;

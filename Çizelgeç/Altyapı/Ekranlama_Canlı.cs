@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace Çizelgeç
 {
     public class Ekranlama_Canlı
     {
-        UInt64 Sayac_Ölçüm = 0;
+        UInt64 Sayac_Ölçüm = 0, Sayac_BirbirininAynısıOlduğuİçinAtlandı = 0;
         TreeNode tn_Senaryolar = null;
         public string İşAdı = "";
         public Ekranlama_Canlı(string İşAdı, string AyarlarDosyasıYolu)
@@ -67,6 +69,8 @@ namespace Çizelgeç
 
         public void Çalıştır_Ölçme_Değerlendirme()
         {
+            double[] önceki_kayıt_dizisi = null;
+
             while (S.Çalışşsın)
             {
                 try
@@ -83,8 +87,6 @@ namespace Çizelgeç
                             Sinyal_ biri = Sinyaller.Tümü.ElementAt(i).Value;
 
                             kayıt_dizisi[i] = biri.Güncelle_Dizi();
-
-                            if (!biri.Değeri.Kaydedilsin) continue;
 
                             if (!biri.Değeri.ZamanAşımıOldu)
                             {
@@ -123,8 +125,39 @@ namespace Çizelgeç
 
                         Array.Copy(S.ZamanEkseni, 1, S.ZamanEkseni, 0, S.CanliÇizdirme_ÖlçümSayısı - 1);
                         S.ZamanEkseni[S.CanliÇizdirme_ÖlçümSayısı - 1] = şimdi;
-                        Kaydedici.Ekle(kayıt_dizisi);
+                        
+                        bool ekle = false;
+                        if (S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
+                        {
+                            if (önceki_kayıt_dizisi != null &&
+                                önceki_kayıt_dizisi.Length == kayıt_dizisi.Length)
+                            {
+                                for (int iii = 0; iii < kayıt_dizisi.Length - 1; iii++)
+                                {
+                                    if (önceki_kayıt_dizisi[iii] != kayıt_dizisi[iii])
+                                    {
+                                        //son blok bilgiyi ekleyerek görüntüyü yumuşatmak için
+                                        //Kaydedici.Ekle(önceki_kayıt_dizisi);
+                                        //Sayac_Ölçüm++;
 
+                                        ekle = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            else ekle = true;
+
+                            önceki_kayıt_dizisi = kayıt_dizisi;
+                        }
+                        else ekle = true;
+
+                        if (ekle)
+                        {
+                            Kaydedici.Ekle(kayıt_dizisi);
+                            Sayac_Ölçüm++;
+                        }
+                        else Sayac_BirbirininAynısıOlduğuİçinAtlandı++;
+                       
                         int gecikme = (int)(Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAralığı_Sn) * 1000);
                         //if (gecikme < 100) gecikme = 100;
                         while (gecikme > 1500 && S.Çalışşsın)
@@ -133,8 +166,6 @@ namespace Çizelgeç
                             gecikme -= 1500;
                         }
                         Thread.Sleep(gecikme);
-
-                        Sayac_Ölçüm++;
                     }
                     else Thread.Sleep(1);
                 }
@@ -168,7 +199,8 @@ namespace Çizelgeç
                             S.Ağaç.Nodes[0].ToolTipText = ArgeMup.HazirKod.Dönüştürme.D_Süre.Metne.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds) + " boyunca" + Environment.NewLine +
                                                             Sinyaller.Tümü.Count + " adet sinyal" + Environment.NewLine +
                                                             GelenBilgiler.Tümü.Count + " adet ayıklanmayı bekleyen girdi" + Environment.NewLine +
-                                                            Kaydedici.Tümü.Count + " adet yazılmayı bekleyen ölçüm elde edildi";
+                                                            Kaydedici.Tümü.Count + " adet yazılmayı bekleyen ölçüm elde edildi ve" + Environment.NewLine +
+                                                            Sayac_BirbirininAynısıOlduğuİçinAtlandı + " adet girdi birbirinin aynısı olduğu için atlandı";
                         }
                         else S.Ağaç.Nodes[0].Text = "- " + S.Ağaç.Nodes[0].Text;
 
@@ -176,7 +208,7 @@ namespace Çizelgeç
                         {
                             Sinyal_ biri = Sinyaller.Tümü.Values.ElementAt(i);
 
-                            if (biri.Dal == null) Ekranlama.AğaçVeÇizelge_SonradanEkle(biri);
+                            if (biri.Dal == null) Ekranlama.AğaçVeÇizelge_SonradanEkle(Sinyaller.Tümü.ElementAt(i));
 
                             if (biri.Dal.IsVisible && S.Çizdirme_Koordinat_Tick < Environment.TickCount) //Ağaç değerlerinin dışarıdan çizdirildiği durumda güncelleme
                             {

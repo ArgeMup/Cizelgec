@@ -35,7 +35,8 @@
   "Bilgi Toplama": {
     "Zaman Aralığı (Saniye)": "İşlem",
     "Kıstas": "İşlem -> sonucu 0 dan büyük mü diye kontrol eder",
-    "Canlı Ölçüm Sayısı": "10000"
+    "Canlı Ölçüm Sayısı": "10000",
+    "Birbirinin Aynısı Olan Zaman Dilimlerini Atla": "Evet"
   },
   "Dosyalama": {
     "Azami Dosya Boyutu (Bayt)": "İşlem",

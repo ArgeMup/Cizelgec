@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,9 +35,11 @@ namespace Çizelgeç
                 Mup(DosyaYolu);
                 gecici_dosyalar = Directory.GetFiles(klasör, "*.mup", SearchOption.TopDirectoryOnly);
             }
+
             foreach (var ds in gecici_dosyalar)
             {
-                dosyalar.Add(S.Tarih.Sayıya(Path.GetFileNameWithoutExtension(ds)), ds);
+                try { dosyalar.Add(S.Tarih.Sayıya(Path.GetFileNameWithoutExtension(ds)), ds); }
+                catch (Exception) { }   
             }
             dosyalar = dosyalar.OrderBy(obj => obj.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
             for (int i = 0; i < dosyalar.Values.Count; i++)
@@ -146,11 +150,10 @@ namespace Çizelgeç
                         }
                         else if (okunan.Contains(";Uyarı;"))
                         {
-                            double y = S.Sayı.Yazıdan(bir_satırdakiler[3]);
-                            string adı = bir_satırdakiler[2].Replace('|', ' ').Trim('<', '>', ' ');
-                            Sinyal_ sinyal = Sinyaller.Bul("<" + adı + ">");
-
+                            //double y = S.Sayı.Yazıdan(bir_satırdakiler[3]);
+                            //Sinyal_ sinyal = Sinyaller.Bul("<" + bir_satırdakiler[2] + ">");
                             //sinyal.Uyarı_Yazıları.Add(S.Çizelge.plt.PlotText(bir_satırdakiler[4], zaman, y, color: sinyal.Çizikler.color, rotation: 270));
+                            
                             Günlük.Ekle(Environment.NewLine + bir_satırdakiler[4] + " " + bir_satırdakiler[2] + " " + bir_satırdakiler[3] + " " + bir_satırdakiler[0]);
                         }
                     }

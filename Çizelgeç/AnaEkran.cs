@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -162,7 +164,7 @@ namespace Çizelgeç
                 Ekle_önceki_tümü.Visible = true;
                 Ekle_tümü.Visible = true;
             }
-            if (Ölü_Ekranlama.sonraki_dosya_sırano < Ölü_Ekranlama.dosyalar.Count)
+            if (Ölü_Ekranlama.sonraki_dosya_sırano > -1 && Ölü_Ekranlama.sonraki_dosya_sırano < Ölü_Ekranlama.dosyalar.Count)
             {
                 Ekle_sonraki.Visible = true;
                 Ekle_sonraki_tümü.Visible = true;
@@ -332,6 +334,9 @@ namespace Çizelgeç
                         SolMenu_Kaydet_Ekle(fs, yazı);
                     }
 
+                    yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;Daha önceden alınmış ölçümlerin sadece bir kısmını içerir." + Environment.NewLine;
+                    SolMenu_Kaydet_Ekle(fs, yazı);
+
                     yazı = S.Tarih.Yazıya(DateTime.Now) + ";Doğrulama;" + SolMenu_Kaydet_DosyaBütünlüğüKodu;
                     SolMenu_Kaydet_Ekle(fs, yazı);
                 }
@@ -398,8 +403,6 @@ namespace Çizelgeç
         bool enazbirtanekalınvar = false;
         private void Ağaç_AfterCheck(object sender, TreeViewEventArgs e)
         {
-            if (S.EkranıGüncelle_me) return;
-
             if (e.Node.Tag == null || e.Node.Tag.GetType() != typeof(Sinyal_))
             {
                 //alt elemanları işle
@@ -421,7 +424,7 @@ namespace Çizelgeç
                     //    S.Çizdirme_Noktacıklar[i] = null;
                     //}
 
-                    S.Çizdir();
+                    if (!S.EkranıGüncelle_me) S.Çizdir();
                 }
             }
             else
@@ -431,27 +434,31 @@ namespace Çizelgeç
                 {
                     if (!Çizelge.plt.GetPlottables().Contains(e.Node.Tag)) Çizelge.plt.Add((e.Node.Tag as Sinyal_).Çizikler);
 
-                    if ((e.Node.Tag as Sinyal_).Uyarı_Yazıları != null)
-                    {
-                        foreach (var biri in (e.Node.Tag as Sinyal_).Uyarı_Yazıları)
-                        {
-                            if (!Çizelge.plt.GetPlottables().Contains(biri)) Çizelge.plt.Add(biri);
-                        }
-                    }
+                    //if ((e.Node.Tag as Sinyal_).Uyarı_Yazıları != null)
+                    //{
+                    //    foreach (var biri in (e.Node.Tag as Sinyal_).Uyarı_Yazıları)
+                    //    {
+                    //        if (!Çizelge.plt.GetPlottables().Contains(biri)) Çizelge.plt.Add(biri);
+                    //    }
+                    //}
                 }
                 else
                 {
                     Çizelge.plt.Remove((e.Node.Tag as Sinyal_).Çizikler);
 
-                    if ((e.Node.Tag as Sinyal_).Uyarı_Yazıları != null)
-                    {
-                        foreach (var biri in (e.Node.Tag as Sinyal_).Uyarı_Yazıları)
-                        {
-                            Çizelge.plt.Remove(biri);
-                        }
-                    }
+                    //if ((e.Node.Tag as Sinyal_).Uyarı_Yazıları != null)
+                    //{
+                    //    foreach (var biri in (e.Node.Tag as Sinyal_).Uyarı_Yazıları)
+                    //    {
+                    //        Çizelge.plt.Remove(biri);
+                    //    }
+                    //}
                 }
             }
+        }
+        private void Ağaç_MouseEnter(object sender, EventArgs e)
+        {
+            S.Çizdirme_Koordinat_Tick = 0;
         }
         private void Ağaç_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -709,7 +716,7 @@ namespace Çizelgeç
 
             //if (S.Çizdirme_Noktacıklar.Length < Sinyaller.Tümü.Count) Array.Resize(ref S.Çizdirme_Noktacıklar, Sinyaller.Tümü.Count);
 
-            S.Ağaç.Nodes[0].Text = "İmleç Konumu - " + S.Tarih.Tarihe(S.ZamanEkseni[bulundu]);
+            S.Ağaç.Nodes[0].Text = "İmleç Konumu - " + S.Tarih.Yazıya(S.ZamanEkseni[bulundu]);
             for (int i = 0; i < Sinyaller.Tümü.Count; i++)
             {
                 Sinyal_ biri = Sinyaller.Tümü.Values.ElementAt(i);
@@ -733,5 +740,6 @@ namespace Çizelgeç
             }
 
             //S.Çizdir(); //yatay dikey çizgiler için
-        }    }
+        }
+    }
 }
