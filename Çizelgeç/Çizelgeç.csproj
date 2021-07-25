@@ -111,6 +111,7 @@
     <Compile Include="Altyapı\json.cs" />
     <Compile Include="Altyapı\Sabitler.cs" />
     <Compile Include="Altyapı\Senaryolar.cs" />
+    <Compile Include="Altyapı\Bağlantılar.cs" />
     <Compile Include="Altyapı\Sinyaller.cs" />
     <Compile Include="Altyapı\Çevirici.cs" />
     <Compile Include="Altyapı\Ekranlama_Ölü.cs" />
@@ -121,8 +122,15 @@
       <DependentUpon>AnaEkran.cs</DependentUpon>
     </Compile>
     <Compile Include="HazirKod_Cdiyez\Ayarlar.cs" />
+    <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi.cs" />
+    <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_KomutSatırıUygulaması.cs" />
+    <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_SeriPort.cs" />
+    <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_Tcp.cs" />
+    <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_Udp.cs" />
     <Compile Include="HazirKod_Cdiyez\Donusturme.cs" />
     <Compile Include="HazirKod_Cdiyez\Karmasiklastirma.cs" />
+    <Compile Include="HazirKod_Cdiyez\KodKümesi.cs" />
+    <Compile Include="HazirKod_Cdiyez\Matematiksel.cs" />
     <Compile Include="HazirKod_Cdiyez\PencereVeTepsiIkonuKontrolu.cs" />
     <Compile Include="HazirKod_Cdiyez\Win32Kutuphaneleri.cs" />
     <Compile Include="Program.cs" />
@@ -198,6 +206,18 @@
     <None Include="Resources\D_Hata.png" />
     <None Include="Resources\D_Tamam.png" />
     <None Include="Resources\D_Yeni.png" />
+    <None Include="Resources\_5.png" />
+    <None Include="Resources\_6.png" />
+    <None Include="Resources\_7.png" />
+    <None Include="Resources\_0.png" />
+    <None Include="Resources\_1.png" />
+    <None Include="Resources\_2.png" />
+    <None Include="Resources\_3.png" />
+    <None Include="Resources\_4.png" />
+    <None Include="Resources\_8.png" />
+    <None Include="Resources\_9.png" />
+    <None Include="Resources\_10.png" />
+    <None Include="Resources\M_Cizelge.png" />
     <Content Include="user.ico" />
   </ItemGroup>
   <ItemGroup />

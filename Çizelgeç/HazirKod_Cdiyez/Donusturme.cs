@@ -168,7 +168,7 @@ namespace ArgeMup.HazirKod.Dönüştürme
 
     public static class D_Süre
     {
-        public const string Sürüm = "V1.2";
+        public const string Sürüm = "V1.3";
 
         public static class Metne
         {

@@ -23,12 +23,11 @@ namespace Çizelgeç
             if (S.ZamanEkseni == null) S.ZamanEkseni = Enumerable.Repeat(S.Tarih.Sayıya(DateTime.Now), S.CanliÇizdirme_ÖlçümSayısı).ToArray();
             #endregion
 
-            S.Çizelge.Reset();
             S.Çizelge.plt.Clear();
             S.Çizelge.plt.SetCulture(System.Globalization.CultureInfo.CreateSpecificCulture("tr"));
             S.Çizelge.plt.YLabel("Tümü", /*fontName: S.AnaEkran.Font.Name,*/ fontSize: (float)(S.AnaEkran.Font.Size * 1.25));
             S.Çizelge.plt.Ticks(dateTimeX: true, /*fontName: S.AnaEkran.Font.Name,*/ fontSize: (float)(S.AnaEkran.Font.Size * 1.25)/*, useMultiplierNotation:true*/);
-            S.Çizelge.Configure(enableRightClickMenu: false, enableDoubleClickBenchmark: true);
+            S.Çizelge.Configure(/*enableRightClickMenu: false,*/ enableDoubleClickBenchmark: true);
             //S.Çizelge.plt.Style(ScottPlot.Style.Blue3);
 
             TreeNode t = new TreeNode(İşAdı);
@@ -46,7 +45,7 @@ namespace Çizelgeç
                         TreeNode y = dizi[0].Nodes.Add(sinyal.Adı.GörünenAdı);
                         y.Tag = sinyal;
                         y.Checked = true;
-                        sinyal.Dal = y;
+                        sinyal.Görseller.Dal = y;
                     }
                     else
                     {
@@ -73,7 +72,7 @@ namespace Çizelgeç
                         TreeNode y = bulunan.Nodes.Add(sinyal.Adı.GörünenAdı);
                         y.Tag = sinyal;
                         y.Checked = true;
-                        sinyal.Dal = y;
+                        sinyal.Görseller.Dal = y;
                     }
                 }
                 else
@@ -81,13 +80,14 @@ namespace Çizelgeç
                     TreeNode y = s.Nodes.Add(sinyal.Adı.GörünenAdı);
                     y.Tag = sinyal;
                     y.Checked = true;
-                    sinyal.Dal = y;
+                    sinyal.Görseller.Dal = y;
                 }
 
                 #region Tamponların Hazırlanması
                 if (sinyal.Değeri.DeğerEkseni == null) sinyal.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
-                sinyal.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, sinyal.Değeri.DeğerEkseni);
-                sinyal.Dal.ForeColor = sinyal.Çizikler.color;
+                sinyal.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, sinyal.Değeri.DeğerEkseni);
+                sinyal.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
+                sinyal.Görseller.Dal.ForeColor = sinyal.Görseller.Çizikler.color;
                 //sinyal.Uyarı_Yazıları = new List<ScottPlot.PlottableText>();
                 #endregion
             }
@@ -134,9 +134,7 @@ namespace Çizelgeç
                     y.Tag = biri;
                     biri.Dal = y;
 
-                    y.Nodes.Add("Son alınan ölçümler");
-
-                    y.ToolTipText = biri.Adı + Environment.NewLine + biri.Yöntem + Environment.NewLine + biri.P1 + Environment.NewLine + biri.P2;
+                    y.Nodes.Add("Son alınan bilgiler");
                 }
                 b.Collapse(false);
             }
@@ -148,7 +146,7 @@ namespace Çizelgeç
 
             #region Çizelge Görsellerini Oluştur
             //if (S.ZamanEkseni[S.CanliÇizdirme_ÖlçümSayısı - 1] - S.ZamanEkseni[0] >= S.CanliÇizdirme_ÖlçümSayısı) S.Çizelge.plt.Ticks(dateTimeX: false);
-           
+
             t.Text = "Grafik hazırlanıyor";
             Application.DoEvents();
             S.Çizdir();
@@ -156,9 +154,12 @@ namespace Çizelgeç
 
             t.Text = İşAdı + " - " + S.CanliÇizdirme_ÖlçümSayısı;
 
-            S.AralıkSeçici.Minimum = 2;
-            S.AralıkSeçici.Maximum = S.CanliÇizdirme_ÖlçümSayısı - 1;
-            S.AralıkSeçici.Value = S.AralıkSeçici.Maximum;
+            S.AralıkSeçici_Baştan.Minimum = 0;
+            S.AralıkSeçici_Baştan.Maximum = S.CanliÇizdirme_ÖlçümSayısı - 1;
+            S.AralıkSeçici_Baştan.Value = 0;
+            S.AralıkSeçici_Sondan.Minimum = 0;
+            S.AralıkSeçici_Sondan.Maximum = S.CanliÇizdirme_ÖlçümSayısı - 1;
+            S.AralıkSeçici_Sondan.Value = S.AralıkSeçici_Sondan.Maximum;
         }
 
         static public void AğaçVeÇizelge_SonradanEkle(KeyValuePair<string, Sinyal_> Sinyal)
@@ -166,13 +167,28 @@ namespace Çizelgeç
             TreeNode bulunan = null;
             if (Sinyal.Value.Tür == Tür_.Değişken)
             {
-                TreeNode[] dizi = S.Ağaç.Nodes[0].Nodes.Find("Değişkenler", false);
-                if (dizi != null && dizi.Length > 0) bulunan = dizi[0];
-                else
+                TreeNode[] dizi;
+                
+                if (Sinyal.Key.StartsWith("<ZA ")) //zaman aşımı değişkeni
                 {
-                    bulunan = S.Ağaç.Nodes.Add("Değişkenler", "Değişkenler");
-                    bulunan.Checked = true;
-                }  
+                    dizi = S.Ağaç.Nodes[0].Nodes.Find("Zaman Aşımları", false);
+                    if (dizi != null && dizi.Length > 0) bulunan = dizi[0];
+                    else
+                    {
+                        bulunan = S.Ağaç.Nodes[0].Nodes.Add("Zaman Aşımları", "Zaman Aşımları");
+                        bulunan.Checked = true;
+                    }
+                }
+                else //normal değişken
+                {
+                    dizi = S.Ağaç.Nodes[0].Nodes.Find("Değişkenler", false);
+                    if (dizi != null && dizi.Length > 0) bulunan = dizi[0];
+                    else
+                    {
+                        bulunan = S.Ağaç.Nodes[0].Nodes.Add("Değişkenler", "Değişkenler");
+                        bulunan.Checked = true;
+                    }
+                }
             }
             else if (Sinyal.Value.Tür == Tür_.Sinyal)
             {
@@ -189,18 +205,19 @@ namespace Çizelgeç
             }
 
             bulunan = bulunan.Nodes.Add(Sinyal.Value.Adı.GörünenAdı);
-            bulunan.Checked = true;
+			bulunan.Checked = true;
             bulunan.ExpandAll();
             bulunan.Tag = Sinyal.Value;
-            Sinyal.Value.Dal = bulunan;
+            Sinyal.Value.Görseller.Dal = bulunan;
 
             if (Sinyal.Value.Değeri.DeğerEkseni == null) Sinyal.Value.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
-            if (Sinyal.Value.Çizikler == null)
+            if (Sinyal.Value.Görseller.Çizikler == null)
             {
-                Sinyal.Value.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Value.Değeri.DeğerEkseni);
-                Sinyal.Value.Çizikler.minRenderIndex = S.Kaydırıcı.Value;
-                Sinyal.Value.Çizikler.maxRenderIndex = S.Kaydırıcı.Value + S.AralıkSeçici.Value;
-                Sinyal.Value.Dal.ForeColor = Sinyal.Value.Çizikler.color;
+                Sinyal.Value.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Value.Değeri.DeğerEkseni);
+                Sinyal.Value.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
+                Sinyal.Value.Görseller.Çizikler.minRenderIndex = S.AralıkSeçici_Baştan.Value;
+                Sinyal.Value.Görseller.Çizikler.maxRenderIndex = S.AralıkSeçici_Sondan.Value;
+                Sinyal.Value.Görseller.Dal.ForeColor = Sinyal.Value.Görseller.Çizikler.color;
             }
         }
     }

@@ -5,29 +5,34 @@
       "Adı": "<TM1[1]>",
       "Soyadı": "Ortam|İklimsel|Sıcaklık °C",
       "Görünen Adı": "TM1",
-      "İşlem": "Kendisi -> <Sinyal> ile Sinyal -> <a[0]> veya Sayı -> 1 veya Değişken -> <d1> veya İşlem -> AND OR NOT < > <= >= <> = + - * / %",
+      "İşlem": "Kendisi -> <Sinyal> ile BaşkaSinyal -> <a[0]> veya Sayı -> 1 veya Değişken -> <d1> veya İşlem -> AND OR NOT < > <= >= <> = + - * / %",
       "Kaydet": "Evet",
       "Zaman Aşımı (Saniye)": "İşlem",
       "Hesaplamalar": [
         {
-          "İşlem": "İşlem Kendisi_<Sinyal>",
+          "İşlem": "Kendisi -> <Sinyal> ...",
           "Degişken": "<Adı>"
         }
       ],
       "Uyarılar": [
         {
-          "Kıstas": "İşlem Kendisi_<Sinyal> -> sonucu 0 dan büyük mü diye kontrol eder",
+          "Kıstas": "İşlem (Kendisi -> <Sinyal>) -> sonucu 0 dan büyük mü diye kontrol eder",
           "Açıklama": [
             "Uyarı",
             "İşlem -> yazı karşılığı"
           ]
         }
       ]
+    },
+    {
+      "Göbek Adı": "Kart 1|Kart 2",
+      "Adı": "<TM1[1]>"
     }
   ],
   "Değişkenler": [
     {
       "Adı": "<d1>",
+      "Soyadı": "Ortam|İklimsel|Sıcaklık °C",
       "Görünen Adı": "Rakım",
       "Kaydet": "Hayır"
     }
@@ -53,7 +58,7 @@
       "Cümle Başlangıcı": ">Sinyaller",
       "Kelime Ayracı": ";",
       "Kaydet": "Evet",
-      "Tanımlanmamış Sinyalleri Görmezden Gel": "Hayır",
+      "Tanımlanmamış Sinyalleri": "Kullan veya Kaydetme veya Atla",
       "Yöntem": "Uart",
       "Erişim Noktası": "COM1",
       "Bit Hızı": "921600"
@@ -64,21 +69,52 @@
       "Cümle Başlangıcı": ">Sinyaller",
       "Kelime Ayracı": ";",
       "Kaydet": "Evet",
-      "Tanımlanmamış Sinyalleri Görmezden Gel": "Hayır",
+      "Tanımlanmamış Sinyalleri": "Kullan veya Kaydetme veya Atla",
       "Yöntem": "Komut Satırı",
       "Uygulama": "C:\\a.exe",
       "Parametre": "--a 5"
     },
     {
-      "Adı_": "Bağlantı A",
-      "Yöntem": "Udp veya Tcp",
-      "Sunucu Erişim Noktası": "9999"
+      "Göbek Adı": "Kart 3",
+      "Adı": "Bağlantı 3",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Kaydet": "Evet",
+      "Tanımlanmamış Sinyalleri": "Kullan veya Kaydetme veya Atla",
+      "Yöntem": "Tcp İstemcisi",
+      "IP veya Adresi": "argemup.com",
+      "Erişim Noktası": "35"
     },
     {
-      "Adı_": "Bağlantı B",
-      "Yöntem": "Udp veya Tcp",
-      "İstemci IP veya Adresi": "127.0.0.1",
-      "İstemci Erişim Noktası": "9998"
+      "Göbek Adı": "Kart 4",
+      "Adı": "Bağlantı 4",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Kaydet": "Evet",
+      "Tanımlanmamış Sinyalleri": "Kullan veya Kaydetme veya Atla",
+      "Yöntem": "Tcp Sunucusu",
+      "Erişim Noktası": "35"
+    },
+    {
+      "Göbek Adı": "Kart 5",
+      "Adı": "Bağlantı 5",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Kaydet": "Evet",
+      "Tanımlanmamış Sinyalleri": "Kullan veya Kaydetme veya Atla",
+      "Yöntem": "Udp İstemcisi",
+      "IP veya Adresi": "argemup.com",
+      "Erişim Noktası": "35"
+    },
+    {
+      "Göbek Adı": "Kart 6",
+      "Adı": "Bağlantı 6",
+      "Cümle Başlangıcı": ">Sinyaller",
+      "Kelime Ayracı": ";",
+      "Kaydet": "Evet",
+      "Tanımlanmamış Sinyalleri": "Kullan veya Kaydetme veya Atla",
+      "Yöntem": "Udp Sunucusu",
+      "Erişim Noktası": "35"
     }
   ]
 }

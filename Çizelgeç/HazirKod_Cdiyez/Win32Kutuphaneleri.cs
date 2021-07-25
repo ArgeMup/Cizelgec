@@ -9,10 +9,13 @@ namespace ArgeMup.HazirKod
 {
     public static class W32_1
     {
-        public const string Sürüm = "V0.0";
+        public const string Sürüm = "V0.1";
 
         [DllImport("kernel32.dll")]
         public static extern IntPtr LoadLibrary(string lpFileName);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool AllocConsole();
     }
 
     public static class W32_2
@@ -96,5 +99,13 @@ namespace ArgeMup.HazirKod
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern bool DestroyIcon(IntPtr handle);
+    }
+
+    public static class W32_9
+    {
+        public const string Sürüm = "V0.0";
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
     }
 }

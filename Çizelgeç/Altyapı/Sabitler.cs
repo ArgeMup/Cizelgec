@@ -2,11 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Çizelgeç
@@ -14,7 +12,7 @@ namespace Çizelgeç
     class S
     {
         #region Bilgi Toplama / Dosyalama
-        public static string AnaKlasör = Directory.GetCurrentDirectory().Trim('\\') + "\\";
+        public static string AnaKlasör = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location).Trim('\\') + "\\";
         public static string Şablon_Klasörü = AnaKlasör + "Sablon\\";
         public static string Kulanıcı_Klasörü = AnaKlasör + Environment.MachineName + "_" + Environment.UserName + "\\";
 
@@ -31,14 +29,20 @@ namespace Çizelgeç
         {
             public const string _Şablon_kısa = "dd.MM.yyyy HH:mm:ss";
             public const string _Şablon_uzun = "dd.MM.yyyy HH:mm:ss.fff";
+            public const string _Şablon_uzun_Ağaç = "HH:mm:ss.fff ddd dd.MM.yyyy";
             public const string _Şablon_dosyaadı = "dd_MM_yyyy_HH_mm_ss";
-            public static string Yazıya(DateTime Girdi, string Şablon = _Şablon_uzun)
+            public const string _Şablon_uzun_TarihSaat = "dd.MM.yyyy * HH:mm:ss.fff zzz";
+            public static string Yazıya(DateTime Girdi, string Şablon = _Şablon_uzun, CultureInfo Kültür = null)
             {
-                return Girdi.ToString(Şablon, System.Globalization.CultureInfo.InvariantCulture);
+                return Girdi.ToString(Şablon, Kültür == null ? CultureInfo.InvariantCulture : Kültür);
             }
-            public static string Yazıya(double Girdi, string Şablon = _Şablon_uzun)
+            public static string Yazıya(double Girdi, string Şablon = _Şablon_uzun, CultureInfo Kültür = null)
             {
-                return Tarihe(Girdi).ToString(Şablon, System.Globalization.CultureInfo.InvariantCulture);
+                return Yazıya(Tarihe(Girdi), Şablon, Kültür);
+            }
+            public static string Yazıya_TarihSaat(DateTime Girdi, CultureInfo Kültür = null)
+            {
+                return Yazıya(Girdi, _Şablon_uzun_TarihSaat, Kültür).Replace("*", ((int)Girdi.DayOfWeek).ToString());
             }
             public static DateTime Tarihe(double Girdi)
             {
@@ -107,7 +111,7 @@ namespace Çizelgeç
 
                 Girdi = Girdi.Replace('.', ondalık_ayraç).Replace(',', ondalık_ayraç);
 
-                if (double.TryParse(Girdi, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out Çıktı))
+                if (double.TryParse(Girdi, NumberStyles.Float, CultureInfo.InvariantCulture, out Çıktı))
                 {
                     return true;
                 }
@@ -126,7 +130,7 @@ namespace Çizelgeç
                 }
 
                 //tekrar dene
-                if (double.TryParse(yeni, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out Çıktı))
+                if (double.TryParse(yeni, NumberStyles.Float, CultureInfo.InvariantCulture, out Çıktı))
                 {
                     return true;
                 }
@@ -135,7 +139,7 @@ namespace Çizelgeç
             }
             public static string Yazıya(double Girdi)
             {
-                return Girdi.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                return Girdi.ToString(CultureInfo.InvariantCulture);
             }
         };
 
@@ -162,18 +166,21 @@ namespace Çizelgeç
         #endregion
 
         #region Diğer
-        public static bool Çalışşsın = true;
-        public static bool EkranıGüncelle_me = false;
+        public static bool Çalışşsın = false;
+        public static int Çizelge_ÇizgiKalınlığı = 1;
         public static int CanliÇizdirme_ÖlçümSayısı = 10000;
-        public static CheckBox Ortala, Güncelle, _Günlük_YeniMesajaGit;
+        public static CheckBox _Günlük_YeniMesajaGit;
+        public static ToolStripMenuItem SağTuşMenü_Çizelge_Etkin, SağTuşMenü_Çizelge_TümSinyalleriEkranaSığdır;
         public static TreeView Ağaç;
+        public static string SonDurumMesajı = "";
         public static ScottPlot.FormsPlot Çizelge;
         public static ArgeMup.HazirKod.Ayarlar_ Ayarlar;
         //public static ArgeMup.HazirKod.PencereVeTepsiIkonuKontrolu_ PeTeİkKo;
         public static AnaEkran AnaEkran;
-        public static HScrollBar Kaydırıcı;
-        public static TrackBar AralıkSeçici;
+        public static TrackBar AralıkSeçici_Baştan, AralıkSeçici_Sondan;
         public static ToolStripButton SolMenu_BaşlatDurdur;
+        public static SplitContainer Ayraç_Ana;
+        public static Label İmleçKonumuTarihi;
         public static string[] BaşlangıçParametreleri = null;
         #endregion
 
@@ -181,15 +188,105 @@ namespace Çizelgeç
         //public static ScottPlot.PlottableVLine Çizdirme_DikeyÇizgi = null;
         //public static ScottPlot.PlottableHLine Çizdirme_YatayÇizgi = null;
         //public static ScottPlot.PlottableScatter[] Çizdirme_Noktacıklar = new ScottPlot.PlottableScatter[0];
-        public static int Çizdirme_Koordinat_Tick = 0;
         public static void Çizdir()
         {
-            if (S.Güncelle.Checked && AnaEkran.WindowState != FormWindowState.Minimized)
+            if (SağTuşMenü_Çizelge_Etkin.Checked && AnaEkran.WindowState != FormWindowState.Minimized && !Ayraç_Ana.Panel2Collapsed)
             {
-                if (Ortala.Checked) Çizelge.plt.AxisAuto();
+                if (SağTuşMenü_Çizelge_TümSinyalleriEkranaSığdır.Checked) Çizelge.plt.AxisAuto();
                 Çizelge.Render(true);
             }
         }
         #endregion
     }
+
+    #region Günlük
+    public class Günlük_
+    {
+        public string mesaj, Tür;
+        public DateTime Zaman;
+    }
+    public class Günlük
+    {
+        /// <param name="Tür">HATA veya Bilgi</param>
+        public static void Ekle(string Mesaj, string Tür = "HATA")
+        {
+            if (Görev_Nesnesi == null)
+            {
+                Görev_Nesnesi = new Thread(() => Görev_İşlemi());
+                Görev_Nesnesi.Start();
+            }
+
+            Günlük_ yeni = new Günlük_();
+            yeni.mesaj = Mesaj;
+            yeni.Tür = Tür;
+            yeni.Zaman = DateTime.Now;
+
+            Mtx.WaitOne();
+            Tümü.Add(yeni);
+            Mtx.ReleaseMutex();
+        }
+
+        static Mutex Mtx = new Mutex();
+        static public List<Günlük_> Tümü = new List<Günlük_>();
+
+        static Thread Görev_Nesnesi = null;
+        static void Görev_İşlemi()
+        {
+            DateTime EkSüre = DateTime.MinValue;
+
+            while (true)
+            {
+                if (!S.Çalışşsın)
+                {
+                    if (EkSüre == DateTime.MinValue) EkSüre = DateTime.Now + TimeSpan.FromSeconds(5);
+                    else if (EkSüre < DateTime.Now)
+                    {
+                        Görev_Nesnesi = null;
+                        return;
+                    }
+                }
+
+                try
+                {
+                    if (Tümü.Count == 0)
+                    {
+                        Thread.Sleep(1500);
+                        continue;
+                    }
+                    else if (S.Çalışşsın) Thread.Sleep(1);
+
+                    Mtx.WaitOne();
+                    Günlük_ yeni = Tümü[0];
+                    Tümü.RemoveAt(0);
+                    Mtx.ReleaseMutex();
+
+                    if (!S.Çalışşsın && yeni.Tür != "HATA") continue;
+
+                    string yazı = yeni.mesaj.Trim(' ', '\r', '\n');
+                    File.AppendAllText(S.Kulanıcı_Klasörü + "Gunluk.csv", yeni.Tür + ";" + S.Tarih.Yazıya(yeni.Zaman) + ";" + yazı.Replace(Environment.NewLine, ";") + Environment.NewLine);
+
+                    yazı = Environment.NewLine +
+                           Environment.NewLine + yeni.Tür + " " + S.Tarih.Yazıya(yeni.Zaman) +
+                           Environment.NewLine + yazı;
+
+                    S._Günlük_MetinKutusu.Invoke((MethodInvoker)delegate ()
+                    {
+                        if (S._Günlük_MetinKutusu.Text.Length > 1000000) S._Günlük_MetinKutusu.Text = S._Günlük_MetinKutusu.Text.Remove(0, 100000);
+
+                        S._Günlük_MetinKutusu.Text += yazı;
+
+                        if (S._Günlük_YeniMesajaGit.Checked)
+                        {
+                            S._Günlük_MetinKutusu.SelectionStart = S._Günlük_MetinKutusu.Text.Length;
+                            S._Günlük_MetinKutusu.ScrollToCaret();
+                        }
+
+                        if (yeni.Tür == "HATA") S._Günlük_Buton.Image = Properties.Resources.M_Gunluk_Yeni;
+                    });
+                }
+                catch (Exception ex) { if (S.Çalışşsın) MessageBox.Show("İstenmeyen Durum " + ex); }
+            }
+        }
+    }
+    #endregion
 }

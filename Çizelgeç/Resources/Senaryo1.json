@@ -2,9 +2,10 @@
   "Adı": "Senaryo 1",
   "İlk Çalıştırılacak Adım": "Adım 1",
   "Beklenmeyen Durumda Çalıştırılacak Adım": "Adım x",
+  "Hemen Çalıştır": "Evet",
   "Adımlar": [
     {
-      "Etiket": "Adı",
+      "Etiket": "Adım 1",
       "İşlevler": [
         {
           "Kıstas": "İşlem -> sonucu 0 dan büyük mü diye kontrol eder",
@@ -21,7 +22,8 @@
               "İçerik": [
                 ">>",
                 "İşlem -> yazı karşılığı",
-                "Röleyi Aç"
+                "Röleyi Aç",
+                "<TarihSaat>"
               ]
             },
             "Hesapla 1": {

@@ -81,16 +81,43 @@ namespace Çizelgeç
             S.ZamanEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
             #endregion
 
-            if (string.IsNullOrEmpty(Başlıklar))
+            #region Eksik Başlıkların Üretilmesi
+            int adet_ölçüm = string.IsNullOrEmpty(SonÖlçüm) ? 0 : SonÖlçüm.Split(';').Length;
+            if (adet_ölçüm == 0)
             {
-                //başlık satırı yok, bir tane ekle
-                int sinyal_adet = SonÖlçüm.Split(';').Length - 2;
-                Başlıklar = "t;t";
-                for (int i = 0; i < sinyal_adet; i++) Başlıklar += ";s" + (i + 1);
+                Günlük.Ekle("Hiç sinyal okunamadı");
+                return;
             }
+
+            int adet_başlık = 0;
+            if (!string.IsNullOrEmpty(Başlıklar)) adet_başlık = Başlıklar.Split(';').Length;
+            else Başlıklar = "t;t";
+
+            for (; adet_başlık < adet_ölçüm; adet_başlık++) Başlıklar += ";s" + (adet_başlık + 1);
+            #endregion
 
             #region Sinyaller
             string[] _sinyaller = Başlıklar.Split(';');
+
+            #region Birbirinin aynı sinyal adı var ise bumaralandirilmasi
+            for(int a = 0; a < _sinyaller.Length; a++)
+            {
+                int adet = _sinyaller.Count(x => x == _sinyaller[a]);
+                if (adet > 1)
+                {
+                    adet = 1;
+                    for (int b = a + 1; b < _sinyaller.Length; b++)
+                    {
+                        if (_sinyaller[b] == _sinyaller[a])
+                        {
+                            _sinyaller[b] = _sinyaller[b] + adet;
+                            adet++;
+                        }
+                    }
+                }
+            }
+            #endregion  
+
             for (int i = 2; i < _sinyaller.Length; i++)
             {
                 string salkım = "", görünenadı = "", sinyaladı = "";
@@ -169,7 +196,7 @@ namespace Çizelgeç
 
             #region ayarlar dosyası varmı kontrolü
             string kla = Path.GetDirectoryName(MupDosyasıYolu) + "\\Ayarlar.json";
-            if (File.Exists(kla)) json_Ayıkla.Ayarlar(kla, true, true, false);
+            if (File.Exists(kla)) json_Ayıkla.Ayarlar(kla, false);
             foreach (var biri in Sinyaller.Tümü.Values)
             {
                biri.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
@@ -293,7 +320,6 @@ namespace Çizelgeç
         void Ekle(int SıraNo, bool sonuna_ekle)
         {
             if (SıraNo < 0 || SıraNo >= dosyalar.Count) return;
-            S.EkranıGüncelle_me = true;
 
             Dictionary<string, Sinyal_> Önceki_Sinyaller = new Dictionary<string, Sinyal_>(Sinyaller.Tümü);
             double[] Önceki_ZamanEkseni = S.ZamanEkseni;

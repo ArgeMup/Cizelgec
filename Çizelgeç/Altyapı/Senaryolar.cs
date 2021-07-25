@@ -24,6 +24,7 @@ namespace Çizelgeç
         public string Adı = "";
         public string İlk_Çalıştırılacak_Adım = "";
         public string Beklenmeyen_Durumda_Çalıştırılacak_Adım = "";
+        public bool HemenÇalıştır = true;
         public List<Senaryo_Adım_> Adımlar = new List<Senaryo_Adım_>();
         
         public TreeNode Dal;
@@ -35,6 +36,7 @@ namespace Çizelgeç
         {
             string SonrakiAdım = Senaryo.İlk_Çalıştırılacak_Adım;
             JsonElement.ObjectEnumerator jsonSıralayıcı = new JsonElement.ObjectEnumerator();
+            int sefer = 0;
 
             YenidenDene:
             try
@@ -58,7 +60,7 @@ namespace Çizelgeç
                     {
                         Thread.Sleep(1); //cpu yüzdesini düşürmek için
 
-                        Senaryo.Durum = " -> Adım : " + Senaryo.Adımlar[a].Etiket + ", işlev : " + (b+1);
+                        Senaryo.Durum = " -> Adım : " + Senaryo.Adımlar[a].Etiket + ", işlev : " + (b+1) + ", sefer : " + ++sefer;
 
                         JsonElement eleman;
                         double sonuç = Çevirici.Yazıdan_NoktalıSayıya(Senaryo.Adımlar[a].İşlevler[b].Kıstas);
@@ -164,7 +166,7 @@ namespace Çizelgeç
             }
 
             jsonSıralayıcı.Dispose();
-            Senaryo.Durum = " -> Bitti";
+            Senaryo.Durum = " -> Bitti, Son açıklama : " + Senaryo.Durum;
             Senaryo.Görev_Nesnesi = null;
         }
 

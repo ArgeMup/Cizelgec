@@ -54,9 +54,9 @@ namespace Çizelgeç
             return false;
         }
 
-        static public void Ayarlar(string yol, bool DeğişkenleriGörmezdenGel = false, bool BağlantılarıGörmezdenGel = false, bool Uyarıları_Göster = true)
+        static public void Ayarlar(string yol, bool CanlıEkranlamaİçin = true)
         {
-            Günlük_Çalışşsın = Uyarıları_Göster;
+            Günlük_Çalışşsın = CanlıEkranlamaİçin;
             if (!File.Exists(yol)) throw new Exception(yol + " dosyası açılamadı");
 
             JsonDocument j = JsonDocument.Parse(File.ReadAllBytes(yol), new JsonDocumentOptions() { AllowTrailingCommas = true });
@@ -67,16 +67,18 @@ namespace Çizelgeç
                 for (int i = 0; i < j1.GetArrayLength(); i++)
                 {
                     if (!Oku(j1[i], "Adı", out string Adı)) { GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Adı anahtarı yok veya uygun değil"); continue; }
+                    if (string.IsNullOrEmpty(Adı)) { GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Adı anahtarı yok veya uygun değil"); return; }
                     if (!Oku(j1[i], "Görünen Adı", out string GörünenAdı)) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Görünen Adı anahtarı yok veya uygun değil", "Bilgi");
-                    if (!Oku(j1[i], "Göbek Adı", out string GöbekAdı)) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Göbek Adı anahtarı yok veya uygun değil", "Bilgi");
                     if (!Oku(j1[i], "Soyadı", out string Soyadı)) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Soyadı anahtarı yok veya uygun değil", "Bilgi");
-                    if (!Oku(j1[i], "İşlem", out string İşlem, "<Sinyal>")) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " İşlem anahtarı yok veya uygun değil", "Bilgi");
-                    if (!Oku(j1[i], "Kaydet", out string Kaydet, "Evet")) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Dosyaya Kaydet anahtarı yok veya uygun değil", "Bilgi");
-                    if (!Oku(j1[i], "Zaman Aşımı (Saniye)", out string ZamanAşımıSaniye, "0")) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Zaman Aşımı (Saniye) anahtarı yok veya uygun değil", "Bilgi");
-
-                    if (string.IsNullOrEmpty(Adı)) { GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Adı anahtarı yok veya uygun değil"); continue; }
-                    if (Sinyaller.MevcutMu(Adı)) { GünlüğeEkle("Sinyaller başlığı " + Adı + " isimli Sinyal ikinci kez eklenmek istenildi."); continue; }
-                    if (!string.IsNullOrEmpty(GöbekAdı)) Adı = "<" + GöbekAdı + Adı.Trim('<','>') + ">";
+                   
+                    string GöbekAdı = "", İşlem = "", Kaydet = "", ZamanAşımıSaniye = "";
+                    if (CanlıEkranlamaİçin)
+                    {
+                        if (!Oku(j1[i], "Göbek Adı", out GöbekAdı)) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Göbek Adı anahtarı yok veya uygun değil", "Bilgi");
+                        if (!Oku(j1[i], "İşlem", out İşlem, "<Sinyal>")) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " İşlem anahtarı yok veya uygun değil", "Bilgi");
+                        if (!Oku(j1[i], "Kaydet", out Kaydet, "Evet")) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Dosyaya Kaydet anahtarı yok veya uygun değil", "Bilgi");
+                        if (!Oku(j1[i], "Zaman Aşımı (Saniye)", out ZamanAşımıSaniye, "0")) GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Zaman Aşımı (Saniye) anahtarı yok veya uygun değil", "Bilgi");
+                    }
 
                     List<Hesaplama_> Hesaplamalar = new List<Hesaplama_>();
                     if (Oku(j1[i], "Hesaplamalar", JsonValueKind.Array, out JsonElement j2))
@@ -90,6 +92,7 @@ namespace Çizelgeç
                         }
                     }
                     else GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Hesaplamalar anahtarı yok veya uygun değil", "Bilgi");
+                    Hesaplama_[] _Hesaplamalar_ = Hesaplamalar.Count > 0 ? Hesaplamalar.ToArray() : null;
 
                     List<Uyarı_> Uyarılar = new List<Uyarı_>();
                     if (Oku(j1[i], "Uyarılar", JsonValueKind.Array, out j2))
@@ -114,19 +117,54 @@ namespace Çizelgeç
                         }
                     }
                     else GünlüğeEkle("Sinyaller başlığı dizi elemanı " + (i + 1) + " Hesaplamalar anahtarı yok veya uygun değil", "Bilgi");
-                    
-                    Sinyal_ sinyal = Sinyaller.Ekle(Adı);
-                    sinyal.Güncelle_Adı(Adı, Soyadı, GörünenAdı);
-                    sinyal.Değeri.Önİşlem = İşlem == "<Sinyal>" ? null : İşlem;
-                    sinyal.Değeri.Kaydedilsin = Kaydet == "Evet" ? true : false;
-                    sinyal.Değeri.ZamanAşımı_Sn = ZamanAşımıSaniye;
-                    sinyal.Hesaplamalar = Hesaplamalar.Count > 0 ? Hesaplamalar.ToArray() : null;
-                    sinyal.Uyarılar = Uyarılar.Count > 0 ? Uyarılar.ToArray() : null;
+                    Uyarı_[] _Uyarılar_ = Uyarılar.Count > 0 ? Uyarılar.ToArray() : null;
+
+                    string[] GöbekAdıDizisi = GöbekAdı.Split('|');
+                    string[] AdıDizisi = Adı.Split('|');
+                    string[] GörünenAdıDizisi = GörünenAdı.Split('|');
+                    if (GöbekAdıDizisi.Length > 1)
+                    {
+                        //birden fazla bağlanıtdan gelen sinyallerin isimlendirilmesi
+                        foreach (var _GöbekAdı_ in GöbekAdıDizisi)
+                        {
+                            if (AdıDizisi.Length > 1 && AdıDizisi.Length == GörünenAdıDizisi.Length)
+                            {
+                                //aynı baglantıdan gelen birden fazla sinyalin isimlendirilmesi 
+                                for (int a = 0; a < AdıDizisi.Length; a++)
+                                {
+                                    Ayarlar_Ekle_Sinyal(AdıDizisi[a], _GöbekAdı_ + GörünenAdıDizisi[a], _GöbekAdı_, Soyadı, İşlem, Kaydet, ZamanAşımıSaniye, _Hesaplamalar_, _Uyarılar_);
+                                }
+                            }
+                            else
+                            {
+                                //tek sinyalin isimlendirilmesi 
+                                Ayarlar_Ekle_Sinyal(Adı, _GöbekAdı_ + GörünenAdı, _GöbekAdı_, Soyadı, İşlem, Kaydet, ZamanAşımıSaniye, _Hesaplamalar_, _Uyarılar_);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //tek baplantıdan gelen sinyallerin isimlendirilmesi
+
+                        if (AdıDizisi.Length > 1 && AdıDizisi.Length == GörünenAdıDizisi.Length)
+                        {
+                            //aynı baglantıdan gelen birden fazla sinyalin isimlendirilmesi 
+                            for (int a = 0; a < AdıDizisi.Length; a++)
+                            {
+                                Ayarlar_Ekle_Sinyal(AdıDizisi[a], GöbekAdı + GörünenAdıDizisi[a], GöbekAdı, Soyadı, İşlem, Kaydet, ZamanAşımıSaniye, _Hesaplamalar_, _Uyarılar_);
+                            }
+                        }
+                        else
+                        {
+                            //tek sinyalin isimlendirilmesi 
+                            Ayarlar_Ekle_Sinyal(Adı, GörünenAdı, GöbekAdı, Soyadı, İşlem, Kaydet, ZamanAşımıSaniye, _Hesaplamalar_, _Uyarılar_);
+                        }
+                    }
                 }
             }
             else GünlüğeEkle("Sinyaller başlığı yok veya uygun değil", "Bilgi");
            
-            if (!DeğişkenleriGörmezdenGel)
+            if (CanlıEkranlamaİçin)
             {
                 if (Oku(j.RootElement, "Değişkenler", JsonValueKind.Array, out j1))
                 {
@@ -135,13 +173,26 @@ namespace Çizelgeç
                         if (!Oku(j1[i], "Adı", out string Adı)) { GünlüğeEkle("Değişkenler başlığı dizi elemanı " + (i + 1) + " Adı anahtarı yok veya uygun değil"); continue; }
                         if (!Oku(j1[i], "Görünen Adı", out string GörünenAdı)) GünlüğeEkle("Değişkenler başlığı dizi elemanı " + (i + 1) + " Görünen Adı anahtarı yok veya uygun değil", "Bilgi");
                         if (!Oku(j1[i], "Kaydet", out string Kaydet, "Hayır")) GünlüğeEkle("Değişkenler başlığı dizi elemanı " + (i + 1) + " Dosyaya Kaydet anahtarı yok veya uygun değil", "Bilgi");
+                        if (!Oku(j1[i], "Soyadı", out string Soyadı, "")) GünlüğeEkle("Değişkenler başlığı dizi elemanı " + (i + 1) + " Soyadı anahtarı yok veya uygun değil", "Bilgi");
 
                         if (string.IsNullOrEmpty(Adı)) { GünlüğeEkle("Değişkenler başlığı dizi elemanı " + (i + 1) + " Adı anahtarı yok veya uygun değil"); continue; }
-                        if (Sinyaller.MevcutMu(Adı)) { GünlüğeEkle("Değişkenler başlığı " + Adı + " isimli Değişken ikinci kez eklenmek istenildi."); continue; }
 
-                        Sinyal_ sinyal = Sinyaller.Ekle(Adı);
-                        sinyal.Güncelle_Adı(Adı, "", GörünenAdı);
-                        sinyal.Değeri.Kaydedilsin = Kaydet == "Hayır" ? false : true;
+                        bool _Kaydet_ = Kaydet == "Hayır" ? false : true;
+                        string[] AdıDizisi = Adı.Split('|');
+                        string[] GörünenAdıDizisi = GörünenAdı.Split('|');
+                        if (AdıDizisi.Length > 1 && AdıDizisi.Length == GörünenAdıDizisi.Length)
+                        {
+                            //birden fazla değişkenin isimlendirilmesi 
+                            for (int a = 0; a < AdıDizisi.Length; a++)
+                            {
+                                Ayarlar_Ekle_Değişken(AdıDizisi[a], GörünenAdıDizisi[a], Soyadı, _Kaydet_);
+                            }
+                        }
+                        else
+                        {
+                            //tek değişkenin isimlendirilmesi 
+                            Ayarlar_Ekle_Değişken(Adı, GörünenAdı, Soyadı, _Kaydet_);
+                        }
                     }
                 }
                 else GünlüğeEkle("Değişkenler başlığı yok veya uygun değil", "Bilgi");
@@ -190,7 +241,7 @@ namespace Çizelgeç
             }
             else GünlüğeEkle("Mup Dosyasından Okuma başlığı yok veya uygun değil", "Bilgi");
 
-            if (!BağlantılarıGörmezdenGel)
+            if (CanlıEkranlamaİçin)
             {
                 Bağlantılar.Tümü.Clear();
 
@@ -205,45 +256,108 @@ namespace Çizelgeç
                         if (!Oku(j1[i], "Cümle Başlangıcı", out string CümleBaşlangıcı, ">Sinyaller")) GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Cümle Başlangıcı anahtarı yok veya uygun değil", "Bilgi");
                         if (!Oku(j1[i], "Kelime Ayracı", out string KelimeAyracı, ";")) GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Kelime Ayracı anahtarı yok veya uygun değil", "Bilgi");
                         if (!Oku(j1[i], "Kaydet", out string Kaydet, "Evet")) GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Kaydet anahtarı yok veya uygun değil", "Bilgi");
-                        if (!Oku(j1[i], "Tanımlanmamış Sinyalleri Görmezden Gel", out string TanımlanmamışSinyalleriGörmezdenGel, "Hayır")) GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Tanımlanmamış Sinyalleri Görmezden Gel anahtarı yok veya uygun değil", "Bilgi");
+                        if (!Oku(j1[i], "Tanımlanmamış Sinyalleri", out string TanımlanmamışSinyalleri, "Kullan")) GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Tanımlanmamış Sinyalleri anahtarı yok veya uygun değil", "Bilgi");
+
+                        if (GöbekAdı.Contains("|")) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Göbek Adı anahtarı içinde | karakteri olmamalı", "Bilgi"); continue; }
 
                         string P1 = "", P2 = "";
+                        Bağlantı_Türü_ Türü = Bağlantı_Türü_.Boşta;
                         if (Yöntem == "Komut Satırı")
                         {
                             if (!Oku(j1[i], "Uygulama", out P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Uygulama anahtarı yok veya uygun değil"); continue; }
                             if (!Oku(j1[i], "Parametre", out P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Parametre anahtarı yok veya uygun değil"); continue; }
+                        
+                            if (string.IsNullOrEmpty(P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " anahtarlardan biri yok veya uygun değil"); continue; }
+                            
+                            Türü = Bağlantı_Türü_.KomutSatırı;
                         }
                         else if (Yöntem == "Uart")
                         {
                             if (!Oku(j1[i], "Erişim Noktası", out P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Erişim Noktası anahtarı yok veya uygun değil"); continue; }
                             if (!Oku(j1[i], "Bit Hızı", out P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Bit Hızı anahtarı yok veya uygun değil"); continue; }
+
+                            if (string.IsNullOrEmpty(P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " anahtarlardan biri yok veya uygun değil"); continue; }
+
+                            Türü = Bağlantı_Türü_.SeriPort;
                         }
-                        else if (Yöntem == "Tcp" || Yöntem == "Udp")
+                        else if (Yöntem == "Tcp İstemcisi")
                         {
-                            if (!Oku(j1[i], "Sunucu Erişim Noktası", out P1))
-                            {
-                                if (!Oku(j1[i], "İstemci IP veya Adresi", out P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " anahtarları yok veya uygun değil"); continue; }
-                                if (!Oku(j1[i], "İstemci Erişim Noktası", out P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " anahtarları yok veya uygun değil"); continue; }
-                            }
+                            if (!Oku(j1[i], "IP veya Adresi", out P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " IP veya Adresi anahtarı yok veya uygun değil"); continue; }
+                            if (!Oku(j1[i], "Erişim Noktası", out P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Erişim Noktası anahtarı yok veya uygun değil"); continue; }
+
+                            if (string.IsNullOrEmpty(P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " anahtarlardan biri yok veya uygun değil"); continue; }
+
+                            Türü = Bağlantı_Türü_.Tcpİstemci;
                         }
+                        else if (Yöntem == "Udp İstemcisi")
+                        {
+                            if (!Oku(j1[i], "IP veya Adresi", out P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " IP veya Adresi anahtarı yok veya uygun değil"); continue; }
+                            if (!Oku(j1[i], "Erişim Noktası", out P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Erişim Noktası anahtarı yok veya uygun değil"); continue; }
+
+                            if (string.IsNullOrEmpty(P2)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " anahtarlardan biri yok veya uygun değil"); continue; }
+
+                            Türü = Bağlantı_Türü_.Udpİstemci;
+                        }
+                        else if (Yöntem == "Tcp Sunucusu")
+                        {
+                            if (!Oku(j1[i], "Erişim Noktası", out P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Erişim Noktası anahtarı yok veya uygun değil"); continue; }
+
+                            Türü = Bağlantı_Türü_.TcpSunucu;
+                        }
+                        else if (Yöntem == "Udp Sunucusu")
+                        {
+                            if (!Oku(j1[i], "Erişim Noktası", out P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Erişim Noktası anahtarı yok veya uygun değil"); continue; }
+
+                            Türü = Bağlantı_Türü_.UdpSunucu;
+                        }
+                        else
+                        {
+                            GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " Yöntem anahtarı yok veya uygun değil"); 
+                            continue;
+                        }
+
+                        if (string.IsNullOrEmpty(P1)) { GünlüğeEkle("Bağlantılar başlığı dizi elemanı " + (i + 1) + " anahtarlardan biri yok veya uygun değil"); continue; }
 
                         if (Bağlantılar.MevcutMu(Adı)) { throw new Exception(Adı + " isimli bağlantı ikinci kez eklendi."); }
 
                         Bağlantı_ yeni = Bağlantılar.Ekle(Adı);
                         yeni.GöbekAdı = GöbekAdı;
-                        yeni.Yöntem = Yöntem;
+                        yeni.Türü = Türü;
                         yeni.P1 = P1;
                         yeni.P2 = P2;
                         yeni.CümleBaşlangıcı = CümleBaşlangıcı;
                         yeni.KelimeAyracı = Convert.ToChar(KelimeAyracı);
                         yeni.Kaydedilsin = Kaydet == "Evet" ? true : false;
-                        yeni.TanımlanmamışSinyalleriGörmezdenGel = TanımlanmamışSinyalleriGörmezdenGel == "Hayır" ? false : true;
-                    }
-
-                    if (Bağlantılar.Tümü.Count == 0) throw new Exception("Hiç bağlantı eklenmedi, ölçüm alınamayacak.");
+                        if (!Enum.TryParse(TanımlanmamışSinyalleri, out yeni.TanımlanmamışSinyalleri)) yeni.TanımlanmamışSinyalleri = Bağlantı_.TanımlanmamışSinyalleri_.Kullan;
+                    } 
                 }
-                else GünlüğeEkle("Bağlantılar başlığı yok veya uygun değil", "Bilgi");
+                else GünlüğeEkle("Bağlantılar başlığı yok veya uygun değil");
+
+                if (Bağlantılar.Tümü.Count == 0) throw new Exception("Hiç bağlantı eklenmedi, ölçüm alınamayacak.");
             } 
+        }
+        static public void Ayarlar_Ekle_Sinyal(string Adı, string GörünenAdı, string GöbekAdı, string Soyadı,
+            string İşlem, string Kaydet, string ZamanAşımıSaniye,
+            Hesaplama_[] Hesaplamalar, Uyarı_[] Uyarılar)
+        {
+            if (!string.IsNullOrEmpty(GöbekAdı)) Adı = "<" + GöbekAdı + Adı.Trim('<', '>') + ">";
+            if (Sinyaller.MevcutMu(Adı)) { GünlüğeEkle("Sinyaller başlığı " + Adı + " isimli Sinyal ikinci kez eklenmek istenildi."); return; }
+
+            Sinyal_ sinyal = Sinyaller.Ekle(Adı);
+            sinyal.Güncelle_Adı(Adı, Soyadı, GörünenAdı);
+            sinyal.Değeri.Önİşlem = İşlem == "<Sinyal>" ? null : İşlem;
+            sinyal.Değeri.Kaydedilsin = Kaydet == "Evet" ? true : false;
+            sinyal.Değeri.ZamanAşımı_Sn = ZamanAşımıSaniye;
+            sinyal.Hesaplamalar = Hesaplamalar;
+            sinyal.Uyarılar = Uyarılar;
+        }
+        static public void Ayarlar_Ekle_Değişken(string Adı, string GörünenAdı, string SoyAdı, bool Kaydet)
+        {
+            if (Sinyaller.MevcutMu(Adı)) { GünlüğeEkle("Değişkenler başlığı " + Adı + " isimli Değişken ikinci kez eklenmek istenildi."); return; }
+
+            Sinyal_ sinyal = Sinyaller.Ekle(Adı);
+            sinyal.Güncelle_Adı(Adı, SoyAdı, GörünenAdı);
+            sinyal.Değeri.Kaydedilsin = Kaydet;
         }
         static public bool Senaryo(string yol)
         {
@@ -256,6 +370,8 @@ namespace Çizelgeç
             if (!Oku(j.RootElement, "Adı", out Senaryo.Adı)) { GünlüğeEkle("Senaryo Adı anahtarı yok veya uygun değil"); return false; }
             if (!Oku(j.RootElement, "İlk Çalıştırılacak Adım", out Senaryo.İlk_Çalıştırılacak_Adım)) { GünlüğeEkle("Senaryo İlk Çalıştırılacak Adım anahtarı yok veya uygun değil"); return false; }
             if (!Oku(j.RootElement, "Beklenmeyen Durumda Çalıştırılacak Adım", out Senaryo.Beklenmeyen_Durumda_Çalıştırılacak_Adım)) GünlüğeEkle("Senaryo Beklenmeyen Durumda Çalıştırılacak Adım anahtarı yok veya uygun değil", "Bilgi");
+            if (!Oku(j.RootElement, "Hemen Çalıştır", out string HemenÇalıştır, "Evet")) GünlüğeEkle("Senaryo Hemen Çalıştır anahtarı yok veya uygun değil", "Bilgi");
+            Senaryo.HemenÇalıştır = HemenÇalıştır == "Evet";
 
             if (Oku(j.RootElement, "Adımlar", JsonValueKind.Array, out JsonElement j1))
             {

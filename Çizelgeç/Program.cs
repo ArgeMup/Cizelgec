@@ -9,7 +9,7 @@ namespace Çizelgeç
 {
     static class Program
     {
-        static string pak = Directory.GetCurrentDirectory() + "\\"; //programanaklasör
+        static string pak = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location).Trim('\\') + "\\"; //programanaklasör
 
         /// <summary>
         /// The main entry point for the application.
