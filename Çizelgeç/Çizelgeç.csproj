@@ -129,9 +129,11 @@
     <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_Udp.cs" />
     <Compile Include="HazirKod_Cdiyez\Donusturme.cs" />
     <Compile Include="HazirKod_Cdiyez\Karmasiklastirma.cs" />
+    <Compile Include="HazirKod_Cdiyez\YeniYazılımKontrolü.cs" />
     <Compile Include="HazirKod_Cdiyez\KodKümesi.cs" />
     <Compile Include="HazirKod_Cdiyez\Matematiksel.cs" />
     <Compile Include="HazirKod_Cdiyez\PencereVeTepsiIkonuKontrolu.cs" />
+    <Compile Include="HazirKod_Cdiyez\UygulamaOncedenCalistirildiMi.cs" />
     <Compile Include="HazirKod_Cdiyez\Win32Kutuphaneleri.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -205,7 +207,6 @@
     <None Include="Resources\ScottPlot.WinForms.dll" />
     <None Include="Resources\D_Hata.png" />
     <None Include="Resources\D_Tamam.png" />
-    <None Include="Resources\D_Yeni.png" />
     <None Include="Resources\_5.png" />
     <None Include="Resources\_6.png" />
     <None Include="Resources\_7.png" />

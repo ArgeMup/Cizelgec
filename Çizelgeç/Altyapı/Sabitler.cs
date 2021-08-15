@@ -245,6 +245,7 @@ namespace Çizelgeç
                         return;
                     }
                 }
+                else EkSüre = DateTime.MinValue;
 
                 try
                 {
@@ -259,8 +260,6 @@ namespace Çizelgeç
                     Günlük_ yeni = Tümü[0];
                     Tümü.RemoveAt(0);
                     Mtx.ReleaseMutex();
-
-                    if (!S.Çalışşsın && yeni.Tür != "HATA") continue;
 
                     string yazı = yeni.mesaj.Trim(' ', '\r', '\n');
                     File.AppendAllText(S.Kulanıcı_Klasörü + "Gunluk.csv", yeni.Tür + ";" + S.Tarih.Yazıya(yeni.Zaman) + ";" + yazı.Replace(Environment.NewLine, ";") + Environment.NewLine);

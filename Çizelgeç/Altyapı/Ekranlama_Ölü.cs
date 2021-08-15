@@ -99,7 +99,7 @@ namespace Çizelgeç
             #region Sinyaller
             string[] _sinyaller = Başlıklar.Split(';');
 
-            #region Birbirinin aynı sinyal adı var ise bumaralandirilmasi
+            #region Birbirinin aynı sinyal adı var ise numaralandirilmasi
             for(int a = 0; a < _sinyaller.Length; a++)
             {
                 int adet = _sinyaller.Count(x => x == _sinyaller[a]);

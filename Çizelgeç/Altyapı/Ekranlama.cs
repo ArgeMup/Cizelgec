@@ -142,8 +142,15 @@ namespace Çizelgeç
 
             S.Ağaç.Nodes.Clear();
             S.Ağaç.CheckBoxes = true;
-            S.Ağaç.Nodes.Add(t);
-
+            if (t.Nodes.Count > 1) S.Ağaç.Nodes.Add(t);
+            else
+            {
+                foreach (TreeNode biri in t.Nodes)
+                {
+                    S.Ağaç.Nodes.Add(biri);
+                }
+            }
+            
             #region Çizelge Görsellerini Oluştur
             //if (S.ZamanEkseni[S.CanliÇizdirme_ÖlçümSayısı - 1] - S.ZamanEkseni[0] >= S.CanliÇizdirme_ÖlçümSayısı) S.Çizelge.plt.Ticks(dateTimeX: false);
 

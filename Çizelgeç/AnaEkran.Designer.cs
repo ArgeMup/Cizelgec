@@ -130,7 +130,7 @@
             // 
             this.Ekle_önceki.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Ekle_önceki.Font = new System.Drawing.Font("Microsoft Sans Serif", 5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.Ekle_önceki.Location = new System.Drawing.Point(456, 172);
+            this.Ekle_önceki.Location = new System.Drawing.Point(445, 179);
             this.Ekle_önceki.Name = "Ekle_önceki";
             this.Ekle_önceki.Size = new System.Drawing.Size(24, 20);
             this.Ekle_önceki.TabIndex = 7;
@@ -144,7 +144,7 @@
             // 
             this.Ekle_önceki_tümü.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Ekle_önceki_tümü.Font = new System.Drawing.Font("Microsoft Sans Serif", 5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.Ekle_önceki_tümü.Location = new System.Drawing.Point(456, 189);
+            this.Ekle_önceki_tümü.Location = new System.Drawing.Point(445, 196);
             this.Ekle_önceki_tümü.Name = "Ekle_önceki_tümü";
             this.Ekle_önceki_tümü.Size = new System.Drawing.Size(24, 20);
             this.Ekle_önceki_tümü.TabIndex = 8;
@@ -158,7 +158,7 @@
             // 
             this.Ekle_sonraki_tümü.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Ekle_sonraki_tümü.Font = new System.Drawing.Font("Microsoft Sans Serif", 5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.Ekle_sonraki_tümü.Location = new System.Drawing.Point(456, 224);
+            this.Ekle_sonraki_tümü.Location = new System.Drawing.Point(445, 231);
             this.Ekle_sonraki_tümü.Name = "Ekle_sonraki_tümü";
             this.Ekle_sonraki_tümü.Size = new System.Drawing.Size(24, 20);
             this.Ekle_sonraki_tümü.TabIndex = 10;
@@ -172,7 +172,7 @@
             // 
             this.Ekle_sonraki.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Ekle_sonraki.Font = new System.Drawing.Font("Microsoft Sans Serif", 5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.Ekle_sonraki.Location = new System.Drawing.Point(456, 241);
+            this.Ekle_sonraki.Location = new System.Drawing.Point(445, 248);
             this.Ekle_sonraki.Name = "Ekle_sonraki";
             this.Ekle_sonraki.Size = new System.Drawing.Size(24, 20);
             this.Ekle_sonraki.TabIndex = 9;
@@ -186,7 +186,7 @@
             // 
             this.Ekle_tümü.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.Ekle_tümü.Font = new System.Drawing.Font("Microsoft Sans Serif", 5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.Ekle_tümü.Location = new System.Drawing.Point(456, 207);
+            this.Ekle_tümü.Location = new System.Drawing.Point(445, 214);
             this.Ekle_tümü.Name = "Ekle_tümü";
             this.Ekle_tümü.Size = new System.Drawing.Size(24, 20);
             this.Ekle_tümü.TabIndex = 11;
@@ -216,7 +216,7 @@
             this.AralıkSeçici_Baştan.BackColor = System.Drawing.Color.Turquoise;
             this.AralıkSeçici_Baştan.Location = new System.Drawing.Point(10, -9);
             this.AralıkSeçici_Baştan.Name = "AralıkSeçici_Baştan";
-            this.AralıkSeçici_Baştan.Size = new System.Drawing.Size(467, 56);
+            this.AralıkSeçici_Baştan.Size = new System.Drawing.Size(456, 56);
             this.AralıkSeçici_Baştan.TabIndex = 4;
             this.İpUcu.SetToolTip(this.AralıkSeçici_Baştan, "Baştan itibaren daralt");
             this.AralıkSeçici_Baştan.Scroll += new System.EventHandler(this.AralıkSeçici_Baştan_Scroll);
@@ -228,7 +228,7 @@
             this.AralıkSeçici_Sondan.BackColor = System.Drawing.Color.Violet;
             this.AralıkSeçici_Sondan.Location = new System.Drawing.Point(10, -9);
             this.AralıkSeçici_Sondan.Name = "AralıkSeçici_Sondan";
-            this.AralıkSeçici_Sondan.Size = new System.Drawing.Size(467, 56);
+            this.AralıkSeçici_Sondan.Size = new System.Drawing.Size(456, 56);
             this.AralıkSeçici_Sondan.TabIndex = 13;
             this.İpUcu.SetToolTip(this.AralıkSeçici_Sondan, "Sondan itibaren daralt");
             this.AralıkSeçici_Sondan.Visible = false;
@@ -250,7 +250,7 @@
             this.SolMenü.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.VerticalStackWithOverflow;
             this.SolMenü.Location = new System.Drawing.Point(0, 0);
             this.SolMenü.Name = "SolMenü";
-            this.SolMenü.Size = new System.Drawing.Size(32, 454);
+            this.SolMenü.Size = new System.Drawing.Size(32, 468);
             this.SolMenü.TabIndex = 0;
             this.SolMenü.Text = "toolStrip1";
             // 
@@ -378,8 +378,8 @@
             // Ayraç_Ana.Panel1
             // 
             this.Ayraç_Ana.Panel1.BackColor = System.Drawing.SystemColors.Control;
-            this.Ayraç_Ana.Panel1.Controls.Add(this.Ağaç);
             this.Ayraç_Ana.Panel1.Controls.Add(this.İmleçKonumuTarihi);
+            this.Ayraç_Ana.Panel1.Controls.Add(this.Ağaç);
             this.Ayraç_Ana.Panel1.Controls.Add(this.Günlük_Panel);
             // 
             // Ayraç_Ana.Panel2
@@ -395,9 +395,10 @@
             this.Ayraç_Ana.Panel2.Controls.Add(this.Çizelge);
             this.Ayraç_Ana.Panel2.Controls.Add(this.AralıkSeçici_Baştan);
             this.Ayraç_Ana.Panel2.Controls.Add(this.AralıkSeçici_Sondan);
-            this.Ayraç_Ana.Size = new System.Drawing.Size(724, 454);
-            this.Ayraç_Ana.SplitterDistance = 240;
+            this.Ayraç_Ana.Size = new System.Drawing.Size(707, 468);
+            this.Ayraç_Ana.SplitterDistance = 234;
             this.Ayraç_Ana.TabIndex = 1;
+            this.Ayraç_Ana.Visible = false;
             // 
             // Ağaç
             // 
@@ -452,9 +453,9 @@
             this.Kaydırıcı.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.Kaydırıcı.LargeChange = 1;
-            this.Kaydırıcı.Location = new System.Drawing.Point(3, 438);
+            this.Kaydırıcı.Location = new System.Drawing.Point(3, 452);
             this.Kaydırıcı.Name = "Kaydırıcı";
-            this.Kaydırıcı.Size = new System.Drawing.Size(477, 15);
+            this.Kaydırıcı.Size = new System.Drawing.Size(466, 15);
             this.Kaydırıcı.TabIndex = 6;
             this.Kaydırıcı.TabStop = true;
             this.Kaydırıcı.Scroll += new System.Windows.Forms.ScrollEventHandler(this.Kaydırıcı_Scroll);
@@ -468,7 +469,7 @@
             this.Çizelge.Location = new System.Drawing.Point(3, 5);
             this.Çizelge.Margin = new System.Windows.Forms.Padding(5);
             this.Çizelge.Name = "Çizelge";
-            this.Çizelge.Size = new System.Drawing.Size(474, 438);
+            this.Çizelge.Size = new System.Drawing.Size(463, 452);
             this.Çizelge.TabIndex = 0;
             this.Çizelge.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Çizelge_MouseMove);
             // 
@@ -731,14 +732,16 @@
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(756, 454);
+            this.BackgroundImage = global::Çizelgeç.Properties.Resources.logo;
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.ClientSize = new System.Drawing.Size(739, 468);
             this.Controls.Add(this.Ayraç_Ana);
             this.Controls.Add(this.SolMenü);
+            this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "AnaEkran";
-            this.Opacity = 0D;
             this.Text = "Form1";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AnaEkran_FormClosed);
