@@ -286,7 +286,7 @@ namespace ArgeMup.HazirKod
             {
                 if (Tepsiİkonu.Icon.Handle != Pencere.Icon.Handle) D_İkon.Yoket(Tepsiİkonu.Icon);
                
-                Tepsiİkonu.Icon = D_İkon.Metinden(TeİkMe.Metin_, Tepsiİkonu.Icon, TeİkMe.Fontu, TeİkMe.Yazı, new Point(TeİkMe.SayacKonum, 0), TeİkMe.ArkaPlan);
+                Tepsiİkonu.Icon = D_İkon.Yazıdan(TeİkMe.Metin_, Tepsiİkonu.Icon, TeİkMe.Fontu, TeİkMe.Yazı, new Point(TeİkMe.SayacKonum, 0), TeİkMe.ArkaPlan);
                 TeİkMe.SayacKonum -= Tepsiİkonu.Icon.Size.Width / 10;
                 if (--TeİkMe.SayacKonum < TeİkMe.Uzunluğu) { TeİkMe.SayacKonum = 0; TeİkMe.Metin_ = TeİkMe.Metin; }
             }

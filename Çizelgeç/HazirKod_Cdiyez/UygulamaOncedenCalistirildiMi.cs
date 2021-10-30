@@ -98,7 +98,7 @@ namespace ArgeMup.HazirKod
             if (OrtakNesne != null) { OrtakNesne.Dispose(); OrtakNesne = null; }
 
             bool Evet = true;
-            OrtakNesneAdı = "UygulamaOncedenCalistirildiMi_" + D_HexMetin.BaytDizisinden(D_GeriDönülemezKarmaşıklaştırmaMetodu.BaytDizisinden(D_Metin.BaytDizisine(OrtakNesneAdı)));
+            OrtakNesneAdı = "UygulamaOncedenCalistirildiMi_" + D_HexYazı.BaytDizisinden(D_GeriDönülemezKarmaşıklaştırmaMetodu.BaytDizisinden(D_Yazı.BaytDizisine(OrtakNesneAdı)));
             OrtakNesne = new Mutex(false, OrtakNesneAdı, out Evet);
 
             return !Evet;

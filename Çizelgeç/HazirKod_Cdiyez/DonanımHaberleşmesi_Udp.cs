@@ -59,7 +59,7 @@ namespace ArgeMup.HazirKod.DonanımHaberleşmesi
                     if (dizi == null) throw new Exception();
 
                     object çıktı = null;
-                    if (SatırSatırGönderVeAl) çıktı = Dönüştürme.D_Metin.BaytDizisinden(dizi).TrimEnd(' ', '\r', '\n');
+                    if (SatırSatırGönderVeAl) çıktı = Dönüştürme.D_Yazı.BaytDizisinden(dizi).TrimEnd(' ', '\r', '\n');
                     else çıktı = dizi;
 
                     GeriBildirim_Islemi?.Invoke(RemoteIpEndPoint.ToString(), GeriBildirim_Türü_.BilgiGeldi, çıktı, Hatırlatıcı);
@@ -126,7 +126,7 @@ namespace ArgeMup.HazirKod.DonanımHaberleşmesi
         }
         void IDonanımHaberlleşmesi.Gönder(string Bilgi, string Alıcı)
         {
-            byte[] dizi = Dönüştürme.D_Metin.BaytDizisine(Bilgi);
+            byte[] dizi = Dönüştürme.D_Yazı.BaytDizisine(Bilgi);
             Gönder(dizi, Alıcı);
         }
         #endregion

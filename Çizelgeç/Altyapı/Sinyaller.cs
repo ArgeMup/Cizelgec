@@ -16,12 +16,12 @@ namespace Çizelgeç
         public ScottPlot.PlottableSignalXY Çizikler = null;
         //public List<ScottPlot.PlottableText> Uyarı_Yazıları = null;
     };
-    public class Hesaplama_
+    public struct Hesaplama_
     {
         public string İşlem;
         public string Değişken;
     };
-    public class Uyarı_
+    public struct Uyarı_
     {
         public string Kıstas;
         public string[] Açıklama;
@@ -74,6 +74,12 @@ namespace Çizelgeç
         }
         public void Güncelle_SonDeğer(double Girdi)
         {
+            if (double.IsNaN(Girdi) || double.IsInfinity(Girdi))
+            {
+                Günlük.Ekle(Adı.Csv + " güncel değeri ( " + S.Sayı.Yazıya(Girdi) + " ) sayı değil, 0 olarak değiştirildi.");
+                Girdi = 0;
+            }
+
             if (!string.IsNullOrEmpty(Değeri.Önİşlem))
             {
                 string işlem = Değeri.Önİşlem.Replace("<Sinyal>", S.Sayı.Yazıya(Girdi));

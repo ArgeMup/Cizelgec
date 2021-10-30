@@ -15,6 +15,7 @@ namespace Çizelgeç
         public string İşAdı = "";
         public Ekranlama_Canlı(string İşAdı, string AyarlarDosyasıYolu)
         {
+            Günlük.Ekle("Ayıklanıyor -> " + AyarlarDosyasıYolu, "Bilgi");
             S.Ağaç.Nodes.Clear();
             S.Ağaç.CheckBoxes = false;
             S.Ağaç.Nodes.Add("Bekleyiniz");
@@ -217,7 +218,7 @@ namespace Çizelgeç
                     string SonDurumMesajı = İşAdı + " - " + Sayac_Ölçüm + " - " + S.Tarih.Yazıya(DateTime.Now);
                     S.SonDurumMesajı =  SonDurumMesajı + Environment.NewLine +
                                         S.Tarih.Yazıya(BaşladığıAn) + " zamanından beri" + Environment.NewLine +
-                                        ArgeMup.HazirKod.Dönüştürme.D_Süre.Metne.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds) + " boyunca" + Environment.NewLine +
+                                        ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds) + " boyunca" + Environment.NewLine +
                                         Sinyaller.Tümü.Count + " adet sinyal" + Environment.NewLine +
                                         GelenBilgiler.Tümü_Ayıklama.Count + "/" + GelenBilgiler.Tümü_Kaydetme.Count + " adet ayıklanmayı bekleyen girdi" + Environment.NewLine +
                                         Kaydedici.Tümü.Count + " adet yazılmayı bekleyen ölçüm elde edildi ve" + Environment.NewLine +
@@ -262,7 +263,7 @@ namespace Çizelgeç
                                             biri.Görseller.Dal.Text += " -> Zaman Aşımı -> ";
 
                                             fark = DateTime.Now - biri.Değeri.SonDeğerinAlındığıAn;
-                                            biri.Görseller.Dal.Text += ArgeMup.HazirKod.Dönüştürme.D_Süre.Metne.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds);
+                                            biri.Görseller.Dal.Text += ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds);
                                         }
 
                                         biri.Görseller.Dal.ToolTipText = Sinyaller.Tümü.Keys.ElementAt(i) + (biri.Tür == Tür_.Sinyal ? " sinyali" : " değişkeni") + Environment.NewLine +

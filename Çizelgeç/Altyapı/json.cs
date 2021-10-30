@@ -346,7 +346,7 @@ namespace Çizelgeç
             Sinyal_ sinyal = Sinyaller.Ekle(Adı);
             sinyal.Güncelle_Adı(Adı, Soyadı, GörünenAdı);
             sinyal.Değeri.Önİşlem = İşlem == "<Sinyal>" ? null : İşlem;
-            sinyal.Değeri.Kaydedilsin = Kaydet == "Evet" ? true : false;
+            sinyal.Değeri.Kaydedilsin = Kaydet == "Evet";
             sinyal.Değeri.ZamanAşımı_Sn = ZamanAşımıSaniye;
             sinyal.Hesaplamalar = Hesaplamalar;
             sinyal.Uyarılar = Uyarılar;

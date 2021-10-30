@@ -262,7 +262,8 @@ namespace Çizelgeç
                     Mtx.ReleaseMutex();
 
                     string yazı = yeni.mesaj.Trim(' ', '\r', '\n');
-                    File.AppendAllText(S.Kulanıcı_Klasörü + "Gunluk.csv", yeni.Tür + ";" + S.Tarih.Yazıya(yeni.Zaman) + ";" + yazı.Replace(Environment.NewLine, ";") + Environment.NewLine);
+                    string dosya_adı = "Gunluk." + ArgeMup.HazirKod.Dönüştürme.D_TarihSaat.Yazıya(DateTime.Now, ArgeMup.HazirKod.Dönüştürme.D_TarihSaat.Şablon_Tarih) + ".csv";
+                    File.AppendAllText(S.Kulanıcı_Klasörü + dosya_adı, yeni.Tür + ";" + S.Tarih.Yazıya(yeni.Zaman) + ";" + yazı.Replace(Environment.NewLine, ";") + Environment.NewLine);
 
                     yazı = Environment.NewLine +
                            Environment.NewLine + yeni.Tür + " " + S.Tarih.Yazıya(yeni.Zaman) +

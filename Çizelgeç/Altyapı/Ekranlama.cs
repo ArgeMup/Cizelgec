@@ -152,8 +152,7 @@ namespace Çizelgeç
             }
             
             #region Çizelge Görsellerini Oluştur
-            //if (S.ZamanEkseni[S.CanliÇizdirme_ÖlçümSayısı - 1] - S.ZamanEkseni[0] >= S.CanliÇizdirme_ÖlçümSayısı) S.Çizelge.plt.Ticks(dateTimeX: false);
-
+            
             t.Text = "Grafik hazırlanıyor";
             Application.DoEvents();
             S.Çizdir();

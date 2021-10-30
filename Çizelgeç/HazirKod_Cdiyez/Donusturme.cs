@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 #if !UUNNIITTYY
 using System.Drawing;
@@ -11,7 +12,7 @@ using System.Drawing;
 
 namespace ArgeMup.HazirKod.Dönüştürme
 {
-    public static class D_Metin
+    public static class D_Yazı
     {
         public const string Sürüm = "V1.1";
 
@@ -30,7 +31,7 @@ namespace ArgeMup.HazirKod.Dönüştürme
         }
     }
 
-    public static class D_HexMetin
+    public static class D_HexYazı
     {
         public const string Sürüm = "V1.1";
 
@@ -51,6 +52,123 @@ namespace ArgeMup.HazirKod.Dönüştürme
             string Çıktı = "";
             for (int w = 0; w < Boyut; w++) Çıktı += Girdi[w].ToString("X2");
             return Çıktı;
+        }
+    }
+
+    public static class D_Sayı
+    {
+        public const string Sürüm = "V1.0";
+
+        public static readonly char ondalık_ayraç = Convert.ToChar(System.Globalization.CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator);
+        public static double Yazıdan(string Girdi)
+        {
+            Girdi = Girdi.Replace('.', ondalık_ayraç).Replace(',', ondalık_ayraç);
+
+            if (double.TryParse(Girdi, NumberStyles.Float, CultureInfo.InvariantCulture, out double Çıktı))
+            {
+                return Çıktı;
+            }
+            
+            //geçersiz karakterleri sil
+            string yeni = "";
+            bool Enazbirkarakterbulundu = false;
+            foreach (char krt in Girdi)
+            {
+                if (krt == ondalık_ayraç || krt == '+' || krt == '-' || (krt >= '0' && krt <= '9'))
+                {
+                    yeni += krt;
+                    Enazbirkarakterbulundu = true;
+                }
+                else if (Enazbirkarakterbulundu) break;
+            }
+
+            //tekrar dene
+            if (double.TryParse(yeni, NumberStyles.Float, CultureInfo.InvariantCulture, out Çıktı))
+            {
+                return Çıktı;
+            }
+
+            throw new Exception(Girdi + " sayıya dönüştürülemiyor");
+        }
+        public static string Yazıya(double Girdi)
+        {
+            return Girdi.ToString(CultureInfo.InvariantCulture);
+        }
+    }
+
+    public static class D_DosyaKlasörAdı
+    {
+        public const string Sürüm = "V1.0";
+
+        public readonly static string KullanılmayacakKarakterler = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()); 
+        
+        public static string Düzelt(string Girdi)
+        {
+            foreach (char c in KullanılmayacakKarakterler)
+            {
+                Girdi = Girdi.Replace(c.ToString(), ""); 
+            }
+            return Girdi;
+        }
+    }
+
+    public static class D_TarihSaat
+    {
+        public const string Sürüm = "V1.0";
+
+        public const string Şablon_UtcZamanFarkı = "zzz";
+        public const string Şablon_HaftanınGünü = "ddd";
+        public const string Şablon_Tarih = "dd.MM.yyyy";
+        public const string Şablon_Saat = "HH:mm:ss";
+        public const string Şablon_MiliSaniye = "fff";
+        
+        public const string Şablon_Tarih_Saat_MiliSaniye = "dd.MM.yyyy HH:mm:ss.fff";
+        public const string Şablon_Tarih_Saat = "dd.MM.yyyy HH:mm:ss";
+        public const string Şablon_DosyaAdı = "dd_MM_yyyy_HH_mm_ss";
+        
+        public static string Yazıya(DateTime Girdi, string Şablon = Şablon_Tarih_Saat_MiliSaniye, CultureInfo Kültür = null)
+        {
+            return Girdi.ToString(Şablon, Kültür == null ? CultureInfo.InvariantCulture : Kültür);
+        }
+        public static string Yazıya(double Girdi, string Şablon = Şablon_Tarih_Saat_MiliSaniye, CultureInfo Kültür = null)
+        {
+            return Yazıya(Tarihe(Girdi), Şablon, Kültür);
+        }
+        public static DateTime Tarihe(double Girdi)
+        {
+            return DateTime.FromOADate(Girdi);
+        }
+        public static double Sayıya(DateTime Girdi)
+        {
+            return Girdi.ToOADate();
+        }
+        public static double Sayıya(string Girdi)
+        {
+            if (Girdi.Length >= Şablon_Tarih_Saat_MiliSaniye.Length)
+            {
+                if (DateTime.TryParseExact(Girdi.Substring(0, Şablon_Tarih_Saat_MiliSaniye.Length), Şablon_Tarih_Saat_MiliSaniye, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out DateTime yeni))
+                {
+                    return yeni.ToOADate();
+                }
+            }
+
+            if (Girdi.Length >= Şablon_Tarih_Saat.Length)
+            {
+                if (DateTime.TryParseExact(Girdi.Substring(0, Şablon_Tarih_Saat.Length), Şablon_Tarih_Saat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out DateTime yeni))
+                {
+                    return yeni.ToOADate();
+                }
+            }
+
+            if (Girdi.Length >= Şablon_DosyaAdı.Length)
+            {
+                if (DateTime.TryParseExact(Girdi.Substring(0, Şablon_DosyaAdı.Length), Şablon_DosyaAdı, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeLocal, out DateTime yeni))
+                {
+                    return yeni.ToOADate();
+                }
+            }
+
+            return D_Sayı.Yazıdan(Girdi);
         }
     }
 
@@ -126,13 +244,13 @@ namespace ArgeMup.HazirKod.Dönüştürme
     {
         public const string Sürüm = "V1.0";
 
-        public static Icon Metinden(string Metin, Icon ikon, Font font, Color Renk, Point Konum, Color ArkaPlan)
+        public static Icon Yazıdan(string Yazı, Icon ikon, Font font, Color Renk, Point Konum, Color ArkaPlan)
         {
             Brush brush = new SolidBrush(Renk);
             Bitmap bitmap = new Bitmap(ikon.Width, ikon.Height);
             Graphics graphics = Graphics.FromImage(bitmap);
             graphics.Clear(ArkaPlan);
-            graphics.DrawString(Metin, font, brush, Konum.X, Konum.Y);
+            graphics.DrawString(Yazı, font, brush, Konum.X, Konum.Y);
             Icon createdIcon = Icon.FromHandle(bitmap.GetHicon());
 
             brush.Dispose();
@@ -155,7 +273,7 @@ namespace ArgeMup.HazirKod.Dönüştürme
     {
         public const string Sürüm = "V1.1";
 
-        public static string Metne(decimal d, int NoktadanSonrakiKarakterSayısı = 2)
+        public static string Yazıya(decimal d, int NoktadanSonrakiKarakterSayısı = 2)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
             if (d < 1) return "0B";
@@ -170,7 +288,7 @@ namespace ArgeMup.HazirKod.Dönüştürme
     {
         public const string Sürüm = "V1.3";
 
-        public static class Metne
+        public static class Yazıya
         {
             public static string SaatDakikaSaniye(int Saat, int Dakika = 0, int Saniye = 0)
             {
@@ -332,7 +450,7 @@ namespace ArgeMup.HazirKod.Dönüştürme
  //   {
  //       public const string Sürüm = "V1.0";
 
- //       public static string Metne()
+ //       public static string Yazıya()
  //       {
  //           /* 
  //            * Kullanılacak ise  

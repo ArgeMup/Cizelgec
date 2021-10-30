@@ -17,6 +17,7 @@ namespace Çizelgeç
 
         public Ekranlama_Ölü(string DosyaYolu)
         {
+            Günlük.Ekle("Ayıklanıyor -> " + DosyaYolu, "Bilgi");
             if (!File.Exists(DosyaYolu)) return;
 
             #region Diğer dosyaların tespit edilmesi
@@ -148,6 +149,7 @@ namespace Çizelgeç
             int tik = Environment.TickCount;
             using (StreamReader sr = new StreamReader(CsvDosyasıYolu))
             {
+                int SatırNo = 0;
                 while (sr.Peek() >= 0 && S.Çalışşsın)
                 {
                     if (Environment.TickCount - tik > 1000)
@@ -159,6 +161,7 @@ namespace Çizelgeç
                     }
 
                     string okunan = sr.ReadLine();
+                    SatırNo++;
                     try
                     {
                         string[] bir_satırdakiler = okunan.Split(';');
@@ -170,7 +173,14 @@ namespace Çizelgeç
 
                             for (int i = 2; i < bir_satırdakiler.Length; i++)
                             {
-                                Sinyaller.Tümü.Values.ElementAt(i - 2).Değeri.DeğerEkseni[işlenen] = S.Sayı.Yazıdan(bir_satırdakiler[i]);
+                                double okunan_sayı = S.Sayı.Yazıdan(bir_satırdakiler[i]);
+                                if (double.IsNaN(okunan_sayı) || double.IsInfinity(okunan_sayı))
+                                {
+                                    Günlük.Ekle("Satır : " + SatırNo + ", eleman : " + (i + 1) + " içeriği ( " + bir_satırdakiler[i] + " ) sayı değil, 0 olarak değiştirildi.");
+                                    okunan_sayı = 0;
+                                }
+                                
+                                Sinyaller.Tümü.Values.ElementAt(i - 2).Değeri.DeğerEkseni[işlenen] = okunan_sayı;
                             }
 
                             işlenen++;
@@ -184,7 +194,7 @@ namespace Çizelgeç
                             Günlük.Ekle(Environment.NewLine + bir_satırdakiler[4] + " " + bir_satırdakiler[2] + " " + bir_satırdakiler[3] + " " + bir_satırdakiler[0]);
                         }
                     }
-                    catch (Exception ex) { Günlük.Ekle("Problemli satır -> " + okunan + " -> " + ex.ToString()); }
+                    catch (Exception ex) { Günlük.Ekle("Problemli satır -> (" + SatırNo + ") " + okunan + " -> " + ex.ToString()); }
                 }
             }
             #endregion
@@ -208,6 +218,7 @@ namespace Çizelgeç
             double bir_zamanlar = S.Tarih.Sayıya(new DateTime(2000, 1, 1));
             using (StreamReader sr = new StreamReader(MupDosyasıYolu))
             {
+                int SatırNo = 0;
                 while (sr.Peek() >= 0 && S.Çalışşsın)
                 {
                     if (Environment.TickCount - tik > 1000)
@@ -219,6 +230,7 @@ namespace Çizelgeç
                     }
 
                     string okunan = sr.ReadLine();
+                    SatırNo++;
                     try
                     {
                         int başlangıç = okunan.IndexOf(S.MupDosyasındanOkuma_CümleBaşlangıcı);
@@ -247,7 +259,15 @@ namespace Çizelgeç
                                 string sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
                                 Sinyal_ sinyal = Sinyaller.Ekle(sinyal_yazı);
                                 if (sinyal.Değeri.DeğerEkseni == null) sinyal.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
-                                sinyal.Değeri.DeğerEkseni[ÖlçümSayısı] = S.Sayı.Yazıdan(dizi[i]);
+
+                                double okunan_sayı = S.Sayı.Yazıdan(dizi[i]);
+                                if (double.IsNaN(okunan_sayı) || double.IsInfinity(okunan_sayı))
+                                {
+                                    Günlük.Ekle("Satır : " + SatırNo + ", eleman : " + (i + 1) + " içeriği ( " + dizi[i] + " ) sayı değil, 0 olarak değiştirildi.");
+                                    okunan_sayı = 0;
+                                }
+
+                                sinyal.Değeri.DeğerEkseni[ÖlçümSayısı] = okunan_sayı;
                             }
 
                             //tarihi okumaya calış
@@ -260,7 +280,7 @@ namespace Çizelgeç
                             ÖlçümSayısı++;
                         }
                     }
-                    catch (Exception ex) { Günlük.Ekle("Problemli satır -> " + okunan + " -> " + ex.ToString()); }
+                    catch (Exception ex) { Günlük.Ekle("Problemli satır -> (" + SatırNo + ") " + okunan + " -> " + ex.ToString()); }
                 }
             }
 
