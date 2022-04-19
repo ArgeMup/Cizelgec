@@ -185,6 +185,7 @@ namespace Çizelgeç
         #endregion
 
         #region Çizdirme
+        public static ArgeMup.HazirKod.Ortalama_ Çizdir_Ortalama = new ArgeMup.HazirKod.Ortalama_(15);
         //public static ScottPlot.PlottableVLine Çizdirme_DikeyÇizgi = null;
         //public static ScottPlot.PlottableHLine Çizdirme_YatayÇizgi = null;
         //public static ScottPlot.PlottableScatter[] Çizdirme_Noktacıklar = new ScottPlot.PlottableScatter[0];
@@ -192,8 +193,12 @@ namespace Çizelgeç
         {
             if (SağTuşMenü_Çizelge_Etkin.Checked && AnaEkran.WindowState != FormWindowState.Minimized && !Ayraç_Ana.Panel2Collapsed)
             {
+                int simdi = Environment.TickCount;
+
                 if (SağTuşMenü_Çizelge_TümSinyalleriEkranaSığdır.Checked) Çizelge.plt.AxisAuto();
                 Çizelge.Render(true);
+
+                Çizdir_Ortalama.Güncelle(Environment.TickCount - simdi);
             }
         }
         #endregion

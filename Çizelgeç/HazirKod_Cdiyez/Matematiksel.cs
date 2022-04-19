@@ -12,6 +12,7 @@ namespace ArgeMup.HazirKod
         int Kapasite = 0;
         double Toplam = 0;
         int Konum = 0;
+        public double Ortalaması = 0;
 
         public Ortalama_(int Kapasite)
         {
@@ -32,7 +33,8 @@ namespace ArgeMup.HazirKod
 
             if (++Konum >= Kapasite) Konum = 0;
 
-            return Toplam / Kapasite;
+            Ortalaması = Toplam / Kapasite;
+            return Ortalaması;
         }
     }
 

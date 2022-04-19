@@ -204,25 +204,40 @@ namespace Çizelgeç
         }
         public void Çalıştır_Ekranlama()
         {
+            UInt64 Önceki_Sayac_Ölçüm = 0;
             int tik_kaydetmiyor_uyarısı = 0;
             DateTime BaşladığıAn = DateTime.Now;
             TimeSpan fark;
+            bool _1sn_gecti;
+            int _SonZamanDamgası = 0;
+            string SonDurumMesajı = "";
+            S.Çizdir_Ortalama.Ortalaması = 1000;
 
             while (S.Çalışşsın)
             {
                 try
                 {
-                    Thread.Sleep(1000);
+                    if (_SonZamanDamgası < Environment.TickCount)
+                    {
+                        _1sn_gecti = true;
+                        _SonZamanDamgası = Environment.TickCount + 1000;
+                    }
+                    else _1sn_gecti = false;
 
-                    fark = DateTime.Now - BaşladığıAn;
-                    string SonDurumMesajı = İşAdı + " - " + Sayac_Ölçüm + " - " + S.Tarih.Yazıya(DateTime.Now);
-                    S.SonDurumMesajı =  SonDurumMesajı + Environment.NewLine +
-                                        S.Tarih.Yazıya(BaşladığıAn) + " zamanından beri" + Environment.NewLine +
-                                        ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds) + " boyunca" + Environment.NewLine +
-                                        Sinyaller.Tümü.Count + " adet sinyal" + Environment.NewLine +
-                                        GelenBilgiler.Tümü_Ayıklama.Count + "/" + GelenBilgiler.Tümü_Kaydetme.Count + " adet ayıklanmayı bekleyen girdi" + Environment.NewLine +
-                                        Kaydedici.Tümü.Count + " adet yazılmayı bekleyen ölçüm elde edildi ve" + Environment.NewLine +
-                                        Sayac_BirbirininAynısıOlduğuİçinAtlandı + " adet girdi birbirinin aynısı olduğu için atlandı";
+                    if (S.Çizdir_Ortalama.Ortalaması > 3500) S.Çizdir_Ortalama.Ortalaması = 3500;
+                    Thread.Sleep((int)S.Çizdir_Ortalama.Ortalaması);
+                    
+                    if (_1sn_gecti)
+                    {
+                        fark = DateTime.Now - BaşladığıAn;
+                        SonDurumMesajı = İşAdı + " - " + Sayac_Ölçüm + " - " + S.Tarih.Yazıya(DateTime.Now);
+                        S.SonDurumMesajı = SonDurumMesajı + Environment.NewLine +
+                                            S.Tarih.Yazıya(BaşladığıAn) + " zamanından beri" + Environment.NewLine +
+                                            ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds) + " boyunca" + Environment.NewLine +
+                                            Sinyaller.Tümü.Count + " adet sinyal" + Environment.NewLine +
+                                            Kaydedici.Tümü.Count + " adet yazılmayı bekleyen ölçüm elde edildi ve" + Environment.NewLine +
+                                            Sayac_BirbirininAynısıOlduğuİçinAtlandı + " adet girdi birbirinin aynısı olduğu için atlandı";
+                    }
 
                     S.Çizelge.Invoke((Action)(() =>
                     {
@@ -230,103 +245,112 @@ namespace Çizelgeç
                         {
                             if (!S.Ayraç_Ana.Panel1Collapsed)
                             {
-                                S.Ağaç.BeginUpdate();
-
-                                if (S.Ağaç.Nodes[0].ImageIndex > 0) S.Ağaç.Nodes[0].ImageIndex--;
-                                else
+                                if (_1sn_gecti)
                                 {
-                                    if (S.Ağaç.Nodes[0].IsVisible)
-                                    {
-                                        S.Ağaç.Nodes[0].Text = SonDurumMesajı;
-                                        S.Ağaç.Nodes[0].ToolTipText = S.SonDurumMesajı;
+                                    S.Ağaç.BeginUpdate();
 
-                                        S.İmleçKonumuTarihi.Visible = false;
-                                    }
+                                    if (S.Ağaç.Nodes[0].ImageIndex > 0) S.Ağaç.Nodes[0].ImageIndex--;
                                     else
                                     {
-                                        S.İmleçKonumuTarihi.Text = SonDurumMesajı;
-                                        S.İmleçKonumuTarihi.Visible = true;
+                                        if (S.Ağaç.Nodes[0].IsVisible)
+                                        {
+                                            S.Ağaç.Nodes[0].Text = SonDurumMesajı;
+                                            S.Ağaç.Nodes[0].ToolTipText = S.SonDurumMesajı;
+
+                                            S.İmleçKonumuTarihi.Visible = false;
+                                        }
+                                        else
+                                        {
+                                            S.İmleçKonumuTarihi.Text = SonDurumMesajı;
+                                            S.İmleçKonumuTarihi.Visible = true;
+                                        }
                                     }
-                                }
 
-                                for (int i = 0; i < Sinyaller.Tümü.Count; i++)
-                                {
-                                    Sinyal_ biri = Sinyaller.Tümü.Values.ElementAt(i);
-
-                                    if (biri.Görseller.Dal == null) Ekranlama.AğaçVeÇizelge_SonradanEkle(Sinyaller.Tümü.ElementAt(i));
-
-                                    if (biri.Görseller.Dal.IsVisible && S.Ağaç.Nodes[0].ImageIndex <= 0) //Ağaç değerlerinin dışarıdan çizdirildiği durumda güncelleme
+                                    for (int i = 0; i < Sinyaller.Tümü.Count; i++)
                                     {
-                                        biri.Görseller.Dal.Text = biri.Adı.GörünenAdı + " : " + S.Sayı.Yazıya(biri.Değeri.SonDeğeri);
-                                        if (biri.Değeri.ZamanAşımıOldu)
+                                        Sinyal_ biri = Sinyaller.Tümü.Values.ElementAt(i);
+
+                                        if (biri.Görseller.Dal == null) Ekranlama.AğaçVeÇizelge_SonradanEkle(Sinyaller.Tümü.ElementAt(i));
+
+                                        if (biri.Görseller.Dal.IsVisible && S.Ağaç.Nodes[0].ImageIndex <= 0) //Ağaç değerlerinin dışarıdan çizdirildiği durumda güncelleme
                                         {
-                                            biri.Görseller.Dal.Text += " -> Zaman Aşımı -> ";
+                                            biri.Görseller.Dal.Text = biri.Adı.GörünenAdı + " : " + S.Sayı.Yazıya(biri.Değeri.SonDeğeri);
 
-                                            fark = DateTime.Now - biri.Değeri.SonDeğerinAlındığıAn;
-                                            biri.Görseller.Dal.Text += ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds);
-                                        }
-
-                                        biri.Görseller.Dal.ToolTipText = Sinyaller.Tümü.Keys.ElementAt(i) + (biri.Tür == Tür_.Sinyal ? " sinyali" : " değişkeni") + Environment.NewLine +
-                                                                biri.Değeri.Sayac_Güncelleme + ". kez " + S.Tarih.Yazıya(biri.Değeri.SonDeğerinAlındığıAn) + " tarihinde güncellendi" + Environment.NewLine +
-                                                                "ve " + (biri.Değeri.Kaydedilsin ? "kaydediliyor" : "KAYDEDİLMİYOR");
-
-                                        if (biri.Görseller.DaldakiYazıyıGüncelleVeKabart)
-                                        {
-                                            biri.Görseller.DaldakiYazıyıGüncelleVeKabart = false;
-                                            biri.Görseller.Dal.ImageIndex = 10;
-                                        }
-                                        else if (biri.Görseller.Dal.ImageIndex > 0) biri.Görseller.Dal.ImageIndex--;
-                                    }
-                                }
-
-                                foreach (var biri in Bağlantılar.Tümü.Values)
-                                {
-                                    if (biri.Dal.IsVisible)
-                                    {
-                                        if (biri.DaldakiYazıyıGüncelleVeKabart)
-                                        {
-                                            biri.DaldakiYazıyıGüncelleVeKabart = false;
-                                            biri.Dal.ImageIndex = 10;
-
-                                            biri.Dal.ToolTipText = biri.Adı + Environment.NewLine +
-                                                                    biri.Türü.ToString() + Environment.NewLine +
-                                                                    biri.P1 + Environment.NewLine +
-                                                                    biri.P2 + Environment.NewLine +
-                                                                    biri.Sayac_Güncelleme + ". kez " + S.Tarih.Yazıya(biri.SonDeğerinAlındığıAn) + " tarihinde güncellendi";
-                                        }
-                                        else if (biri.Dal.ImageIndex > 0) biri.Dal.ImageIndex--;
-
-                                        if (biri.Dal.Nodes[0].IsVisible)
-                                        {
-                                            int adet = biri.SonGelenBilgiler.Count;
-                                            for (int i = 0; i < adet; i++)
+                                            if (biri.Değeri.ZamanAşımıOldu)
                                             {
-                                                biri.Dal.Nodes.Add(biri.SonGelenBilgiler[i]);
-                                                if (biri.Dal.Nodes.Count > 10) biri.Dal.Nodes.RemoveAt(0);
+                                                biri.Görseller.Dal.Text += " -> Zaman Aşımı -> ";
+
+                                                fark = DateTime.Now - biri.Değeri.SonDeğerinAlındığıAn;
+                                                biri.Görseller.Dal.Text += ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, (int)fark.TotalSeconds);
                                             }
-                                            biri.SonGelenBilgiler.Clear();
+
+                                            biri.Görseller.Dal.ToolTipText = Sinyaller.Tümü.Keys.ElementAt(i) + (biri.Tür == Tür_.Sinyal ? " sinyali" : " değişkeni") + Environment.NewLine +
+                                                                    biri.Değeri.Sayac_Güncelleme + ". kez " + S.Tarih.Yazıya(biri.Değeri.SonDeğerinAlındığıAn) + " tarihinde güncellendi" + Environment.NewLine +
+                                                                    "ve " + (biri.Değeri.Kaydedilsin ? "kaydediliyor" : "KAYDEDİLMİYOR");
+
+                                            if (biri.Görseller.DaldakiYazıyıGüncelleVeKabart)
+                                            {
+                                                biri.Görseller.DaldakiYazıyıGüncelleVeKabart = false;
+                                                biri.Görseller.Dal.ImageIndex = 10;
+                                            }
+                                            else if (biri.Görseller.Dal.ImageIndex > 0) biri.Görseller.Dal.ImageIndex--;
                                         }
                                     }
-                                }
 
-                                if (tn_Senaryolar != null && tn_Senaryolar.IsVisible)
-                                {
-                                    foreach (var sny in Senaryolar.Tümü.Values)
+                                    foreach (var biri in Bağlantılar.Tümü.Values)
                                     {
-                                        sny.Dal.Text = sny.Adı + sny.Durum;
-                                    }
-                                }
+                                        if (biri.Dal.IsVisible)
+                                        {
+                                            if (biri.DaldakiYazıyıGüncelleVeKabart)
+                                            {
+                                                biri.DaldakiYazıyıGüncelleVeKabart = false;
+                                                biri.Dal.ImageIndex = 10;
 
-                                S.Ağaç.EndUpdate();
+                                                biri.Dal.ToolTipText = biri.Adı + Environment.NewLine +
+                                                                        biri.Türü.ToString() + Environment.NewLine +
+                                                                        biri.P1 + Environment.NewLine +
+                                                                        biri.P2 + Environment.NewLine +
+                                                                        biri.Sayac_Güncelleme + ". kez " + S.Tarih.Yazıya(biri.SonDeğerinAlındığıAn) + " tarihinde güncellendi," + Environment.NewLine +
+                                                                        biri.GelenBilgiler.Tümü_Ayıklama.Count + "/" + biri.GelenBilgiler.Tümü_Kaydetme.Count + " adet ayıklanmayı bekleyen girdi";
+                                            }
+                                            else if (biri.Dal.ImageIndex > 0) biri.Dal.ImageIndex--;
+
+                                            if (biri.Dal.Nodes[0].IsVisible)
+                                            {
+                                                int adet = biri.SonGelenBilgiler.Count;
+                                                for (int i = 0; i < adet; i++)
+                                                {
+                                                    biri.Dal.Nodes.Add(biri.SonGelenBilgiler[i]);
+                                                    if (biri.Dal.Nodes.Count > 10) biri.Dal.Nodes.RemoveAt(0);
+                                                }
+                                                biri.SonGelenBilgiler.Clear();
+                                            }
+                                        }
+                                    }
+
+                                    if (tn_Senaryolar != null && tn_Senaryolar.IsVisible)
+                                    {
+                                        foreach (var sny in Senaryolar.Tümü.Values)
+                                        {
+                                            sny.Dal.Text = sny.Adı + sny.Durum;
+                                        }
+                                    }
+
+                                    S.Ağaç.EndUpdate();
+                                }
                             }
 
-                            if (S.BaşlatDurdur)
+                            if (S.BaşlatDurdur && (Önceki_Sayac_Ölçüm != Sayac_Ölçüm) )
                             {
+                                Önceki_Sayac_Ölçüm = Sayac_Ölçüm;
+
                                 S.Çizdir();
                             }
                         }
 
-                        if (!S.BaşlatDurdur && !string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü) && tik_kaydetmiyor_uyarısı < Environment.TickCount)
+                        if (_1sn_gecti)
+                        {
+                            if (!S.BaşlatDurdur && !string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü) && tik_kaydetmiyor_uyarısı < Environment.TickCount)
                             {
                                 S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Tamam;
                                 S.SolMenu_BaşlatDurdur.GetCurrentParent().Refresh();
@@ -335,6 +359,7 @@ namespace Çizelgeç
                                 S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Hata;
                                 tik_kaydetmiyor_uyarısı = Environment.TickCount + 5000;
                             }
+                        }
                     }));
                 }
                 catch (Exception ex) { Günlük.Ekle(ex.ToString()); Thread.Sleep(1000); }

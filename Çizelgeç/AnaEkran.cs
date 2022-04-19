@@ -236,6 +236,9 @@ namespace Çizelgeç
                 if (Directory.Exists(S.Dosyalama_KayıtKlasörü)) SağTuşMenü_Çizelge_KayıtKlasörünüAç.Visible = true;
 
                 AralıkSeçici_Baştan_Scroll(null, null);
+
+                SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked = S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla;
+                SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Visible = true;
             }
             catch (Exception ex)
             {
@@ -1473,6 +1476,10 @@ namespace Çizelgeç
             S.Çizdir();
 
             Ağaç.Nodes[0].Text = "Tamamlandı";
+        }
+        private void SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla_Click(object sender, EventArgs e)
+        {
+            S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla = SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked;
         }
     }
 }
