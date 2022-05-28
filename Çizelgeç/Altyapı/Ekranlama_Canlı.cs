@@ -99,7 +99,7 @@ namespace Çizelgeç
                                     Sinyaller.EnAzBirSinyalDeğişti_KaydedilmesiGereken = false;
 
                                     #if MerdivenGörünümüİçin
-                                        kayıt_dizisi[kayıt_dizisi.Length - 1] = şimdi;
+                                        kayıt_dizisi[kayıt_dizisi.Length - 1] = S.ZamanEkseni[S.ZamanEkseni.Length - 1];// şimdi;
                                         Kaydedici.Ekle(kayıt_dizisi);
                                         Sayac_Ölçüm++;
                                     #endif
@@ -108,7 +108,7 @@ namespace Çizelgeç
                                 }
 
                                 #if MerdivenGörünümüİçin
-                                    S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi; //atlandığı zamanlarda ekranın çizdirmeye devam etmesi için
+                                else S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi; //atlandığı zamanlarda ekranın çizdirmeye devam etmesi için
                                 #endif
                             }
                             else ekle = true;
@@ -204,7 +204,6 @@ namespace Çizelgeç
         }
         public void Çalıştır_Ekranlama()
         {
-            UInt64 Önceki_Sayac_Ölçüm = 0;
             int tik_kaydetmiyor_uyarısı = 0;
             DateTime BaşladığıAn = DateTime.Now;
             TimeSpan fark;
@@ -224,7 +223,7 @@ namespace Çizelgeç
                     }
                     else _1sn_gecti = false;
 
-                    if (S.Çizdir_Ortalama.Ortalaması > 3500) S.Çizdir_Ortalama.Ortalaması = 3500;
+                    if (S.Çizdir_Ortalama.Ortalaması > 1500) S.Çizdir_Ortalama.Ortalaması = 1500;
                     Thread.Sleep((int)S.Çizdir_Ortalama.Ortalaması);
                     
                     if (_1sn_gecti)
@@ -340,11 +339,13 @@ namespace Çizelgeç
                                 }
                             }
 
-                            if (S.BaşlatDurdur && (Önceki_Sayac_Ölçüm != Sayac_Ölçüm) )
+                            if (S.BaşlatDurdur)
                             {
-                                Önceki_Sayac_Ölçüm = Sayac_Ölçüm;
-
+                                if (S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt > Environment.TickCount)
+                            {
                                 S.Çizdir();
+                            }
+                                else if (_1sn_gecti) S.Çizdir();
                             }
                         }
 

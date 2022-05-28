@@ -101,6 +101,7 @@ namespace Çizelgeç
         }
         private void AnaEkran_FormClosed(object sender, FormClosedEventArgs e)
         {
+            S.BaşlatDurdur = true;
             S.Çalışşsın = false;
             Bağlantılar.Durdur();
             
@@ -899,6 +900,8 @@ namespace Çizelgeç
         {
             if (S.ZamanEkseni == null || S.ZamanEkseni.Length < 2 || e.Button > 0) return;
 
+            S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt = Environment.TickCount + S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt_Sabiti;
+
             int bulundu = SeçilenZamandakiDeğerler_FareKonumundan_EksendekiKonumuBul();
             if (bulundu < 0) return;
 
@@ -917,6 +920,7 @@ namespace Çizelgeç
             {
                 if (SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni != null)
                 {
+                    if (Koordinat_X >= SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni.Length) Koordinat_X = SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni.Length - 1;
                     return (int)Koordinat_X;
                 }
                 else

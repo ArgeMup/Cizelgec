@@ -186,6 +186,8 @@ namespace Çizelgeç
 
         #region Çizdirme
         public static ArgeMup.HazirKod.Ortalama_ Çizdir_Ortalama = new ArgeMup.HazirKod.Ortalama_(15);
+        public const int Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt_Sabiti = 60000;
+        public static int Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt = 0;
         //public static ScottPlot.PlottableVLine Çizdirme_DikeyÇizgi = null;
         //public static ScottPlot.PlottableHLine Çizdirme_YatayÇizgi = null;
         //public static ScottPlot.PlottableScatter[] Çizdirme_Noktacıklar = new ScottPlot.PlottableScatter[0];
