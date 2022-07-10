@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static ArgeMup.HazirKod.Depo;
 
 namespace Çizelgeç
 {
@@ -87,6 +88,7 @@ namespace Çizelgeç
                 if (sinyal.Değeri.DeğerEkseni == null) sinyal.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
                 sinyal.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, sinyal.Değeri.DeğerEkseni);
                 sinyal.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
+                sinyal.Görseller.Çizikler.markerSize = (S.Çizelge_ÇizgiKalınlığı * (float)1.5) + 5;
                 sinyal.Görseller.Dal.ForeColor = sinyal.Görseller.Çizikler.color;
                 //sinyal.Uyarı_Yazıları = new List<ScottPlot.PlottableText>();
                 #endregion
@@ -221,6 +223,7 @@ namespace Çizelgeç
             {
                 Sinyal.Value.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Value.Değeri.DeğerEkseni);
                 Sinyal.Value.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
+                Sinyal.Value.Görseller.Çizikler.markerSize = (S.Çizelge_ÇizgiKalınlığı * (float)1.5) + 5;
                 Sinyal.Value.Görseller.Çizikler.minRenderIndex = S.AralıkSeçici_Baştan.Value;
                 Sinyal.Value.Görseller.Çizikler.maxRenderIndex = S.AralıkSeçici_Sondan.Value;
                 Sinyal.Value.Görseller.Dal.ForeColor = Sinyal.Value.Görseller.Çizikler.color;

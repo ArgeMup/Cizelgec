@@ -104,6 +104,8 @@
             this.SağTuşMenü_Senaryo_Çalıştır = new System.Windows.Forms.ToolStripMenuItem();
             this.SağTuşMenü_Senaryo_Durdur = new System.Windows.Forms.ToolStripMenuItem();
             this.DosyayaKaydetDialoğu = new System.Windows.Forms.SaveFileDialog();
+            this.SağTuşMenü_Ağaç_ilkAçılış = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.AralıkSeçici_Baştan)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Kaydırıcı)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AralıkSeçici_Sondan)).BeginInit();
@@ -116,6 +118,7 @@
             this.SağTuşMenü_Çizelge.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SağTuşMenü_Senaryo.SuspendLayout();
+            this.SağTuşMenü_Ağaç_ilkAçılış.SuspendLayout();
             this.SuspendLayout();
             // 
             // İpUcu
@@ -436,6 +439,7 @@
             // 
             // Ağaç
             // 
+            this.Ağaç.ContextMenuStrip = this.SağTuşMenü_Ağaç_ilkAçılış;
             this.Ağaç.FullRowSelect = true;
             this.Ağaç.HideSelection = false;
             this.Ağaç.Location = new System.Drawing.Point(16, 11);
@@ -503,7 +507,7 @@
             this.SağTuşMenü_Çizelge_xEkseniTarihVeSaat,
             this.SağTuşMenü_Çizelge_YenidenHesapla});
             this.SağTuşMenü_Çizelge.Name = "SağTuşMenü_Senaryo";
-            this.SağTuşMenü_Çizelge.Size = new System.Drawing.Size(352, 388);
+            this.SağTuşMenü_Çizelge.Size = new System.Drawing.Size(352, 360);
             // 
             // SağTuşMenü_Çizelge_Etkin
             // 
@@ -741,7 +745,7 @@
             this.tableLayoutPanel1.Controls.Add(this.AralıkSeçici_Sondan, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.AralıkSeçici_Baştan, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.Kaydırıcı, 1, 0);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, -23);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, -15);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
@@ -786,6 +790,22 @@
             this.DosyayaKaydetDialoğu.Title = "ArgemuP Çizelgeç Belirli Zaman Aralığındaki Sinyalleri Dışarı Aktarma Yardımcısı";
             this.DosyayaKaydetDialoğu.FileOk += new System.ComponentModel.CancelEventHandler(this.SağTuşMenü_Çizelge_dışarıAktar_DosyayaKaydetDialoğu_FileOk);
             // 
+            // SağTuşMenü_Ağaç_ilkAçılış
+            // 
+            this.SağTuşMenü_Ağaç_ilkAçılış.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.SağTuşMenü_Ağaç_ilkAçılış.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç});
+            this.SağTuşMenü_Ağaç_ilkAçılış.Name = "SağTuşMenü_Senaryo";
+            this.SağTuşMenü_Ağaç_ilkAçılış.ShowImageMargin = false;
+            this.SağTuşMenü_Ağaç_ilkAçılış.Size = new System.Drawing.Size(238, 56);
+            // 
+            // SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç
+            // 
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Name = "SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç";
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Size = new System.Drawing.Size(262, 24);
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Text = "İşlerin bulunduğu klasörü aç";
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Click += new System.EventHandler(this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç_Click);
+            // 
             // AnaEkran
             // 
             this.AllowDrop = true;
@@ -824,6 +844,7 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.SağTuşMenü_Senaryo.ResumeLayout(false);
+            this.SağTuşMenü_Ağaç_ilkAçılış.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -892,6 +913,8 @@
         private System.Windows.Forms.TrackBar AralıkSeçici_Sondan;
         private System.Windows.Forms.ToolStripMenuItem SağTuşMenü_Çizelge_xEkseniTarihVeSaat;
         private System.Windows.Forms.ToolStripMenuItem SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla;
+        private System.Windows.Forms.ContextMenuStrip SağTuşMenü_Ağaç_ilkAçılış;
+        private System.Windows.Forms.ToolStripMenuItem SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç;
     }
 }
 

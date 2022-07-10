@@ -306,7 +306,16 @@ namespace Çizelgeç
 
             Ekle_tümü.Visible = Ekle_sonraki.Visible;
 
-            while (Ölü_Ekranlama.Ekle_Önceki() && S.Çalışşsın) { }
+            int za = Environment.TickCount + 1000;
+            while (Ölü_Ekranlama.Ekle_Önceki() && S.Çalışşsın)
+            {
+                if (za < Environment.TickCount)
+                {
+                    Günlük.Ekle(Ölü_Ekranlama.önceki_dosya_sırano + " adet dosya kaldı", "Bilgi");
+                    Application.DoEvents();
+                    za = Environment.TickCount + 1000;
+                }
+            }
 
             ÖlüEkranlama_Çizdir();
         }
@@ -329,7 +338,16 @@ namespace Çizelgeç
 
             Ekle_tümü.Visible = Ekle_önceki.Visible;
 
-            while (Ölü_Ekranlama.Ekle_Sonraki() && S.Çalışşsın) { }
+            int za = Environment.TickCount + 1000;
+            while (Ölü_Ekranlama.Ekle_Sonraki() && S.Çalışşsın)
+            {
+                if (za < Environment.TickCount)
+                {
+                    Günlük.Ekle((Ölü_Ekranlama.dosyalar.Values.Count - Ölü_Ekranlama.sonraki_dosya_sırano) + " adet dosya kaldı", "Bilgi");
+                    Application.DoEvents();
+                    za = Environment.TickCount + 1000;
+                }
+            }
 
             ÖlüEkranlama_Çizdir();
         }
@@ -341,8 +359,25 @@ namespace Çizelgeç
             Ekle_sonraki_tümü.Visible = false;
             Ekle_tümü.Visible = false;
 
-            while (Ölü_Ekranlama.Ekle_Önceki() && S.Çalışşsın) { }
-            while (Ölü_Ekranlama.Ekle_Sonraki() && S.Çalışşsın) { }
+            int za = Environment.TickCount + 1000;
+            while (Ölü_Ekranlama.Ekle_Önceki() && S.Çalışşsın) 
+            { 
+                if (za < Environment.TickCount)
+                {
+                    Günlük.Ekle(Ölü_Ekranlama.önceki_dosya_sırano + " adet dosya kaldı", "Bilgi");
+                    Application.DoEvents();
+                    za = Environment.TickCount + 1000;
+                }
+            }
+            while (Ölü_Ekranlama.Ekle_Sonraki() && S.Çalışşsın)
+            {
+                if (za < Environment.TickCount)
+                {
+                    Günlük.Ekle((Ölü_Ekranlama.dosyalar.Values.Count - Ölü_Ekranlama.sonraki_dosya_sırano) + " adet dosya kaldı", "Bilgi");
+                    Application.DoEvents();
+                    za = Environment.TickCount + 1000;
+                }
+            }
 
             ÖlüEkranlama_Çizdir();
         }
@@ -1013,7 +1048,7 @@ namespace Çizelgeç
         }
         string SeçilenZamandakiDeğerler_YazıHalineGetir(int No)
         {
-            string çıktı = S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[No] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[No], S.Tarih._Şablon_uzun_Ağaç, Thread.CurrentThread.CurrentCulture) + " - İmleç Konumu (" + No + ")";
+            string çıktı = S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[No] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[No], S.Tarih._Şablon_uzun_Ağaç, Thread.CurrentThread.CurrentCulture) + " - İmleç Konumu (" + No + ")" + Environment.NewLine;
 
             for (int i = 0; i < Sinyaller.Tümü.Count; i++)
             {
@@ -1109,6 +1144,7 @@ namespace Çizelgeç
                    (biri.Görseller.Dal != null && biri.Görseller.Dal.Checked) )
                 {
                     biri.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
+                    biri.Görseller.Çizikler.markerSize = ( S.Çizelge_ÇizgiKalınlığı * (float)1.5 ) + 5;
                 }
 
                 if (SağTuşMenü_Çizelge_tick <= Environment.TickCount)
@@ -1484,6 +1520,11 @@ namespace Çizelgeç
         private void SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla_Click(object sender, EventArgs e)
         {
             S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla = SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked;
+        }
+
+        private void SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç_Click(object sender, EventArgs e)
+        {
+            Process.Start(S.Kulanıcı_Klasörü);
         }
     }
 }

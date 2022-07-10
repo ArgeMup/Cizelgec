@@ -115,8 +115,8 @@ namespace Çizelgeç
                 if (!S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
                 {                       
             #endif
-                    Array.Copy(Değeri.DeğerEkseni, 1, Değeri.DeğerEkseni, 0, Değeri.DeğerEkseni.Length - 1);
-                    Değeri.DeğerEkseni[Değeri.DeğerEkseni.Length - 1] = Değeri.SonDeğeri;
+		            Array.Copy(Değeri.DeğerEkseni, 1, Değeri.DeğerEkseni, 0, Değeri.DeğerEkseni.Length - 1);
+		            Değeri.DeğerEkseni[Değeri.DeğerEkseni.Length - 1] = Değeri.SonDeğeri;
             #if MerdivenGörünümüİçin
                 }
                 else

@@ -6,7 +6,7 @@ namespace ArgeMup.HazirKod
 {
     public class Ortalama_
     {
-        public const string Sürüm = "V1.0";
+        public const string Sürüm = "V1.1";
 
         double[] Tampon = null;
         int Kapasite = 0;

@@ -27,8 +27,11 @@ namespace Çizelgeç
             string[] snylar = Directory.GetFiles(AyarlarDosyasıYolu + "\\", "Senaryo*.json", SearchOption.TopDirectoryOnly);
             foreach (var sny in snylar) { Günlük.Ekle("Ayıklanıyor : " + sny, "Bilgi"); json_Ayıkla.Senaryo(sny); }
 
+            Günlük.Ekle("BilgiToplama_Kıstas", "Bilgi");
             Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_Kıstas);
+            Günlük.Ekle("BilgiToplama_ZamanAralığı_Sn", "Bilgi");
             Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAralığı_Sn);
+            Günlük.Ekle("Dosyalama_AzamiDosyaBoyutu_Bayt", "Bilgi");
             Çevirici.Yazıdan_NoktalıSayıya(S.Dosyalama_AzamiDosyaBoyutu_Bayt);
 
             if (!string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü))
@@ -125,23 +128,23 @@ namespace Çizelgeç
 
                                     kayıt_dizisi[i] = biri.Güncelle_Dizi();
                                 }
-
-                                #if MerdivenGörünümüİçin
-                                    if (!S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
-                                    {        
-                                #endif
-                                        Array.Copy(S.ZamanEkseni, 1, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 1);
-                                        S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi;
-                                #if MerdivenGörünümüİçin
-                                    }
-                                    else
-                                    {
-                                        Array.Copy(S.ZamanEkseni, 2, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 2);
-                                        S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi;
-                                        S.ZamanEkseni[S.ZamanEkseni.Length - 2] = şimdi;
-                                    }                              
-                                #endif
-
+                                
+                                    #if MerdivenGörünümüİçin
+                                        if (!S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
+                                        {        
+                                    #endif
+                                		    Array.Copy(S.ZamanEkseni, 1, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 1);
+                                		    S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi;
+                                    #if MerdivenGörünümüİçin
+                                        }
+                                        else
+                                        {
+                                            Array.Copy(S.ZamanEkseni, 2, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 2);
+                                            S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi;
+                                            S.ZamanEkseni[S.ZamanEkseni.Length - 2] = şimdi;
+                                        }                              
+                                    #endif
+                               
                                 Kaydedici.Ekle(kayıt_dizisi);
                                 Sayac_Ölçüm++;
                             }
@@ -342,9 +345,9 @@ namespace Çizelgeç
                             if (S.BaşlatDurdur)
                             {
                                 if (S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt > Environment.TickCount)
-                            {
-                                S.Çizdir();
-                            }
+                                {
+                                    S.Çizdir();
+                                }
                                 else if (_1sn_gecti) S.Çizdir();
                             }
                         }

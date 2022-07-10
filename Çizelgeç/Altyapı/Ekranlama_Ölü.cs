@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -26,14 +27,13 @@ namespace Çizelgeç
             dosyalar = new Dictionary<double, string>();
             önceki_dosya_sırano = -1;
             sonraki_dosya_sırano = -1;
+            Ayıkla(DosyaYolu);
             if (DosyaYolu.ToLower().EndsWith("csv"))
             {
-                Csv(DosyaYolu);
                 gecici_dosyalar = Directory.GetFiles(klasör, "*.csv", SearchOption.TopDirectoryOnly);
             }
             else
             {
-                Mup(DosyaYolu);
                 gecici_dosyalar = Directory.GetFiles(klasör, "*.mup", SearchOption.TopDirectoryOnly);
             }
 
@@ -53,6 +53,71 @@ namespace Çizelgeç
                 }
             }
             #endregion
+        }
+        void Ayıkla(string DosyaYolu)
+        {
+            if (DosyaYolu.ToLower().EndsWith("csv")) Csv(DosyaYolu);
+            else Mup(DosyaYolu);
+
+            //ram tüketimi azaltmak için birbirinin aynı olan satır varmı kontrolü
+            double[][] dizi_değer = new double[Sinyaller.Tümü.Count][];
+            for (int i = 0; i < Sinyaller.Tümü.Count; i++) dizi_değer[i] = new double[S.ZamanEkseni.Length];                                          
+            double[] dizi_zaman = new double[S.ZamanEkseni.Length];
+            int Kaydedilen_adet = 0;
+            int hatalı_zamandamgası_sebebiyle_atlanılan = 0;
+            double artış = S.Tarih.Sayıya(new DateTime(1, 1, 1, 1, 1, 1, 2)) - S.Tarih.Sayıya(new DateTime(1, 1, 1, 1, 1, 1, 1));
+            
+            //ilk değer dizisinin eklenmesi
+            for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
+            {
+                dizi_değer[b][Kaydedilen_adet] = Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[0];
+            }
+            dizi_zaman[Kaydedilen_adet] = S.ZamanEkseni[0];
+            Kaydedilen_adet++;
+
+            for (int a = 1; a < S.ZamanEkseni.Length && S.Çalışşsın; a++)
+            {
+                if (S.ZamanEkseni[a] <= S.ZamanEkseni[a - 1])
+                {
+                    //Günlük.Ekle("Problemli zaman damgası -> " + S.Tarih.Yazıya(S.ZamanEkseni[a]) + " anı " + S.Tarih.Yazıya(S.ZamanEkseni[a - 1]) + " anından sonra gelmiş");
+                    hatalı_zamandamgası_sebebiyle_atlanılan++;
+                    continue;
+                }
+
+                bool farklı = false;
+                for (int b = 0; b < Sinyaller.Tümü.Count && !farklı && S.Çalışşsın; b++)
+                {
+                    if (Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[a - 1] != Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[a])
+                    {
+                        farklı = true;
+                    }
+                }
+
+                if (farklı)
+                {
+                    for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
+                    {
+                        dizi_değer[b][Kaydedilen_adet] = Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[a - 1];
+                    }
+                    dizi_zaman[Kaydedilen_adet] = S.ZamanEkseni[a - 1];
+                    Kaydedilen_adet++;
+                }
+            }
+            
+            if (Kaydedilen_adet != S.ZamanEkseni.Length)
+            {
+                Günlük.Ekle("Toplam " + S.ZamanEkseni.Length + " girdinin " + hatalı_zamandamgası_sebebiyle_atlanılan + " adedi zaman damgası hatalı olduğundan ve " + (S.ZamanEkseni.Length - Kaydedilen_adet) + " adedi birbirinin aynısı olduğundan ram den tasarruf etmek için elendi");
+
+                for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
+                {
+                    Array.Resize(ref Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni, Kaydedilen_adet);
+                    Array.Copy(dizi_değer[b], Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni, Kaydedilen_adet);
+                }
+                Array.Resize(ref S.ZamanEkseni, Kaydedilen_adet);
+                Array.Copy(dizi_zaman, S.ZamanEkseni, Kaydedilen_adet);
+            }
+
+            S.CanliÇizdirme_ÖlçümSayısı = S.ZamanEkseni.Length;
         }
         void Csv(string CsvDosyasıYolu)
         {
@@ -145,7 +210,7 @@ namespace Çizelgeç
             #endregion
 
             #region Tamponların doldurulması
-            int işlenen = 0;
+            int işlenen = 0, beklenenden_fazla_bilgi_içeren_hatalı_satır_sayısı = 0;
             int tik = Environment.TickCount;
             using (StreamReader sr = new StreamReader(CsvDosyasıYolu))
             {
@@ -171,7 +236,9 @@ namespace Çizelgeç
                         {
                             S.ZamanEkseni[işlenen] = zaman;
 
-                            for (int i = 2; i < bir_satırdakiler.Length; i++)
+                            int eleman_sayısı = bir_satırdakiler.Length;
+                            if (eleman_sayısı > Sinyaller.Tümü.Count + 2) eleman_sayısı = Sinyaller.Tümü.Count + 2;
+                            for (int i = 2; i < eleman_sayısı; i++)
                             {
                                 double okunan_sayı = S.Sayı.Yazıdan(bir_satırdakiler[i]);
                                 if (double.IsNaN(okunan_sayı) || double.IsInfinity(okunan_sayı))
@@ -184,6 +251,11 @@ namespace Çizelgeç
                             }
 
                             işlenen++;
+
+                            if (Sinyaller.Tümü.Count + 2 != bir_satırdakiler.Length)
+                            {
+                                beklenenden_fazla_bilgi_içeren_hatalı_satır_sayısı++;
+                            }
                         }
                         else if (okunan.Contains(";Uyarı;"))
                         {
@@ -195,6 +267,11 @@ namespace Çizelgeç
                         }
                     }
                     catch (Exception ex) { Günlük.Ekle("Problemli satır -> (" + SatırNo + ") " + okunan + " -> " + ex.ToString()); }
+                }
+
+                if (beklenenden_fazla_bilgi_içeren_hatalı_satır_sayısı > 0)
+                {
+                    Günlük.Ekle("Beklenenden fazla bilgi içeren toplam " + beklenenden_fazla_bilgi_içeren_hatalı_satır_sayısı + " adet girdinin fazlalık kısımları atlandı");
                 }
             }
             #endregion
@@ -352,8 +429,7 @@ namespace Çizelgeç
             
             try
             {
-                if (dosya.ToLower().EndsWith("csv")) Csv(dosya);
-                else Mup(dosya);
+                Ayıkla(dosya);
             }
             catch (Exception ex) 
             {

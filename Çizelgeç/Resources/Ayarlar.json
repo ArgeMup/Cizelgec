@@ -60,7 +60,7 @@
       "Kaydet": "Evet",
       "Tanımlanmamış Sinyalleri": "Kullan veya Kaydetme veya Atla",
       "Yöntem": "Uart",
-      "Erişim Noktası": "COM1",
+      "Erişim Noktası": "COMx",
       "Bit Hızı": "921600"
     },
     {

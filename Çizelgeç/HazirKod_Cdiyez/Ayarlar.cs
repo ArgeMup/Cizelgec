@@ -335,17 +335,9 @@ namespace ArgeMup.HazirKod
 
                     XmlElement Uygulama = Döküman.CreateElement("Uygulama");
                     XmlElement Uygulama_1 = Döküman.CreateElement("Ad");
-					#if UUNNIITTYY
-					Uygulama_1.InnerText = UnityEngine.Application.productName;
-					#else
-					Uygulama_1.InnerText = System.Windows.Forms.Application.ProductName;
-					#endif
+					Uygulama_1.InnerText = HazirKod.Kendi.Adı();
                     XmlElement Uygulama_2 = Döküman.CreateElement("Surum");
-					#if UUNNIITTYY
-					Uygulama_2.InnerText = "V" + UnityEngine.Application.version;
-					#else
-					Uygulama_2.InnerText = "V" + System.Windows.Forms.Application.ProductVersion;
-					#endif
+					Uygulama_2.InnerText = "V" + HazirKod.Kendi.Sürümü_Dosya();
                     Uygulama.AppendChild(Uygulama_1);
                     Uygulama.AppendChild(Uygulama_2);
 

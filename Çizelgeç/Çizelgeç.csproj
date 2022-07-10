@@ -44,7 +44,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;MerdivenGörünümüİçin</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -129,6 +129,7 @@
     <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_Udp.cs" />
     <Compile Include="HazirKod_Cdiyez\Donusturme.cs" />
     <Compile Include="HazirKod_Cdiyez\Karmasiklastirma.cs" />
+    <Compile Include="HazirKod_Cdiyez\Kendi.cs" />
     <Compile Include="HazirKod_Cdiyez\YeniYazılımKontrolü.cs" />
     <Compile Include="HazirKod_Cdiyez\KodKümesi.cs" />
     <Compile Include="HazirKod_Cdiyez\Matematiksel.cs" />
