@@ -115,11 +115,11 @@ namespace Çizelgeç
                     break;
 
                 case Bağlantı_Türü_.TcpSunucu:
-                    aranan.Haberleşme = new TcpSunucu_(int.Parse(aranan.P1), BilgiGeldiVeyaDurumDeğişikliği, aranan);
+                    aranan.Haberleşme = new TcpSunucu_(int.Parse(aranan.P1), BilgiGeldiVeyaDurumDeğişikliği, aranan, SadeceYerel:false);
                     break;
 
                 case Bağlantı_Türü_.UdpSunucu:
-                    aranan.Haberleşme = new UdpDinleyici_(int.Parse(aranan.P1), BilgiGeldiVeyaDurumDeğişikliği, aranan);
+                    aranan.Haberleşme = new UdpDinleyici_(int.Parse(aranan.P1), BilgiGeldiVeyaDurumDeğişikliği, aranan, SadeceYerel:false);
                     break;
 
                 default:
