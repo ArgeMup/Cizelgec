@@ -166,6 +166,7 @@ namespace Çizelgeç
         #endregion
 
         #region Diğer
+        public static string AnaEkran_ÇubuktakiYazı = "ArGeMuP Çizelgeç V" + ArgeMup.HazirKod.Kendi.Sürümü_Dosya();
         public static bool Çalışşsın = false;
         public static int Çizelge_ÇizgiKalınlığı = 1;
         public static int CanliÇizdirme_ÖlçümSayısı = 10000;
@@ -180,7 +181,6 @@ namespace Çizelgeç
         public static TrackBar AralıkSeçici_Baştan, AralıkSeçici_Sondan;
         public static ToolStripButton SolMenu_BaşlatDurdur;
         public static SplitContainer Ayraç_Ana;
-        public static Label İmleçKonumuTarihi;
         public static string[] BaşlangıçParametreleri = null;
         #endregion
 

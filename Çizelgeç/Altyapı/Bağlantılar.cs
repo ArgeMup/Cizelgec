@@ -420,6 +420,7 @@ namespace Çizelgeç
             DateTime EnSonKayıtAnı = DateTime.Now;
             string DosyaYolu = "";
             int BaşlıkSayısı = 0;
+            double EnSonÖlçümTarihi = 0;
             
             while (S.Çalışşsın)
             {
@@ -476,17 +477,17 @@ namespace Çizelgeç
                         while (işlenen < Tümü.Count && S.Çalışşsın)
                         {
                             Kayıt_ sıradaki = Tümü[işlenen];
+                            işlenen++;
+
+                            if (EnSonÖlçümTarihi == sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]) continue;
+                            EnSonÖlçümTarihi = sıradaki.sinyaller[sıradaki.sinyaller.Length - 1];
+
                             string yazı = S.Tarih.Yazıya(sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]); // son eleman tarihsaat
 
                             if (string.IsNullOrEmpty(sıradaki.mesaj))
                             {
                                 //sinyaller 
-                                if (sıradaki.sinyaller.Length < 2)
-                                {
-                                    işlenen++;
-                                    Thread.Sleep(1);
-                                    continue;
-                                }
+                                if (sıradaki.sinyaller.Length < 2) continue;
 
                                 yazı += ";Sinyaller";
                                 for (int i = 0; i < sıradaki.sinyaller.Length - 1; i++)
@@ -505,7 +506,6 @@ namespace Çizelgeç
                             yazı += Environment.NewLine;
                             Ekle(fs, yazı);
                             
-                            işlenen++;
                             Thread.Sleep(1);
                         }
 
@@ -571,16 +571,17 @@ namespace Çizelgeç
                         while (işlenen < Tümü.Count)
                         {
                             Kayıt_ sıradaki = Tümü[işlenen];
+                            işlenen++;
+
+                            if (EnSonÖlçümTarihi == sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]) continue;
+                            EnSonÖlçümTarihi = sıradaki.sinyaller[sıradaki.sinyaller.Length - 1];
+
                             yazı = S.Tarih.Yazıya(sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]); // son eleman tarihsaat
 
                             if (string.IsNullOrEmpty(sıradaki.mesaj))
                             {
                                 //sinyaller 
-                                if (sıradaki.sinyaller.Length < 2)
-                                {
-                                    işlenen++;
-                                    continue;
-                                }
+                                if (sıradaki.sinyaller.Length < 2) continue;
 
                                 yazı += ";Sinyaller";
                                 for (int i = 0; i < sıradaki.sinyaller.Length - 1; i++)
@@ -598,8 +599,6 @@ namespace Çizelgeç
                             }
                             yazı += Environment.NewLine;
                             Ekle(fs, yazı);
-
-                            işlenen++;
                         }
 
                         yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;ArGeMuP Çizelgeç V" + Application.ProductVersion + Environment.NewLine;

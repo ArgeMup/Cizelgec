@@ -66,8 +66,9 @@
             this.SolMenu_BaşlatDurdur_Ayraç = new System.Windows.Forms.ToolStripSeparator();
             this.SolMenu_BaşlatDurdur = new System.Windows.Forms.ToolStripButton();
             this.Ayraç_Ana = new System.Windows.Forms.SplitContainer();
-            this.İmleçKonumuTarihi = new System.Windows.Forms.Label();
             this.Ağaç = new Çizelgeç.AnaEkran.ÇiftTamponluTreeView();
+            this.SağTuşMenü_Ağaç_ilkAçılış = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç = new System.Windows.Forms.ToolStripMenuItem();
             this.Günlük_Panel = new System.Windows.Forms.Panel();
             this.Günlük_MetinKutusu = new System.Windows.Forms.TextBox();
             this.Çizelge = new ScottPlot.FormsPlot();
@@ -104,8 +105,6 @@
             this.SağTuşMenü_Senaryo_Çalıştır = new System.Windows.Forms.ToolStripMenuItem();
             this.SağTuşMenü_Senaryo_Durdur = new System.Windows.Forms.ToolStripMenuItem();
             this.DosyayaKaydetDialoğu = new System.Windows.Forms.SaveFileDialog();
-            this.SağTuşMenü_Ağaç_ilkAçılış = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.AralıkSeçici_Baştan)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Kaydırıcı)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AralıkSeçici_Sondan)).BeginInit();
@@ -114,11 +113,11 @@
             this.Ayraç_Ana.Panel1.SuspendLayout();
             this.Ayraç_Ana.Panel2.SuspendLayout();
             this.Ayraç_Ana.SuspendLayout();
+            this.SağTuşMenü_Ağaç_ilkAçılış.SuspendLayout();
             this.Günlük_Panel.SuspendLayout();
             this.SağTuşMenü_Çizelge.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SağTuşMenü_Senaryo.SuspendLayout();
-            this.SağTuşMenü_Ağaç_ilkAçılış.SuspendLayout();
             this.SuspendLayout();
             // 
             // İpUcu
@@ -402,7 +401,6 @@
             // Ayraç_Ana.Panel1
             // 
             this.Ayraç_Ana.Panel1.BackColor = System.Drawing.SystemColors.Control;
-            this.Ayraç_Ana.Panel1.Controls.Add(this.İmleçKonumuTarihi);
             this.Ayraç_Ana.Panel1.Controls.Add(this.Ağaç);
             this.Ayraç_Ana.Panel1.Controls.Add(this.Günlük_Panel);
             // 
@@ -422,21 +420,6 @@
             this.Ayraç_Ana.TabStop = false;
             this.Ayraç_Ana.Visible = false;
             // 
-            // İmleçKonumuTarihi
-            // 
-            this.İmleçKonumuTarihi.AutoSize = true;
-            this.İmleçKonumuTarihi.BackColor = System.Drawing.SystemColors.Window;
-            this.İmleçKonumuTarihi.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.İmleçKonumuTarihi.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.İmleçKonumuTarihi.ImageIndex = 0;
-            this.İmleçKonumuTarihi.Location = new System.Drawing.Point(1, 0);
-            this.İmleçKonumuTarihi.Name = "İmleçKonumuTarihi";
-            this.İmleçKonumuTarihi.Size = new System.Drawing.Size(19, 18);
-            this.İmleçKonumuTarihi.TabIndex = 14;
-            this.İmleçKonumuTarihi.Text = "A";
-            this.İmleçKonumuTarihi.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.İmleçKonumuTarihi.Visible = false;
-            // 
             // Ağaç
             // 
             this.Ağaç.ContextMenuStrip = this.SağTuşMenü_Ağaç_ilkAçılış;
@@ -449,6 +432,22 @@
             this.Ağaç.ShowRootLines = false;
             this.Ağaç.Size = new System.Drawing.Size(139, 296);
             this.Ağaç.TabIndex = 0;
+            // 
+            // SağTuşMenü_Ağaç_ilkAçılış
+            // 
+            this.SağTuşMenü_Ağaç_ilkAçılış.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.SağTuşMenü_Ağaç_ilkAçılış.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç});
+            this.SağTuşMenü_Ağaç_ilkAçılış.Name = "SağTuşMenü_Senaryo";
+            this.SağTuşMenü_Ağaç_ilkAçılış.ShowImageMargin = false;
+            this.SağTuşMenü_Ağaç_ilkAçılış.Size = new System.Drawing.Size(238, 28);
+            // 
+            // SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç
+            // 
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Name = "SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç";
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Size = new System.Drawing.Size(237, 24);
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Text = "İşlerin bulunduğu klasörü aç";
+            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Click += new System.EventHandler(this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç_Click);
             // 
             // Günlük_Panel
             // 
@@ -790,22 +789,6 @@
             this.DosyayaKaydetDialoğu.Title = "ArgemuP Çizelgeç Belirli Zaman Aralığındaki Sinyalleri Dışarı Aktarma Yardımcısı";
             this.DosyayaKaydetDialoğu.FileOk += new System.ComponentModel.CancelEventHandler(this.SağTuşMenü_Çizelge_dışarıAktar_DosyayaKaydetDialoğu_FileOk);
             // 
-            // SağTuşMenü_Ağaç_ilkAçılış
-            // 
-            this.SağTuşMenü_Ağaç_ilkAçılış.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.SağTuşMenü_Ağaç_ilkAçılış.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç});
-            this.SağTuşMenü_Ağaç_ilkAçılış.Name = "SağTuşMenü_Senaryo";
-            this.SağTuşMenü_Ağaç_ilkAçılış.ShowImageMargin = false;
-            this.SağTuşMenü_Ağaç_ilkAçılış.Size = new System.Drawing.Size(238, 56);
-            // 
-            // SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç
-            // 
-            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Name = "SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç";
-            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Size = new System.Drawing.Size(262, 24);
-            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Text = "İşlerin bulunduğu klasörü aç";
-            this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç.Click += new System.EventHandler(this.SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç_Click);
-            // 
             // AnaEkran
             // 
             this.AllowDrop = true;
@@ -834,17 +817,16 @@
             this.SolMenü.ResumeLayout(false);
             this.SolMenü.PerformLayout();
             this.Ayraç_Ana.Panel1.ResumeLayout(false);
-            this.Ayraç_Ana.Panel1.PerformLayout();
             this.Ayraç_Ana.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Ayraç_Ana)).EndInit();
             this.Ayraç_Ana.ResumeLayout(false);
+            this.SağTuşMenü_Ağaç_ilkAçılış.ResumeLayout(false);
             this.Günlük_Panel.ResumeLayout(false);
             this.Günlük_Panel.PerformLayout();
             this.SağTuşMenü_Çizelge.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.SağTuşMenü_Senaryo.ResumeLayout(false);
-            this.SağTuşMenü_Ağaç_ilkAçılış.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -903,7 +885,6 @@
         private System.Windows.Forms.ToolStripMenuItem SağTuşMenü_Çizelge_YenidenHesapla_SadeceSeçiliDalaUygula;
         private System.Windows.Forms.ToolStripMenuItem SağTuşMenü_Çizelge_KayıtKlasörünüAç;
         private System.Windows.Forms.ImageList ResimListesi;
-        private System.Windows.Forms.Label İmleçKonumuTarihi;
         private System.Windows.Forms.ToolStripButton SolMenu_Cizelge;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem SağTuşMenü_Çizelge_dışarıAktar;

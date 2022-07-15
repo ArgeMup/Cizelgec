@@ -192,10 +192,17 @@ namespace Çizelgeç
                             Sinyaller.EnAzBirSinyalDeğişti = false;
 
                             gecikme = (int)(Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAralığı_Sn) * 1000);
-                            while (gecikme > 1500 && S.Çalışşsın)
+                            if (gecikme == 0)
                             {
-                                Thread.Sleep(1500);
-                                gecikme -= 1500;
+                                while (şimdi == S.Tarih.Sayıya(DateTime.Now)) Thread.Yield(); //mmkün olan en kısa bekleme
+                            }
+                            else
+                            {
+                                while (gecikme > 1500 && S.Çalışşsın)
+                                {
+                                    Thread.Sleep(1500);
+                                    gecikme -= 1500;
+                                }
                             }
                         }
                         Thread.Sleep(gecikme);
@@ -258,13 +265,6 @@ namespace Çizelgeç
                                         {
                                             S.Ağaç.Nodes[0].Text = SonDurumMesajı;
                                             S.Ağaç.Nodes[0].ToolTipText = S.SonDurumMesajı;
-
-                                            S.İmleçKonumuTarihi.Visible = false;
-                                        }
-                                        else
-                                        {
-                                            S.İmleçKonumuTarihi.Text = SonDurumMesajı;
-                                            S.İmleçKonumuTarihi.Visible = true;
                                         }
                                     }
 

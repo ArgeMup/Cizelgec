@@ -25,7 +25,7 @@ namespace Çizelgeç
         }
         private void AnaEkran_Load(object sender, EventArgs e)
         {
-            Text = "ArGeMuP Çizelgeç V" + Application.ProductVersion;
+            Text = S.AnaEkran_ÇubuktakiYazı;
             Refresh();
 
             S.Ayarlar = new ArgeMup.HazirKod.Ayarlar_(out _, AyarlarDosyası:S.Kulanıcı_Klasörü + "Çizelgeç.exe.Ayarlar");
@@ -45,7 +45,6 @@ namespace Çizelgeç
             S.AralıkSeçici_Sondan = AralıkSeçici_Sondan;
             S.SolMenu_BaşlatDurdur = SolMenu_BaşlatDurdur;
             S.Ayraç_Ana = Ayraç_Ana;
-            S.İmleçKonumuTarihi = İmleçKonumuTarihi;
 
             Günlük_Panel.Visible = false;
             Günlük_Panel.Dock = DockStyle.Fill;
@@ -196,7 +195,9 @@ namespace Çizelgeç
                     throw new Exception(İşAdı + " işi başka bir uygulamada açık olduğundan işlem durduruldu");
                 }
 
-                Text += " >>> " + İşAdı;
+                S.AnaEkran_ÇubuktakiYazı += " >>> " + İşAdı;
+                Text = S.AnaEkran_ÇubuktakiYazı;
+
                 S.Çalışşsın = true;
 
                 ResimListesi.Images.Clear();
@@ -274,7 +275,8 @@ namespace Çizelgeç
 
                 ÖlüEkranlama_Çizdir();
 
-                Text += " >>> " + Path.GetFileName(Dosyayolu);
+                S.AnaEkran_ÇubuktakiYazı += " >>> " + Path.GetFileName(Dosyayolu);
+                Text = S.AnaEkran_ÇubuktakiYazı;
 
                 SağTuşMenü_Çizelge_Ayırıcı1.Visible = true;
                 SağTuşMenü_Çizelge_DeğerleriNormalleştir.Visible = true;
@@ -751,6 +753,8 @@ namespace Çizelgeç
                 SeçilenZamandakiDeğerler_AğaçtaGöster(AralıkSeçici_Sondan.Value);
                 Ağaç.Nodes[0].ImageIndex = 0;
             }
+
+            Text = S.AnaEkran_ÇubuktakiYazı;
         }
         private void Ağaç_NodeMouseDoubleClick_AçılışEkranı(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -883,7 +887,7 @@ namespace Çizelgeç
         private void Eposta_Click(object sender, EventArgs e)
         {
             string a = string.Format("mailto:{0}?Subject={1}&Body={2}", "argemup@yandex.com", Text + " Hk.", "Mesajınız");
-            System.Diagnostics.Process.Start(a);
+            Process.Start(a);
         }
         private void Menu_aA_100_Click(object sender, EventArgs e)
         {
@@ -1027,8 +1031,7 @@ namespace Çizelgeç
             Ağaç.Nodes[0].Text = S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[No] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[No], S.Tarih._Şablon_uzun_Ağaç, Thread.CurrentThread.CurrentCulture) + " - İmleç Konumu (" + No + ")";
             Ağaç.Nodes[0].ImageIndex = 10;
 
-            İmleçKonumuTarihi.Text = Ağaç.Nodes[0].Text;
-            İmleçKonumuTarihi.Visible = !Ağaç.Nodes[0].IsVisible;
+            Text = S.AnaEkran_ÇubuktakiYazı + " / " + Ağaç.Nodes[0].Text + " / " + Çizelge.GetMouseCoordinates().y;
 
             for (int i = 0; i < Sinyaller.Tümü.Count; i++)
             {
