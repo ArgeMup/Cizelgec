@@ -65,8 +65,8 @@ namespace Çizelgeç
             double[] dizi_zaman = new double[S.ZamanEkseni.Length];
             int Kaydedilen_adet = 0;
             int hatalı_zamandamgası_sebebiyle_atlanılan = 0;
-            double artış = S.Tarih.Sayıya(new DateTime(1, 1, 1, 1, 1, 1, 2)) - S.Tarih.Sayıya(new DateTime(1, 1, 1, 1, 1, 1, 1));
-            
+            bool EnAz1AdetBoşGeçti = false;
+       
             //ilk değer dizisinin eklenmesi
             for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
             {
@@ -95,18 +95,33 @@ namespace Çizelgeç
 
                 if (farklı)
                 {
+                    if (EnAz1AdetBoşGeçti)
+                    {
+                        //merdiven görüntüsü olabilmesi icin bir önceki elamanın eklenmesi
+                        for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
+                        {
+                            dizi_değer[b][Kaydedilen_adet] = Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[a - 1];
+                        }
+                        dizi_zaman[Kaydedilen_adet] = S.ZamanEkseni[a - 1];
+                        Kaydedilen_adet++;
+
+                        EnAz1AdetBoşGeçti = false;
+                    }
+
+                    //farklı olan elemanın eklenmesi
                     for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
                     {
-                        dizi_değer[b][Kaydedilen_adet] = Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[a - 1];
+                        dizi_değer[b][Kaydedilen_adet] = Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[a];
                     }
-                    dizi_zaman[Kaydedilen_adet] = S.ZamanEkseni[a - 1];
+                    dizi_zaman[Kaydedilen_adet] = S.ZamanEkseni[a];
                     Kaydedilen_adet++;
                 }
+                else EnAz1AdetBoşGeçti = true;
             }
             
             if (Kaydedilen_adet != S.ZamanEkseni.Length)
             {
-                Günlük.Ekle("Toplam " + S.ZamanEkseni.Length + " girdinin " + hatalı_zamandamgası_sebebiyle_atlanılan + " adedi zaman damgası hatalı olduğundan ve " + (S.ZamanEkseni.Length - Kaydedilen_adet) + " adedi birbirinin aynısı olduğundan ram den tasarruf etmek için elendi");
+                Günlük.Ekle("Toplam " + S.ZamanEkseni.Length + " girdinin " + hatalı_zamandamgası_sebebiyle_atlanılan + " adedi zaman damgası hatalı olduğundan ve " + (S.ZamanEkseni.Length - Kaydedilen_adet - hatalı_zamandamgası_sebebiyle_atlanılan) + " adedi birbirinin aynısı olduğundan ram den tasarruf etmek için elendi");
 
                 for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
                 {
@@ -148,7 +163,7 @@ namespace Çizelgeç
             #endregion
 
             #region Eksik Başlıkların Üretilmesi
-            int adet_ölçüm = string.IsNullOrEmpty(SonÖlçüm) ? 0 : SonÖlçüm.Split(';').Length;
+            int adet_ölçüm = string.IsNullOrEmpty(SonÖlçüm) ? 0 : SonÖlçüm.Split(';').Length - 2 /*tarih ve başlık*/;
             if (adet_ölçüm == 0)
             {
                 Günlük.Ekle("Hiç sinyal okunamadı");
@@ -252,7 +267,7 @@ namespace Çizelgeç
 
                             işlenen++;
 
-                            if (Sinyaller.Tümü.Count + 2 != bir_satırdakiler.Length)
+                            if (bir_satırdakiler.Length > Sinyaller.Tümü.Count + 2)
                             {
                                 beklenenden_fazla_bilgi_içeren_hatalı_satır_sayısı++;
                             }
@@ -263,7 +278,7 @@ namespace Çizelgeç
                             //Sinyal_ sinyal = Sinyaller.Bul("<" + bir_satırdakiler[2] + ">");
                             //sinyal.Uyarı_Yazıları.Add(S.Çizelge.plt.PlotText(bir_satırdakiler[4], zaman, y, color: sinyal.Çizikler.color, rotation: 270));
                             
-                            Günlük.Ekle(Environment.NewLine + bir_satırdakiler[4] + " " + bir_satırdakiler[2] + " " + bir_satırdakiler[3] + " " + bir_satırdakiler[0]);
+                            Günlük.Ekle(Path.GetFileName(CsvDosyasıYolu) + " satır " + SatırNo + " " + okunan);
                         }
                     }
                     catch (Exception ex) { Günlük.Ekle("Problemli satır -> (" + SatırNo + ") " + okunan + " -> " + ex.ToString()); }
