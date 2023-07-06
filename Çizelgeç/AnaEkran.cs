@@ -28,11 +28,7 @@ namespace Çizelgeç
             Text = S.AnaEkran_ÇubuktakiYazı;
             Refresh();
 
-            S.Ayarlar = new ArgeMup.HazirKod.Ayarlar_(out _, AyarlarDosyası:S.Kulanıcı_Klasörü + "Çizelgeç.exe.Ayarlar");
-            //S.PeTeİkKo = new ArgeMup.HazirKod.PencereVeTepsiIkonuKontrolu_(this, S.Ayarlar, true);
-            //S.PeTeİkKo.TepsiİkonunuBaşlat();
-            //Opacity = 1;
-
+            S.Ayarlar = new ArgeMup.HazirKod.Ayarlar_(AyarlarDosyası:S.Kulanıcı_Klasörü + "Çizelgeç.exe.Ayarlar");
             S.AnaEkran = this;
             S._Günlük_YeniMesajaGit = Günlük_YeniMesajaGit;
             S._Günlük_MetinKutusu = Günlük_MetinKutusu;
@@ -1282,7 +1278,7 @@ namespace Çizelgeç
             byte[] dizi = System.Text.Encoding.UTF8.GetBytes(yazı);
             fs.Write(dizi, 0, dizi.Length);
 
-            SolMenu_Kaydet_DosyaBütünlüğüKodu = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Metinden(SolMenu_Kaydet_DosyaBütünlüğüKodu + yazı);
+            SolMenu_Kaydet_DosyaBütünlüğüKodu = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Yazıdan(SolMenu_Kaydet_DosyaBütünlüğüKodu + yazı);
         }
         private void SağTuşMenü_Çizelge_panoyaKopyala_Click(object sender, EventArgs e)
         {

@@ -4,9 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Çizelgeç
@@ -153,7 +150,7 @@ namespace Çizelgeç
                     else if (okunan.Contains(";Doğrulama;")) { Doğrulama = okunan; hesabadahilet = false; }
                     else if (okunan.Contains(";Başlıklar;")) Başlıklar = okunan;
 
-                    if (hesabadahilet) HesaplananDoğrulama = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Metinden(HesaplananDoğrulama + okunan + Environment.NewLine);
+                    if (hesabadahilet) HesaplananDoğrulama = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Yazıdan(HesaplananDoğrulama + okunan + Environment.NewLine);
                 }
             }
 

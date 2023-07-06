@@ -34,7 +34,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;MerdivenGörünümüİçin</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MerdivenGörünümüİçin HazirKod_Cdiyez_SeriPort</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -44,7 +44,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;MerdivenGörünümüİçin</DefineConstants>
+    <DefineConstants>MerdivenGörünümüİçin HazirKod_Cdiyez_SeriPort</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -121,23 +121,36 @@
     <Compile Include="AnaEkran.Designer.cs">
       <DependentUpon>AnaEkran.cs</DependentUpon>
     </Compile>
+    <Compile Include="HazirKod_Cdiyez\ArkaPlan.cs" />
     <Compile Include="HazirKod_Cdiyez\Ayarlar.cs" />
+    <Compile Include="HazirKod_Cdiyez\Depo.cs" />
+    <Compile Include="HazirKod_Cdiyez\Değişken.cs" />
     <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi.cs" />
     <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_KomutSatırıUygulaması.cs" />
     <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_SeriPort.cs" />
     <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_Tcp.cs" />
     <Compile Include="HazirKod_Cdiyez\DonanımHaberleşmesi_Udp.cs" />
-    <Compile Include="HazirKod_Cdiyez\Donusturme.cs" />
+    <Compile Include="HazirKod_Cdiyez\DoğrulamaKodu.cs" />
+    <Compile Include="HazirKod_Cdiyez\Dönüştürme.cs" />
+    <Compile Include="HazirKod_Cdiyez\Ekİşlemler.cs" />
+    <Compile Include="HazirKod_Cdiyez\Günlük.cs" />
     <Compile Include="HazirKod_Cdiyez\Karmasiklastirma.cs" />
     <Compile Include="HazirKod_Cdiyez\Kendi.cs" />
+    <Compile Include="HazirKod_Cdiyez\KlasörDosya.cs" />
+    <Compile Include="HazirKod_Cdiyez\Liste.cs" />
     <Compile Include="HazirKod_Cdiyez\YeniYazılımKontrolü.cs" />
     <Compile Include="HazirKod_Cdiyez\KodKümesi.cs" />
     <Compile Include="HazirKod_Cdiyez\Matematiksel.cs" />
-    <Compile Include="HazirKod_Cdiyez\PencereVeTepsiIkonuKontrolu.cs" />
     <Compile Include="HazirKod_Cdiyez\UygulamaOncedenCalistirildiMi.cs" />
     <Compile Include="HazirKod_Cdiyez\Win32Kutuphaneleri.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="YenidenHesapla.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="YenidenHesapla.Designer.cs">
+      <DependentUpon>YenidenHesapla.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="AnaEkran.resx">
       <DependentUpon>AnaEkran.cs</DependentUpon>
     </EmbeddedResource>
@@ -146,10 +159,9 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="bin\Debug\MUP-BILGISAYAR_MUP\iş1\Ayarlar.json" />
-    <None Include="bin\Debug\MUP-BILGISAYAR_MUP\iş1\Senaryo1.json" />
-    <None Include="HazirKod_Cdiyez\LICENSE" />
-    <None Include="HazirKod_Cdiyez\README.md" />
+    <EmbeddedResource Include="YenidenHesapla.resx">
+      <DependentUpon>YenidenHesapla.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -182,18 +194,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\logo.png" />
-    <None Include="bin\Debug\System.Threading.Tasks.Extensions.dll" />
-    <None Include="bin\Debug\System.ValueTuple.dll" />
-    <None Include="bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll" />
-    <None Include="bin\Debug\ScottPlot.dll" />
-    <None Include="bin\Debug\ScottPlot.WinForms.dll" />
-    <None Include="bin\Debug\System.Buffers.dll" />
-    <None Include="bin\Debug\System.Drawing.Common.dll" />
-    <None Include="bin\Debug\System.Memory.dll" />
-    <None Include="bin\Debug\System.Numerics.Vectors.dll" />
-    <None Include="bin\Debug\System.Runtime.CompilerServices.Unsafe.dll" />
-    <None Include="bin\Debug\System.Text.Encodings.Web.dll" />
-    <None Include="bin\Debug\System.Text.Json.dll" />
     <None Include="Resources\System.Buffers.dll" />
     <None Include="Resources\System.Drawing.Common.dll" />
     <None Include="Resources\System.Memory.dll" />

@@ -166,7 +166,7 @@ namespace Çizelgeç
         #endregion
 
         #region Diğer
-        public static string AnaEkran_ÇubuktakiYazı = "ArGeMuP Çizelgeç V" + ArgeMup.HazirKod.Kendi.Sürümü_Dosya();
+        public static string AnaEkran_ÇubuktakiYazı = "ArGeMuP Çizelgeç V" + ArgeMup.HazirKod.Kendi.Sürümü_Dosya;
         public static bool Çalışşsın = false;
         public static int Çizelge_ÇizgiKalınlığı = 1;
         public static int CanliÇizdirme_ÖlçümSayısı = 10000;
@@ -176,7 +176,6 @@ namespace Çizelgeç
         public static string SonDurumMesajı = "";
         public static ScottPlot.FormsPlot Çizelge;
         public static ArgeMup.HazirKod.Ayarlar_ Ayarlar;
-        //public static ArgeMup.HazirKod.PencereVeTepsiIkonuKontrolu_ PeTeİkKo;
         public static AnaEkran AnaEkran;
         public static TrackBar AralıkSeçici_Baştan, AralıkSeçici_Sondan;
         public static ToolStripButton SolMenu_BaşlatDurdur;

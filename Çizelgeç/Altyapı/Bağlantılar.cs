@@ -630,13 +630,13 @@ namespace Çizelgeç
             byte[] dizi = Encoding.UTF8.GetBytes(yazı);
             fs.Write(dizi, 0, dizi.Length);
 
-            DosyaBütünlüğüKodu = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Metinden(DosyaBütünlüğüKodu + yazı);
+            DosyaBütünlüğüKodu = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Yazıdan(DosyaBütünlüğüKodu + yazı);
         }
         static void Ekle(string DosyaYolu, string yazı)
         {
             File.AppendAllText(DosyaYolu, yazı);
 
-            DosyaBütünlüğüKodu = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Metinden(DosyaBütünlüğüKodu + yazı);
+            DosyaBütünlüğüKodu = ArgeMup.HazirKod.Dönüştürme.D_GeriDönülemezKarmaşıklaştırmaMetodu.Yazıdan(DosyaBütünlüğüKodu + yazı);
         }
     }
     #endregion
