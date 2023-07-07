@@ -79,7 +79,7 @@ namespace Çizelgeç
 
         public void Çalıştır_Ölçme_Değerlendirme()
         {
-            double[] kayıt_dizisi = new double[1];
+            double[] kayıt_dizisi = null;
 
             while (S.Çalışşsın)
             {
@@ -87,12 +87,13 @@ namespace Çizelgeç
                 {
                     if (S.BaşlatDurdur && Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_Kıstas) > 0.0)
                     {
-                        double şimdi = S.Tarih.Sayıya(DateTime.Now);
                         int gecikme = 1000;
                         int toplam = Sinyaller.Tümü.Count;
 
                         if (toplam > 0)
                         {
+                            DateTime şimdi_t = DateTime.Now;
+                            double şimdi_d = S.Tarih.Sayıya(şimdi_t);
                             bool ekle = false;
 
                             if (S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
@@ -101,9 +102,8 @@ namespace Çizelgeç
                                 {
                                     Sinyaller.EnAzBirSinyalDeğişti_KaydedilmesiGereken = false;
 
-                                    #if MerdivenGörünümüİçin
-                                        kayıt_dizisi[kayıt_dizisi.Length - 1] = S.ZamanEkseni[S.ZamanEkseni.Length - 1];// şimdi;
-                                        Kaydedici.Ekle(kayıt_dizisi);
+#                                   if MerdivenGörünümüİçin
+                                        Kaydedici.Ekle(şimdi_t.AddMilliseconds(-1), kayıt_dizisi); //şimdi
                                         Sayac_Ölçüm++;
                                     #endif
 
@@ -111,16 +111,14 @@ namespace Çizelgeç
                                 }
 
                                 #if MerdivenGörünümüİçin
-                                else S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi; //atlandığı zamanlarda ekranın çizdirmeye devam etmesi için
+                                else S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi_d; //atlandığı zamanlarda ekranın çizdirmeye devam etmesi için
                                 #endif
                             }
                             else ekle = true;
 
                             if (ekle)
                             {
-                                kayıt_dizisi = new double[toplam + 1];
-
-                                kayıt_dizisi[toplam] = şimdi;
+                                kayıt_dizisi = new double[toplam];
 
                                 for (int i = 0; i < toplam; i++)
                                 {
@@ -128,24 +126,24 @@ namespace Çizelgeç
 
                                     kayıt_dizisi[i] = biri.Güncelle_Dizi();
                                 }
-                                
-                                    #if MerdivenGörünümüİçin
-                                        if (!S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
-                                        {        
-                                    #endif
-                                		    Array.Copy(S.ZamanEkseni, 1, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 1);
-                                		    S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi;
-                                    #if MerdivenGörünümüİçin
-                                        }
-                                        else
-                                        {
-                                            Array.Copy(S.ZamanEkseni, 2, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 2);
-                                            S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi;
-                                            S.ZamanEkseni[S.ZamanEkseni.Length - 2] = şimdi;
-                                        }                              
-                                    #endif
-                               
-                                Kaydedici.Ekle(kayıt_dizisi);
+
+                                #if MerdivenGörünümüİçin
+                                if (!S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
+                                {
+                                #endif
+                                    Array.Copy(S.ZamanEkseni, 1, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 1);
+                                    S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi_d;
+                                #if MerdivenGörünümüİçin
+                                }
+                                else
+                                {
+                                    Array.Copy(S.ZamanEkseni, 2, S.ZamanEkseni, 0, S.ZamanEkseni.Length - 2);
+                                    S.ZamanEkseni[S.ZamanEkseni.Length - 1] = şimdi_d;
+                                    S.ZamanEkseni[S.ZamanEkseni.Length - 2] = şimdi_d;
+                                }
+                                #endif
+
+                                Kaydedici.Ekle(şimdi_t, kayıt_dizisi);
                                 Sayac_Ölçüm++;
                             }
                             else Sayac_BirbirininAynısıOlduğuİçinAtlandı++;
@@ -174,7 +172,7 @@ namespace Çizelgeç
                                                     string mesaj = Çevirici.Uyarıdan_Yazıya(uyr.Açıklama, biri.Değeri.SonDeğeri);
                                                     mesaj = biri.Adı.Csv + ";" + S.Sayı.Yazıya(biri.Değeri.SonDeğeri) + ";" + mesaj;
 
-                                                    Kaydedici.Ekle(new double[1] { şimdi }, mesaj);
+                                                    Kaydedici.Ekle(şimdi_t, null, mesaj);
                                                     Günlük.Ekle(mesaj);
                                                 }
                                             }
@@ -185,16 +183,17 @@ namespace Çizelgeç
                                 {
                                     string mesaj = biri.Adı.Csv + ";" + S.Sayı.Yazıya(biri.Değeri.SonDeğeri) + ";Zaman Aşımı";
 
-                                    //Kaydedici.Ekle(new double[1] { şimdi }, mesaj);
+                                    //Kaydedici.Ekle(şimdi_t, null, mesaj);
                                     Günlük.Ekle(mesaj);
                                 }
                             }
                             Sinyaller.EnAzBirSinyalDeğişti = false;
 
                             gecikme = (int)(Çevirici.Yazıdan_NoktalıSayıya(S.BilgiToplama_ZamanAralığı_Sn) * 1000);
-                            if (gecikme == 0)
+                            if (gecikme <= 1)
                             {
-                                while (şimdi == S.Tarih.Sayıya(DateTime.Now)) Thread.Yield(); //mmkün olan en kısa bekleme
+                                şimdi_t = şimdi_t.AddMilliseconds(1);
+                                while (şimdi_t >= DateTime.Now) Thread.Yield(); //mümkün olan en kısa bekleme
                             }
                             else
                             {

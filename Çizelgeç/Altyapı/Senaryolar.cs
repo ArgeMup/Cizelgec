@@ -89,7 +89,7 @@ namespace Çizelgeç
                             else if (jsonSıralayıcı.Current.Name.StartsWith("Uyar"))
                             {
                                 string mesaj = "Senaryo;" + Senaryo.Adı + "|" + Senaryo.Adımlar[a].Etiket + ";" + Çevirici.Uyarıdan_Yazıya(jsonSıralayıcı.Current.Value);
-                                Kaydedici.Ekle(new double[1] { S.Tarih.Sayıya(DateTime.Now) }, mesaj);
+                                Kaydedici.Ekle(DateTime.Now, null, mesaj);
                                 Günlük.Ekle(mesaj);
                             }
                             else if (jsonSıralayıcı.Current.Name.StartsWith("Bağlantı Üzerinden Gönder"))

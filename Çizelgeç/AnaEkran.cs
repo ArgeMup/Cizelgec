@@ -177,6 +177,8 @@ namespace Çizelgeç
         }
         void YeniYazılımKontrolü_GeriBildirim(bool Sonuç, string Açıklama)
         {
+            if (Açıklama == "Durduruldu") return;
+
             Günlük.Ekle("Güncel yazılım kontrolü sonucu " + (Sonuç ? "başarılı" : "hatalı") + ". " + Açıklama, (Sonuç ? "Bilgi" : "HATA"));
         }
 

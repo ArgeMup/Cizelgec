@@ -76,7 +76,7 @@ namespace Çizelgeç
             {
                 if (S.ZamanEkseni[a] <= S.ZamanEkseni[a - 1])
                 {
-                    //Günlük.Ekle("Problemli zaman damgası -> " + S.Tarih.Yazıya(S.ZamanEkseni[a]) + " anı " + S.Tarih.Yazıya(S.ZamanEkseni[a - 1]) + " anından sonra gelmiş");
+                    Günlük.Ekle("Problemli zaman damgası -> " + S.Tarih.Yazıya(S.ZamanEkseni[a]) + " anı " + S.Tarih.Yazıya(S.ZamanEkseni[a - 1]) + " anından sonra gelmiş");
                     hatalı_zamandamgası_sebebiyle_atlanılan++;
                     continue;
                 }

@@ -243,7 +243,7 @@ namespace Çizelgeç
                             Tümü_Ayıklama.RemoveRange(0, 90000);
 
                             string mesaj = Bağlantı.Adı + " bağlantısı çok fazla ayıklanamamış girdiye sahip oldugundan ilk 90000 girdi silindi.";
-                            Kaydedici.Ekle(new double[1] { S.Tarih.Sayıya(DateTime.Now) }, mesaj);
+                            Kaydedici.Ekle(DateTime.Now, null, mesaj);
                             Günlük.Ekle(mesaj);
                         }
                         else Tümü_Ayıklama.RemoveAt(0);
@@ -380,12 +380,13 @@ namespace Çizelgeç
     #region Düzenlenmiş Sinyallerin Dosyaya Kaydedilmesi
     public class Kayıt_
     {
+        public DateTime TarihSaat;
         public string mesaj;
         public double[] sinyaller;
     }
     public class Kaydedici
     {
-        public static void Ekle(double[] Sinyaller, string Mesaj = "")
+        public static void Ekle(DateTime TarihSaat, double[] Sinyaller = null, string Mesaj = "")
         {
             if (Görev_Nesnesi == null)
             {
@@ -395,13 +396,9 @@ namespace Çizelgeç
                 Görev_Nesnesi.Start();
             }
 
-            if (Sinyaller.Length < 1) return;
-
-            double[] kopyası = new double[Sinyaller.Length];
-            Array.Copy(Sinyaller, 0, kopyası, 0, Sinyaller.Length);
-
             Kayıt_ yeni = new Kayıt_();
-            yeni.sinyaller = kopyası;
+            yeni.TarihSaat = TarihSaat;
+            yeni.sinyaller = Sinyaller;
             yeni.mesaj = Mesaj;
 
             Mtx.WaitOne();
@@ -420,7 +417,6 @@ namespace Çizelgeç
             DateTime EnSonKayıtAnı = DateTime.Now;
             string DosyaYolu = "";
             int BaşlıkSayısı = 0;
-            double EnSonÖlçümTarihi = 0;
             
             while (S.Çalışşsın)
             {
@@ -479,18 +475,15 @@ namespace Çizelgeç
                             Kayıt_ sıradaki = Tümü[işlenen];
                             işlenen++;
 
-                            if (EnSonÖlçümTarihi == sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]) continue;
-                            EnSonÖlçümTarihi = sıradaki.sinyaller[sıradaki.sinyaller.Length - 1];
-
-                            string yazı = S.Tarih.Yazıya(sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]); // son eleman tarihsaat
+                            string yazı = S.Tarih.Yazıya(sıradaki.TarihSaat);
 
                             if (string.IsNullOrEmpty(sıradaki.mesaj))
                             {
                                 //sinyaller 
-                                if (sıradaki.sinyaller.Length < 2) continue;
+                                if (sıradaki.sinyaller == null) continue;
 
                                 yazı += ";Sinyaller";
-                                for (int i = 0; i < sıradaki.sinyaller.Length - 1; i++)
+                                for (int i = 0; i < sıradaki.sinyaller.Length; i++)
                                 {
                                     if (Sinyaller.Tümü.ElementAt(i).Value.Değeri.Kaydedilsin)
                                     {
@@ -505,8 +498,12 @@ namespace Çizelgeç
                             }
                             yazı += Environment.NewLine;
                             Ekle(fs, yazı);
-                            
-                            Thread.Sleep(1);
+
+                            if (S.BaşlatDurdur && işlenen > 350)
+                            {
+                                Thread.Sleep(1); //cpu yüzdesini düşürmek için
+                                break;
+                            }
                         }
 
                         double hedefdosyaboyutu = Çevirici.Yazıdan_NoktalıSayıya(S.Dosyalama_AzamiDosyaBoyutu_Bayt);
@@ -573,18 +570,15 @@ namespace Çizelgeç
                             Kayıt_ sıradaki = Tümü[işlenen];
                             işlenen++;
 
-                            if (EnSonÖlçümTarihi == sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]) continue;
-                            EnSonÖlçümTarihi = sıradaki.sinyaller[sıradaki.sinyaller.Length - 1];
-
-                            yazı = S.Tarih.Yazıya(sıradaki.sinyaller[sıradaki.sinyaller.Length - 1]); // son eleman tarihsaat
+                            yazı = S.Tarih.Yazıya(sıradaki.TarihSaat);
 
                             if (string.IsNullOrEmpty(sıradaki.mesaj))
                             {
                                 //sinyaller 
-                                if (sıradaki.sinyaller.Length < 2) continue;
+                                if (sıradaki.sinyaller == null) continue;
 
                                 yazı += ";Sinyaller";
-                                for (int i = 0; i < sıradaki.sinyaller.Length - 1; i++)
+                                for (int i = 0; i < sıradaki.sinyaller.Length; i++)
                                 {
                                     if (Sinyaller.Tümü.ElementAt(i).Value.Değeri.Kaydedilsin)
                                     {
