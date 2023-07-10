@@ -33,9 +33,10 @@ namespace Çizelgeç
         public DateTime SonDeğerinAlındığıAn = DateTime.Now;
         public double[] DeğerEkseni = null;
         public bool ZamanAşımıOldu = false;
-        public string Önİşlem = null;
         public string ZamanAşımı_Sn = "0";
         public UInt64 Sayac_Güncelleme = 0;
+
+        public string Önİşlem = null;
     }
     public class Adı_
     {

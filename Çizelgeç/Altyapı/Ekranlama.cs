@@ -35,60 +35,7 @@ namespace Çizelgeç
             TreeNode s = t.Nodes.Add("Sinyaller", "Sinyaller");
             foreach (var sinyal in Sinyaller.Tümü.Values)
             {
-                if (!string.IsNullOrEmpty(sinyal.Adı.Salkım))
-                {
-                    TreeNode[] dizi = s.Nodes.Find(sinyal.Adı.Salkım, true);
-                    if (dizi != null && dizi.Length > 0)
-                    {
-                        TreeNode y = dizi[0].Nodes.Add(sinyal.Adı.GörünenAdı);
-                        y.Tag = sinyal;
-                        y.Checked = true;
-                        sinyal.Görseller.Dal = y;
-                    }
-                    else
-                    {
-                        string[] dallar = sinyal.Adı.Salkım.Split('|');
-                        int konum = 0;
-                        TreeNode bulunan = s;
-
-                        while (konum < dallar.Length)
-                        {
-                            TreeNode[] dal_yeni_dizi = bulunan.Nodes.Find(dallar[konum], false);
-                            if (dal_yeni_dizi != null && dal_yeni_dizi.Length > 0)
-                            {
-                                bulunan = dal_yeni_dizi[0];
-                            }
-                            else
-                            {
-                                bulunan = bulunan.Nodes.Add(dallar[konum], dallar[konum]);
-                                bulunan.Checked = true;
-                            }
-
-                            konum++;
-                        }
-
-                        TreeNode y = bulunan.Nodes.Add(sinyal.Adı.GörünenAdı);
-                        y.Tag = sinyal;
-                        y.Checked = true;
-                        sinyal.Görseller.Dal = y;
-                    }
-                }
-                else
-                {
-                    TreeNode y = s.Nodes.Add(sinyal.Adı.GörünenAdı);
-                    y.Tag = sinyal;
-                    y.Checked = true;
-                    sinyal.Görseller.Dal = y;
-                }
-
-                #region Tamponların Hazırlanması
-                if (sinyal.Değeri.DeğerEkseni == null) sinyal.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
-                sinyal.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, sinyal.Değeri.DeğerEkseni);
-                sinyal.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
-                sinyal.Görseller.Çizikler.markerSize = (S.Çizelge_ÇizgiKalınlığı * (float)1.5) + 5;
-                sinyal.Görseller.Dal.ForeColor = sinyal.Görseller.Çizikler.color;
-                //sinyal.Uyarı_Yazıları = new List<ScottPlot.PlottableText>();
-                #endregion
+                SinyaliAğacaEkle(sinyal, s);
             }
             s.Checked = true;
             s.ExpandAll();
@@ -173,7 +120,7 @@ namespace Çizelgeç
             if (Sinyal.Value.Tür == Tür_.Değişken)
             {
                 TreeNode[] dizi;
-                
+
                 if (Sinyal.Key.StartsWith("<ZA ")) //zaman aşımı değişkeni
                 {
                     dizi = S.Ağaç.Nodes[0].Nodes.Find("Zaman Aşımları", false);
@@ -209,21 +156,48 @@ namespace Çizelgeç
                 Sinyal.Value.Güncelle_Adı(Sinyal.Key, "Tanımlanmamış Sinyaller");
             }
 
-            bulunan = bulunan.Nodes.Add(Sinyal.Value.Adı.GörünenAdı);
-			bulunan.Checked = true;
-            bulunan.ExpandAll();
-            bulunan.Tag = Sinyal.Value;
-            Sinyal.Value.Görseller.Dal = bulunan;
+            SinyaliAğacaEkle(Sinyal.Value, bulunan);
+        }
 
-            if (Sinyal.Value.Değeri.DeğerEkseni == null) Sinyal.Value.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
-            if (Sinyal.Value.Görseller.Çizikler == null)
+        static public void SinyaliAğacaEkle(Sinyal_ Sinyal, TreeNode Üstteki = null)
+        {
+            List<string> l = new List<string>();
+            l.AddRange(Sinyal.Adı.Salkım.Split('|'));
+            l.Add(Sinyal.Adı.GörünenAdı);
+
+            if (Üstteki == null) Üstteki = S.Ağaç.Nodes[0];
+            TreeNode EnÜstteki = Üstteki;
+
+            while (l.Count > 0)
             {
-                Sinyal.Value.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Value.Değeri.DeğerEkseni);
-                Sinyal.Value.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
-                Sinyal.Value.Görseller.Çizikler.markerSize = (S.Çizelge_ÇizgiKalınlığı * (float)1.5) + 5;
-                Sinyal.Value.Görseller.Çizikler.minRenderIndex = S.AralıkSeçici_Baştan.Value;
-                Sinyal.Value.Görseller.Çizikler.maxRenderIndex = S.AralıkSeçici_Sondan.Value;
-                Sinyal.Value.Görseller.Dal.ForeColor = Sinyal.Value.Görseller.Çizikler.color;
+                TreeNode[] bulunan = Üstteki.Nodes.Find(l[0], false);
+                if (bulunan == null || bulunan.Length == 0) Üstteki = Üstteki.Nodes.Add(l[0], l[0]);
+                else Üstteki = bulunan[0];
+                
+                Üstteki.Checked = true;
+                l.RemoveAt(0);
+            }
+
+            if (Üstteki.Tag != null) throw new Exception(Sinyal.Adı.Salkım + "|" + Sinyal.Adı.GörünenAdı + " zaten eklendi");
+
+            Üstteki.Tag = Sinyal;
+            Sinyal.Görseller.Dal = Üstteki;
+            ÇizikVeTamponuHazırla(Sinyal);
+            
+            EnÜstteki.ExpandAll();
+        }
+        static public void ÇizikVeTamponuHazırla(Sinyal_ Sinyal)
+        {
+            if (Sinyal.Değeri.DeğerEkseni == null) Sinyal.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
+            if (Sinyal.Görseller.Çizikler == null)
+            {
+                Sinyal.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Değeri.DeğerEkseni);
+                Sinyal.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
+                Sinyal.Görseller.Çizikler.markerSize = (S.Çizelge_ÇizgiKalınlığı * (float)1.5) + 5;
+                Sinyal.Görseller.Çizikler.minRenderIndex = S.AralıkSeçici_Baştan.Value;
+                Sinyal.Görseller.Çizikler.maxRenderIndex = S.AralıkSeçici_Sondan.Value;
+                Sinyal.Görseller.Dal.ForeColor = Sinyal.Görseller.Çizikler.color;
+                //Sinyal.Uyarı_Yazıları = new List<ScottPlot.PlottableText>();
             }
         }
     }

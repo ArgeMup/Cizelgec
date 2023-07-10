@@ -19,7 +19,7 @@ namespace Çizelgeç.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -263,6 +263,72 @@ namespace Çizelgeç.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] Microsoft_CodeAnalysis {
+            get {
+                object obj = ResourceManager.GetObject("Microsoft_CodeAnalysis", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Microsoft_CodeAnalysis_CSharp {
+            get {
+                object obj = ResourceManager.GetObject("Microsoft_CodeAnalysis_CSharp", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Microsoft_CodeAnalysis_CSharp_Scripting {
+            get {
+                object obj = ResourceManager.GetObject("Microsoft_CodeAnalysis_CSharp_Scripting", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Microsoft_CodeAnalysis_Scripting {
+            get {
+                object obj = ResourceManager.GetObject("Microsoft_CodeAnalysis_Scripting", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /* ArGeMuP Çizelgeç.exe BU KISMI DEĞİŞTİRMEYİNİZ - BAŞLANGIÇ */
+        ///
+        ////* ??? [[[ Detaylar ]]] %%%
+        ///*** Örnek Kaynak Kod ***
+        ///namespace Yardımcıİşlemler
+        ///{
+        ///    public class ÖrnekSınıf
+        ///    {
+        ///        Çizelgeç.Sinyal_ SinyalA, SinyalB;
+        ///
+        ///        public void Örnekİşlem()
+        ///        {
+        ///            SinyalA = Sinyal.Bul(&quot;&lt;SinyalAdı[0]&gt;&quot;);
+        ///            SinyalB = Sinyal.Bul(&quot;&lt;DeğişkenAdı&gt;&quot;);
+        ///
+        ///            if (SinyalA == null)
+        ///            {
+        ///                SinyalA = Sinyal.Ekle(&quot;&lt;SinyalAdı[0]&gt;&quot;, &quot;Ağaç|İçindeki|Dalın [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ÖrnekKaynakKod_ÖlüEkranlama {
+            get {
+                return ResourceManager.GetString("ÖrnekKaynakKod_ÖlüEkranlama", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] ScottPlot {
             get {
                 object obj = ResourceManager.GetObject("ScottPlot", resourceCulture);
@@ -303,6 +369,16 @@ namespace Çizelgeç.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] System_Collections_Immutable {
+            get {
+                object obj = ResourceManager.GetObject("System_Collections_Immutable", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] System_Drawing_Common {
             get {
                 object obj = ResourceManager.GetObject("System_Drawing_Common", resourceCulture);
@@ -333,9 +409,29 @@ namespace Çizelgeç.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] System_Reflection_Metadata {
+            get {
+                object obj = ResourceManager.GetObject("System_Reflection_Metadata", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] System_Runtime_CompilerServices_Unsafe {
             get {
                 object obj = ResourceManager.GetObject("System_Runtime_CompilerServices_Unsafe", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] System_Text_Encoding_CodePages {
+            get {
+                object obj = ResourceManager.GetObject("System_Text_Encoding_CodePages", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -377,6 +473,16 @@ namespace Çizelgeç.Properties {
             get {
                 object obj = ResourceManager.GetObject("System_ValueTuple", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon user {
+            get {
+                object obj = ResourceManager.GetObject("user", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

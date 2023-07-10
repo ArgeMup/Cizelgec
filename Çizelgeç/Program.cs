@@ -36,6 +36,13 @@ namespace Çizelgeç
             AnaEkran_GerekliDosyaKontrolü(Properties.Resources.System_Text_Json, "System.Text.Json.dll");
             AnaEkran_GerekliDosyaKontrolü(Properties.Resources.System_Threading_Tasks_Extensions, "System.Threading.Tasks.Extensions.dll");
             AnaEkran_GerekliDosyaKontrolü(Properties.Resources.System_ValueTuple, "System.ValueTuple.dll");
+            AnaEkran_GerekliDosyaKontrolü(Properties.Resources.Microsoft_CodeAnalysis_Scripting, "Microsoft.CodeAnalysis.Scripting.dll");
+            AnaEkran_GerekliDosyaKontrolü(Properties.Resources.Microsoft_CodeAnalysis, "Microsoft.CodeAnalysis.dll");
+            AnaEkran_GerekliDosyaKontrolü(Properties.Resources.Microsoft_CodeAnalysis_CSharp_Scripting, "Microsoft.CodeAnalysis.CSharp.Scripting.dll");
+            AnaEkran_GerekliDosyaKontrolü(Properties.Resources.Microsoft_CodeAnalysis_CSharp, "Microsoft.CodeAnalysis.CSharp.dll");
+            AnaEkran_GerekliDosyaKontrolü(Properties.Resources.System_Collections_Immutable, "System.Collections.Immutable.dll");
+            AnaEkran_GerekliDosyaKontrolü(Properties.Resources.System_Reflection_Metadata, "System.Reflection.Metadata.dll");
+            AnaEkran_GerekliDosyaKontrolü(Properties.Resources.System_Text_Encoding_CodePages, "System.Text.Encoding.CodePages.dll");
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

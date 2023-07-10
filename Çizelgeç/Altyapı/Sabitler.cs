@@ -1,5 +1,6 @@
 ﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
 
+using ArgeMup.HazirKod;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -177,10 +178,12 @@ namespace Çizelgeç
         public static ScottPlot.FormsPlot Çizelge;
         public static ArgeMup.HazirKod.Ayarlar_ Ayarlar;
         public static AnaEkran AnaEkran;
+        public static YenidenHesapla YenidenHesapla;
         public static TrackBar AralıkSeçici_Baştan, AralıkSeçici_Sondan;
         public static ToolStripButton SolMenu_BaşlatDurdur;
         public static SplitContainer Ayraç_Ana;
         public static string[] BaşlangıçParametreleri = null;
+        public static Çalıştır_ Çalıştır = new Çalıştır_();
         #endregion
 
         #region Çizdirme
