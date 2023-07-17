@@ -144,7 +144,7 @@ namespace Çizelgeç
 
         private void Çalıştır_Click(object sender, EventArgs e)
         {
-            S.Çizelge.Invoke((Action)(() => 
+            S.Çizelge.Invoke(new Action(() =>
             {
                 try
                 {

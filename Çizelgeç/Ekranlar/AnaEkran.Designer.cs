@@ -753,7 +753,7 @@
             this.DosyayaKaydetDialoğu.DefaultExt = "csv";
             this.DosyayaKaydetDialoğu.Filter = "Çizelgeç CSV|*.csv";
             this.DosyayaKaydetDialoğu.FilterIndex = 0;
-            this.DosyayaKaydetDialoğu.Title = "ArgemuP Çizelgeç Belirli Zaman Aralığındaki Sinyalleri Dışarı Aktarma Yardımcısı";
+            this.DosyayaKaydetDialoğu.Title = "ArgemuP Çizelgeç Belirli Bir Zaman Dilimindeki Sinyalleri Dışarı Aktarma Yardımcısı";
             this.DosyayaKaydetDialoğu.FileOk += new System.ComponentModel.CancelEventHandler(this.SağTuşMenü_Çizelge_dışarıAktar_DosyayaKaydetDialoğu_FileOk);
             // 
             // AnaEkran

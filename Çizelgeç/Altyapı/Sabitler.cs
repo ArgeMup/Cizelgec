@@ -143,19 +143,6 @@ namespace Çizelgeç
                 return Girdi.ToString(CultureInfo.InvariantCulture);
             }
         };
-
-        public static string BilgiToplama_Kıstas = "1";
-        public static string BilgiToplama_ZamanAralığı_Sn = "15";
-        public static bool BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla = true;
-
-        public static string Dosyalama_AzamiDosyaBoyutu_Bayt = "1000000";
-        public static string Dosyalama_KayıtKlasörü = Kulanıcı_Klasörü;
-
-        public static string MupDosyasındanOkuma_CümleBaşlangıcı = ">Sinyaller";
-        public static char MupDosyasındanOkuma_KelimeAyracı = ';';
-
-        public static double[] ZamanEkseni;
-        public static bool BaşlatDurdur = true;
         #endregion
 
         #region Günlük
@@ -168,7 +155,7 @@ namespace Çizelgeç
 
         #region Diğer
         public static string AnaEkran_ÇubuktakiYazı = "ArGeMuP Çizelgeç V" + ArgeMup.HazirKod.Kendi.Sürümü_Dosya;
-        public static bool Çalışşsın = false;
+        public static bool Çalışşsın = false, BaşlatDurdur = true;
         public static int Çizelge_ÇizgiKalınlığı = 1;
         public static int CanliÇizdirme_ÖlçümSayısı = 10000;
         public static CheckBox _Günlük_YeniMesajaGit;
@@ -278,7 +265,7 @@ namespace Çizelgeç
                            Environment.NewLine + yeni.Tür + " " + S.Tarih.Yazıya(yeni.Zaman) +
                            Environment.NewLine + yazı;
 
-                    S._Günlük_MetinKutusu.Invoke((MethodInvoker)delegate ()
+                    S._Günlük_MetinKutusu.Invoke(new Action(() =>
                     {
                         if (S._Günlük_MetinKutusu.Text.Length > 1000000) S._Günlük_MetinKutusu.Text = S._Günlük_MetinKutusu.Text.Remove(0, 100000);
 
@@ -291,7 +278,7 @@ namespace Çizelgeç
                         }
 
                         if (yeni.Tür == "HATA") S._Günlük_Buton.Image = Properties.Resources.M_Gunluk_Yeni;
-                    });
+                    }));
                 }
                 catch (Exception ex) { if (S.Çalışşsın) MessageBox.Show("İstenmeyen Durum " + ex); }
             }

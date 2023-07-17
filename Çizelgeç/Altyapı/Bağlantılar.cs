@@ -1,5 +1,6 @@
 ﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
 
+using ArgeMup.HazirKod;
 using ArgeMup.HazirKod.DonanımHaberleşmesi;
 using System;
 using System.Collections.Generic;
@@ -13,18 +14,22 @@ namespace Çizelgeç
 {
     #region Bağlantılar
     public enum Bağlantı_Türü_ { Boşta, SeriPort, KomutSatırı, Tcpİstemci, TcpSunucu, Udpİstemci, UdpSunucu };
+    public class Bağlantı_Ayıklama_
+    {
+        public string CümleBaşlangıcı = ">Sinyaller";
+        public char KelimeAyracı = ';';
+        public bool Kaydedilsin = true;
+        public Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri TanımlanmamışSinyalleri = Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Kullan;
+    }
 
     public class Bağlantı_
     {
         public string Adı = "";
         public Bağlantı_Türü_ Türü = Bağlantı_Türü_.Boşta;
-        public string GöbekAdı = null;
-        public string CümleBaşlangıcı = ">Sinyaller";
-        public char KelimeAyracı = ';';
+        public Bağlantı_Ayıklama_[] Ayıklama = null;
+        public bool Kaydedilsin = false;
         public string P1 = "";
         public string P2 = "";
-        public bool Kaydedilsin = true;
-        public enum TanımlanmamışSinyalleri_ { Kullan, Kaydetme, Atla }; public TanımlanmamışSinyalleri_ TanımlanmamışSinyalleri = TanımlanmamışSinyalleri_.Kullan;
         public List<string> SonGelenBilgiler = new List<string>();
         public TreeNode Dal = null;
         
@@ -35,16 +40,136 @@ namespace Çizelgeç
         #region Bağlantının İçeriğinin Dosyaya Kaydedilmesi
         public string Kaydet_DosyaAdı = "";
         public int Kaydet_DosyaBoyutu = 0;
-        public int Kaydet_HedefDosyaBoyutu = 5 * 1024 * 1024;
         #endregion
 
         public IDonanımHaberlleşmesi Haberleşme = null;
 
         public GelenBilgiler_ GelenBilgiler = new GelenBilgiler_();
+
+        public void Ayıklayıcı_Ekle(string CümleBaşlangıcı = ">Sinyaller", char KelimeAyracı = ';', bool Kaydedilsin = true, Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri TanımlanmamışSinyalleri = Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Kullan)
+        {
+            if (Ayıklama == null) Ayıklama = new Bağlantı_Ayıklama_[1];
+            else Array.Resize(ref Ayıklama, Ayıklama.Length + 1);
+
+            Bağlantı_Ayıklama_ yeni = new Bağlantı_Ayıklama_();
+            Ayıklama[Ayıklama.Length - 1] = yeni;
+            yeni.CümleBaşlangıcı = CümleBaşlangıcı;
+            yeni.KelimeAyracı = KelimeAyracı;
+            yeni.Kaydedilsin = Kaydedilsin;
+            yeni.TanımlanmamışSinyalleri = TanımlanmamışSinyalleri;
+        }
+        public void Başlat()
+        {
+            Kaydedilsin = false;
+            foreach (Bağlantı_Ayıklama_ a in Ayıklama)
+            {
+                if (a.Kaydedilsin)
+                {
+                    if (!string.IsNullOrEmpty(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü))
+                    {
+                        Kaydedilsin = true;
+                    }
+                    break;
+                }
+            }
+
+            if (Kaydedilsin)
+            {
+                string Kaydet_DosyaAdı = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "Bağlantılar\\" + S.DosyaKlasörAdınıDüzelt(Adı);
+                Directory.CreateDirectory(Kaydet_DosyaAdı);
+
+                //cs dosyalarını çıktı klasörü içine kopyala
+                Klasör_ kls_cs_ler = new Klasör_(S.BaşlangıçParametreleri[0], Filtre_Dosya: "*.cs");
+                foreach (var d in kls_cs_ler.Dosyalar)
+                {
+                    Dosya.Kopyala(kls_cs_ler.Kök + "\\" + d.Yolu, Kaydet_DosyaAdı + "\\" + d.Yolu);
+                }
+            }
+
+            switch (Türü)
+            {
+                case Bağlantı_Türü_.KomutSatırı:
+                    if (!File.Exists(P1))
+                    {
+                        string[] lst = Directory.GetFiles(S.AnaKlasör, P1, SearchOption.AllDirectories);
+                        if (lst.Length == 0)
+                        {
+                            lst = Directory.GetFiles(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü, P1, SearchOption.AllDirectories);
+                            if (lst.Length == 0) throw new Exception(P1 + " bulunamadı");
+                        }
+
+                        P1 = lst[0];
+                        Günlük.Ekle(Adı + " bağlantısının P1 parametresi değiştirildi -> " + P1, "Bilgi");
+                    }
+
+                    Haberleşme = new KomutSatırıUygulaması_(P1, P2, BilgiGeldiVeyaDurumDeğişikliği, this);
+                    break;
+
+                case Bağlantı_Türü_.SeriPort:
+                    Haberleşme = new SeriPort_(P1, int.Parse(P2), BilgiGeldiVeyaDurumDeğişikliği, this);
+                    break;
+
+                case Bağlantı_Türü_.Tcpİstemci:
+                    Haberleşme = new Tcpİstemci_(int.Parse(P2), P1, BilgiGeldiVeyaDurumDeğişikliği, this);
+                    break;
+
+                case Bağlantı_Türü_.TcpSunucu:
+                    Haberleşme = new TcpSunucu_(int.Parse(P1), BilgiGeldiVeyaDurumDeğişikliği, this, SadeceYerel: false);
+                    break;
+
+                case Bağlantı_Türü_.UdpSunucu:
+                    Haberleşme = new UdpDinleyici_(int.Parse(this.P1), BilgiGeldiVeyaDurumDeğişikliği, this, SadeceYerel: false);
+                    break;
+
+                default:
+                    break;
+            }
+
+            GelenBilgiler.Başlat(this);
+        }
+        public void Gönder(string Mesaj)
+        {
+            Haberleşme.Gönder(Mesaj, Türü == Bağlantı_Türü_.Udpİstemci ? P1 + ":" + P2 : null);
+
+            GelenBilgiler.Ekle(Mesaj, "Giden");
+        }
+        public void Gönder(byte[] Mesaj)
+        {
+            Haberleşme.Gönder(Mesaj, Türü == Bağlantı_Türü_.Udpİstemci ? P1 + ":" + P2 : null);
+
+            GelenBilgiler.Ekle(Mesaj.Length + "B ham blgi", "Giden");
+        }
+        public void Sil()
+        {
+            if (Dal != null)
+            {
+                if (S.AnaEkran.InvokeRequired)
+                {
+                    S.AnaEkran.Invoke(new Action(() => { Dal?.Remove(); }));
+                }
+                else Dal?.Remove();
+            }
+
+            Haberleşme.Durdur();
+            GelenBilgiler.Çalışsın = false;
+            Bağlantılar.Tümü.Remove(Adı);
+        }
+        void BilgiGeldiVeyaDurumDeğişikliği(string Kaynak, GeriBildirim_Türü_ Tür, object İçerik, object Hatırlatıcı)
+        {
+            Bağlantı_ kendi = (Bağlantı_)Hatırlatıcı;
+
+            if (Tür == GeriBildirim_Türü_.BilgiGeldi) kendi.GelenBilgiler.Ekle((string)İçerik);
+            else if (Tür == GeriBildirim_Türü_.BağlantıKurulmasıTekrarDenecek) return;
+            else
+            {
+                Günlük.Ekle(kendi.Adı + " " + Tür.ToString() + " (Eğer sürekli olarak tekrar ediyorsa ayarlar hatalı olabilir)");
+                kendi.GelenBilgiler.Ekle(kendi.Adı + " " + Kaynak + " " + Tür.ToString(), "Uyarı");
+            }
+        }
     };
     public class Bağlantılar
     {
-        //static Mutex Mtx = new Mutex();
+        static Mutex Mtx = new Mutex();
         public static Dictionary<string, Bağlantı_> Tümü = new Dictionary<string, Bağlantı_>();
         public static bool UygunMu(string Adı)
         {
@@ -57,105 +182,34 @@ namespace Çizelgeç
         public static Bağlantı_ Ekle(string Adı)
         {
             if (!UygunMu(Adı)) throw new Exception(Adı + " bağlantı adı olarak uygun değil");
-
-            Adı = Adı.Trim(' ');
-            if (MevcutMu(Adı)) return Bul(Adı);
+            if (MevcutMu(Adı)) throw new Exception("Bağlantı adı " + Adı + " zaten eklendi");
 
             Bağlantı_ yeni = new Bağlantı_();
             yeni.Adı = Adı;
 
-            //Mtx.WaitOne();
+            Mtx.WaitOne();
             Tümü[Adı] = yeni;
-            //Mtx.ReleaseMutex();
+            Mtx.ReleaseMutex();
 
             return yeni;
         }
         public static Bağlantı_ Bul(string Adı)
         {
-            Adı = Adı.Trim(' ');
-
-            //Mtx.WaitOne();
             Bağlantı_ girdi;
             bool sonuç = Tümü.TryGetValue(Adı, out girdi);
-            //Mtx.ReleaseMutex();
 
             if (sonuç) return girdi;
 
             throw new Exception(Adı + " isimli bağlantı listede bulunamadı");
         }
-        public static void Başlat(string Adı)
-        {
-            Bağlantı_ aranan = Bul(Adı);
-
-            switch (aranan.Türü)
-            {
-                case Bağlantı_Türü_.KomutSatırı:
-                    if (!File.Exists(aranan.P1))
-                    {
-                        string[] lst = Directory.GetFiles(S.AnaKlasör, aranan.P1, SearchOption.AllDirectories);
-                        if (lst.Length == 0)
-                        {
-                            lst = Directory.GetFiles(S.Dosyalama_KayıtKlasörü, aranan.P1, SearchOption.AllDirectories);
-                            if (lst.Length == 0) throw new Exception(aranan.P1 + " bulunamadı");
-                        }
-
-                        aranan.P1 = lst[0];
-                        Günlük.Ekle(aranan.Adı + " bağlantısının P1 parametresi değiştirildi -> " + aranan.P1, "Bilgi");
-                    }
-
-                    aranan.Haberleşme = new KomutSatırıUygulaması_(aranan.P1, aranan.P2, BilgiGeldiVeyaDurumDeğişikliği, aranan);
-                    break;
-
-                case Bağlantı_Türü_.SeriPort:
-                    aranan.Haberleşme = new SeriPort_(aranan.P1, int.Parse(aranan.P2), BilgiGeldiVeyaDurumDeğişikliği, aranan);
-                    break;
-
-                case Bağlantı_Türü_.Tcpİstemci:
-                    aranan.Haberleşme = new Tcpİstemci_(int.Parse(aranan.P2), aranan.P1, BilgiGeldiVeyaDurumDeğişikliği, aranan);
-                    break;
-
-                case Bağlantı_Türü_.TcpSunucu:
-                    aranan.Haberleşme = new TcpSunucu_(int.Parse(aranan.P1), BilgiGeldiVeyaDurumDeğişikliği, aranan, SadeceYerel:false);
-                    break;
-
-                case Bağlantı_Türü_.UdpSunucu:
-                    aranan.Haberleşme = new UdpDinleyici_(int.Parse(aranan.P1), BilgiGeldiVeyaDurumDeğişikliği, aranan, SadeceYerel:false);
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (aranan.Haberleşme != null) aranan.GelenBilgiler.Başlat(aranan);
-        }
         public static void Durdur()
         {
             foreach (var biri in Tümü.Values)
             {
-                biri.Haberleşme.Durdur();
+                biri.Haberleşme?.Durdur();
             }
 
             Tümü.Clear();
-        }
-        public static void Gönder(string Adı, string Mesaj)
-        {
-            Bağlantı_ kendi = Bul(Adı);
-            kendi.Haberleşme.Gönder(Mesaj, kendi.Türü == Bağlantı_Türü_.Udpİstemci ? kendi.P1 + ":" + kendi.P2 : null);
-
-            kendi.GelenBilgiler.Ekle(Mesaj, "Giden");
-        }
-
-        static void BilgiGeldiVeyaDurumDeğişikliği(string Kaynak, GeriBildirim_Türü_ Tür, object İçerik, object Hatırlatıcı)
-        {
-            Bağlantı_ kendi = (Bağlantı_)Hatırlatıcı;
-
-            if (Tür == GeriBildirim_Türü_.BilgiGeldi) kendi.GelenBilgiler.Ekle((string)İçerik);
-            else if (Tür == GeriBildirim_Türü_.BağlantıKurulmasıTekrarDenecek) return;
-            else
-            {
-                Günlük.Ekle(kendi.Adı + " " + Tür.ToString() + " (Eğer sürekli olarak tekrar ediyorsa ayarlar hatalı olabilir)");
-                kendi.GelenBilgiler.Ekle(kendi.Adı + " " + Kaynak + " " + Tür.ToString(), "Uyarı");
-            }
         }
     }
     #endregion
@@ -170,12 +224,11 @@ namespace Çizelgeç
     }
     public class GelenBilgiler_
     {
+        public bool Çalışsın = true;
         Bağlantı_ Bağlantı;
         public void Başlat(Bağlantı_ Bağlantı)
         {
             this.Bağlantı = Bağlantı;
-
-            if (string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü)) Bağlantı.Kaydedilsin = false;
 
             if (Bağlantı.Kaydedilsin)
             {
@@ -214,7 +267,7 @@ namespace Çizelgeç
                 Mtx_Kaydetme.ReleaseMutex();
             }
 
-            if (Bağlantı.SonGelenBilgiler.Count < 10) Bağlantı.SonGelenBilgiler.Add(Tür + Bağlantı.KelimeAyracı + Bilgi.Trim('\r', '\n'));
+            if (Bağlantı.SonGelenBilgiler.Count < 10) Bağlantı.SonGelenBilgiler.Add(Tür + " " + Bilgi.Trim('\r', '\n'));
 
             Bağlantı.DaldakiYazıyıGüncelleVeKabart = true;
             Bağlantı.SonDeğerinAlındığıAn = DateTime.Now;
@@ -227,7 +280,7 @@ namespace Çizelgeç
         Thread Görev_Nesnesi_Ayıklama = null;
         void Görev_İşlemi_Ayıklama()
         {
-            while (S.Çalışşsın)
+            while (S.Çalışşsın && Çalışsın)
             {
                 try
                 {
@@ -236,7 +289,7 @@ namespace Çizelgeç
 
                     Mtx_Ayıklama.WaitOne();
                     GelenBilgi_ sıradaki = Tümü_Ayıklama[0];
-                    if (S.BaşlatDurdur)
+                    if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
                     {
                         if (Tümü_Ayıklama.Count > 100000)
                         {
@@ -251,34 +304,37 @@ namespace Çizelgeç
                     else Tümü_Ayıklama.Clear();
                     Mtx_Ayıklama.ReleaseMutex();
 
-                    int başlangıç = sıradaki.Bilgi.LastIndexOf(Bağlantı.CümleBaşlangıcı);
-                    if (başlangıç >= 0)
+                    foreach (Bağlantı_Ayıklama_ a in Bağlantı.Ayıklama)
                     {
-                        string gelen = sıradaki.Bilgi.Substring(başlangıç + Bağlantı.CümleBaşlangıcı.Length).Trim(' ', Bağlantı.KelimeAyracı);
-                        string[] dizi = gelen.Split(Bağlantı.KelimeAyracı);
-                        for (int i = 1; i < dizi.Length; i++)
+                        int başlangıç = sıradaki.Bilgi.LastIndexOf(a.CümleBaşlangıcı);
+                        if (başlangıç >= 0)
                         {
-                            string sinyal_yazı;
-                            if (string.IsNullOrEmpty(Bağlantı.GöbekAdı)) sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
-                            else sinyal_yazı = "<" + Bağlantı.GöbekAdı + dizi[0] + "[" + (i - 1).ToString() + "]>";
-
-                            bool TanımlanmamışVeKaydetme = false;
-                            if (Bağlantı.TanımlanmamışSinyalleri != Bağlantı_.TanımlanmamışSinyalleri_.Kullan)
+                            string gelen = sıradaki.Bilgi.Substring(başlangıç + a.CümleBaşlangıcı.Length).Trim(' ', a.KelimeAyracı);
+                            string[] dizi = gelen.Split(a.KelimeAyracı);
+                            for (int i = 1; i < dizi.Length; i++)
                             {
-                                if (!Sinyaller.MevcutMu(sinyal_yazı))
+                                string sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
+
+                                bool TanımlanmamışVeKaydetme = false;
+                                if (a.TanımlanmamışSinyalleri != Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Kullan)
                                 {
-                                    if (Bağlantı.TanımlanmamışSinyalleri == Bağlantı_.TanımlanmamışSinyalleri_.Atla) continue;
-                                    else TanımlanmamışVeKaydetme = true;
+                                    if (!Sinyaller.MevcutMu(sinyal_yazı))
+                                    {
+                                        if (a.TanımlanmamışSinyalleri == Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Atla) continue;
+                                        else TanımlanmamışVeKaydetme = true;
+                                    }
                                 }
+
+                                try
+                                {
+                                    Sinyal_ sny = Sinyaller.Ekle(sinyal_yazı);
+                                    sny.Güncelle_SonDeğer(dizi[i]);
+                                    if (TanımlanmamışVeKaydetme) sny.Değeri.Kaydedilsin = false;
+                                }
+                                catch (Exception) { Günlük.Ekle(Bağlantı.Adı + " bağlantısının " + (i + 1) + ". elemanı -> " + dizi[i] + "  <- sayıya dönüştürülemedi."); }
                             }
 
-                            try 
-                            {
-                                Sinyal_ sny = Sinyaller.Ekle(sinyal_yazı);
-                                sny.Güncelle_SonDeğer(dizi[i]);
-                                if (TanımlanmamışVeKaydetme) sny.Değeri.Kaydedilsin = false;
-                            }
-                            catch (Exception) { Günlük.Ekle(Bağlantı.Adı + " bağlantısının " + (i + 1) + ". elemanı -> " + dizi[i] + "  <- sayıya dönüştürülemedi."); }
+                            break;
                         }
                     }
                 }
@@ -295,7 +351,7 @@ namespace Çizelgeç
         {
             DateTime EnSonKayıtAnı = DateTime.Now;
     
-            while (S.Çalışşsın)
+            while (S.Çalışşsın && Çalışsın)
             {
                 try
                 {
@@ -314,11 +370,11 @@ namespace Çizelgeç
                     }
                     EnSonKayıtAnı = DateTime.Now;
 
-                    while (Tümü_Kaydetme.Count > 15 && S.Çalışşsın)
+                    while (Tümü_Kaydetme.Count > 15 && S.Çalışşsın && Çalışsın)
                     {
                         Mtx_Kaydetme.WaitOne();
                         GelenBilgi_ sıradaki = Tümü_Kaydetme[0];
-                        if (S.BaşlatDurdur)
+                        if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
                         {
                             if (Tümü_Kaydetme.Count > 100000)
                             {
@@ -333,7 +389,7 @@ namespace Çizelgeç
                         else Tümü_Kaydetme.Clear();
                         Mtx_Kaydetme.ReleaseMutex();
 
-                        Görev_İşlemi_DosyayaKaydet(S.Tarih.Yazıya(sıradaki.Zaman) + Bağlantı.KelimeAyracı + sıradaki.Tür + Bağlantı.KelimeAyracı + sıradaki.Bilgi.Trim('\r', '\n') + Environment.NewLine);
+                        Görev_İşlemi_DosyayaKaydet(S.Tarih.Yazıya(sıradaki.Zaman) + " " + sıradaki.Tür + " " + sıradaki.Bilgi.Trim('\r', '\n') + Environment.NewLine);
 
                         Thread.Sleep(1); //cpu yüzdesini düşürmek için
                     }
@@ -349,10 +405,10 @@ namespace Çizelgeç
                 while (Tümü_Kaydetme.Count > 0)
                 {
                     GelenBilgi_ sıradaki = Tümü_Kaydetme[0];
-                    if (S.BaşlatDurdur) Tümü_Kaydetme.RemoveAt(0);
+                    if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur) Tümü_Kaydetme.RemoveAt(0);
                     else Tümü_Kaydetme.Clear();
 
-                    Görev_İşlemi_DosyayaKaydet(S.Tarih.Yazıya(sıradaki.Zaman) + Bağlantı.KelimeAyracı + sıradaki.Tür + Bağlantı.KelimeAyracı + sıradaki.Bilgi.Trim('\r', '\n') + Environment.NewLine);
+                    Görev_İşlemi_DosyayaKaydet(S.Tarih.Yazıya(sıradaki.Zaman) + " " + sıradaki.Tür + " " + sıradaki.Bilgi.Trim('\r', '\n') + Environment.NewLine);
                 }
             }
             catch (Exception) { }
@@ -361,17 +417,16 @@ namespace Çizelgeç
         {
             if (!File.Exists(Bağlantı.Kaydet_DosyaAdı))
             {
-                Bağlantı.Kaydet_DosyaAdı = S.Dosyalama_KayıtKlasörü + "Bağlantılar\\" + S.DosyaKlasörAdınıDüzelt(Bağlantı.Adı);
+                Bağlantı.Kaydet_DosyaAdı = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "Bağlantılar\\" + S.DosyaKlasörAdınıDüzelt(Bağlantı.Adı);
                 Directory.CreateDirectory(Bağlantı.Kaydet_DosyaAdı);
 
                 Bağlantı.Kaydet_DosyaAdı += "\\" + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".mup";
                 Bağlantı.Kaydet_DosyaBoyutu = 0;
-                Bağlantı.Kaydet_HedefDosyaBoyutu = (int)Çevirici.Yazıdan_NoktalıSayıya(S.Dosyalama_AzamiDosyaBoyutu_Bayt);
             }
 
             File.AppendAllText(Bağlantı.Kaydet_DosyaAdı, Mesaj);
             Bağlantı.Kaydet_DosyaBoyutu += Mesaj.Length;
-            if (Bağlantı.Kaydet_DosyaBoyutu > Bağlantı.Kaydet_HedefDosyaBoyutu) Bağlantı.Kaydet_DosyaAdı = "";
+            if (Bağlantı.Kaydet_DosyaBoyutu > Yardımcıİşlemler.BilgiToplama.Kayıt_AzamiDosyaBoyutu_Bayt) Bağlantı.Kaydet_DosyaAdı = "";
         }
         #endregion
     }
@@ -390,7 +445,7 @@ namespace Çizelgeç
         {
             if (Görev_Nesnesi == null)
             {
-                if (string.IsNullOrEmpty(S.Dosyalama_KayıtKlasörü)) return;
+                if (string.IsNullOrEmpty(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü)) return;
 
                 Görev_Nesnesi = new Thread(() => Görev_İşlemi());
                 Görev_Nesnesi.Start();
@@ -429,7 +484,7 @@ namespace Çizelgeç
                         Thread.Sleep(1500);
                         continue;
                     }
-                    else if (S.BaşlatDurdur && 
+                    else if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur && 
                             (DateTime.Now - EnSonKayıtAnı).TotalSeconds < 60 && 
                             Tümü.Count < 350)
                     {
@@ -441,8 +496,8 @@ namespace Çizelgeç
 
                     if (!File.Exists(DosyaYolu))
                     {
-                        Directory.CreateDirectory(S.Dosyalama_KayıtKlasörü);
-                        DosyaYolu = S.Dosyalama_KayıtKlasörü + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".csv";
+                        Directory.CreateDirectory(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü);
+                        DosyaYolu = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".csv";
                         BaşlıkSayısı = 0;
                         DosyaBütünlüğüKodu = "";
                     }
@@ -499,15 +554,14 @@ namespace Çizelgeç
                             yazı += Environment.NewLine;
                             Ekle(fs, yazı);
 
-                            if (S.BaşlatDurdur && işlenen > 350)
+                            if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur && işlenen > 350)
                             {
                                 Thread.Sleep(1); //cpu yüzdesini düşürmek için
                                 break;
                             }
                         }
 
-                        double hedefdosyaboyutu = Çevirici.Yazıdan_NoktalıSayıya(S.Dosyalama_AzamiDosyaBoyutu_Bayt);
-                        if (fs.Length > hedefdosyaboyutu || !S.BaşlatDurdur)
+                        if (fs.Length > Yardımcıİşlemler.BilgiToplama.Kayıt_AzamiDosyaBoyutu_Bayt || !Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
                         {
                             DosyaYolu = "";
 
@@ -515,7 +569,7 @@ namespace Çizelgeç
                             Ekle(fs, yazı);
                             yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;" + S.SonDurumMesajı.Replace(Environment.NewLine, " ") + Environment.NewLine;
                             Ekle(fs, yazı);
-                            yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;" + (S.BaşlatDurdur ? "Azami dosya boyutuna ulaşıldığı için " : "Uygulama gecici olarak durdurulduğu için ") + YeniKayıtDosyasıSayısı++ + ". dosya olarak kaydedildi" + Environment.NewLine;
+                            yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;" + (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur ? "Azami dosya boyutuna ulaşıldığı için " : "Uygulama gecici olarak durdurulduğu için ") + YeniKayıtDosyasıSayısı++ + ". dosya olarak kaydedildi" + Environment.NewLine;
                             Ekle(fs, yazı);
                             yazı = S.Tarih.Yazıya(DateTime.Now) + ";Doğrulama;" + DosyaBütünlüğüKodu;
                             Ekle(fs, yazı);
@@ -538,7 +592,7 @@ namespace Çizelgeç
                 {
                     if (!File.Exists(DosyaYolu))
                     {
-                        DosyaYolu = S.Dosyalama_KayıtKlasörü + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".csv";
+                        DosyaYolu = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".csv";
                         BaşlıkSayısı = 0;
                         DosyaBütünlüğüKodu = "";
                     }

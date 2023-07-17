@@ -1,5 +1,6 @@
 ﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
 
+using ScottPlot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Çizelgeç
             Application.DoEvents();
 
             #region Tamponların Hazırlanması
-            if (S.ZamanEkseni == null) S.ZamanEkseni = Enumerable.Repeat(S.Tarih.Sayıya(DateTime.Now), S.CanliÇizdirme_ÖlçümSayısı).ToArray();
+            if (Yardımcıİşlemler.Sinyaller.ZamanEkseni == null) Yardımcıİşlemler.Sinyaller.ZamanEkseni = Enumerable.Repeat(S.Tarih.Sayıya(DateTime.Now), Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı).ToArray();
             #endregion
 
             S.Çizelge.plt.Clear();
@@ -57,33 +58,22 @@ namespace Çizelgeç
             //#endregion
 
             #region Senaryolar
-            if (Senaryolar.Tümü.Count > 0)
-            {
-                TreeNode se = t.Nodes.Add("Senaryolar", "Senaryolar");
-                foreach (var biri in Senaryolar.Tümü.Values)
-                {
-                    TreeNode y = se.Nodes.Add(biri.Adı);
-                    y.Tag = biri;
-                    biri.Dal = y;
-                }
-                se.Collapse(false);
-            }
+            //if (Senaryolar.Tümü.Count > 0)
+            //{
+            //    TreeNode se = t.Nodes.Add("Senaryolar", "Senaryolar");
+            //    foreach (var biri in Senaryolar.Tümü.Values)
+            //    {
+            //        TreeNode y = se.Nodes.Add(biri.Adı);
+            //        y.Tag = biri;
+            //        biri.Dal = y;
+            //    }
+            //    se.Collapse(false);
+            //}
             #endregion
 
             #region Bağlantılar
-            if (Bağlantılar.Tümü.Count > 0)
-            {
-                TreeNode b = t.Nodes.Add("Bağlantılar", "Bağlantılar");;
-                foreach (var biri in Bağlantılar.Tümü.Values)
-                {
-                    TreeNode y = b.Nodes.Add(biri.Adı);
-                    y.Tag = biri;
-                    biri.Dal = y;
-
-                    y.Nodes.Add("Son alınan bilgiler");
-                }
-                b.Collapse(false);
-            }
+            TreeNode b = t.Nodes.Add("Bağlantılar", "Bağlantılar");
+            b.Collapse(false);
             #endregion
 
             S.Ağaç.Nodes.Clear();
@@ -97,20 +87,19 @@ namespace Çizelgeç
                 }
             }
             
-            #region Çizelge Görsellerini Oluştur
-            
+            #region Çizelge Görsellerini Oluştur   
             t.Text = "Grafik hazırlanıyor";
             Application.DoEvents();
             S.Çizdir();
             #endregion
 
-            t.Text = İşAdı + " - " + S.CanliÇizdirme_ÖlçümSayısı;
+            t.Text = İşAdı + " - " + Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı;
 
             S.AralıkSeçici_Baştan.Minimum = 0;
-            S.AralıkSeçici_Baştan.Maximum = S.CanliÇizdirme_ÖlçümSayısı - 1;
+            S.AralıkSeçici_Baştan.Maximum = Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı - 1;
             S.AralıkSeçici_Baştan.Value = 0;
             S.AralıkSeçici_Sondan.Minimum = 0;
-            S.AralıkSeçici_Sondan.Maximum = S.CanliÇizdirme_ÖlçümSayısı - 1;
+            S.AralıkSeçici_Sondan.Maximum = Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı - 1;
             S.AralıkSeçici_Sondan.Value = S.AralıkSeçici_Sondan.Maximum;
         }
 
@@ -157,6 +146,16 @@ namespace Çizelgeç
             }
 
             SinyaliAğacaEkle(Sinyal.Value, bulunan);
+
+            var snyler = S.Çizelge.plt.GetPlottables();
+            if (Sinyaller.Tümü.Count != snyler.Count)
+            {
+                while (snyler.Count > 0 && S.Çalışşsın) snyler.RemoveAt(0);
+            }
+            foreach (Sinyal_ sny in Sinyaller.Tümü.Values)
+            {
+                S.Çizelge.plt.Add(sny.Görseller.Çizikler);
+            }
         }
 
         static public void SinyaliAğacaEkle(Sinyal_ Sinyal, TreeNode Üstteki = null)
@@ -188,10 +187,10 @@ namespace Çizelgeç
         }
         static public void ÇizikVeTamponuHazırla(Sinyal_ Sinyal)
         {
-            if (Sinyal.Değeri.DeğerEkseni == null) Sinyal.Değeri.DeğerEkseni = new double[S.CanliÇizdirme_ÖlçümSayısı];
+            if (Sinyal.Değeri.DeğerEkseni == null) Sinyal.Değeri.DeğerEkseni = new double[Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı];
             if (Sinyal.Görseller.Çizikler == null)
             {
-                Sinyal.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(S.ZamanEkseni, Sinyal.Değeri.DeğerEkseni);
+                Sinyal.Görseller.Çizikler = S.Çizelge.plt.PlotSignalXY(Yardımcıİşlemler.Sinyaller.ZamanEkseni, Sinyal.Değeri.DeğerEkseni);
                 Sinyal.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
                 Sinyal.Görseller.Çizikler.markerSize = (S.Çizelge_ÇizgiKalınlığı * (float)1.5) + 5;
                 Sinyal.Görseller.Çizikler.minRenderIndex = S.AralıkSeçici_Baştan.Value;

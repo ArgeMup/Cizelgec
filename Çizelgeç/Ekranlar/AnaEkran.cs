@@ -7,7 +7,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
-using System.Diagnostics;
 using ArgeMup.HazirKod;
 
 namespace Çizelgeç
@@ -59,10 +58,9 @@ namespace Çizelgeç
             Font = new Font(Font.FontFamily, Convert.ToInt32(S.Ayarlar.Oku("BuyutmeOrani", "6")));
             Ayraç_Ana.SplitterDistance = Convert.ToInt32(S.Ayarlar.Oku("Ayraç_Ana.SplitterDistance", "250"));
 
-            AnaEkran_Ağacı_Başlat();
+            AnaEkran_Ağacı_Başlat(false);
 
-            File.WriteAllBytes(S.Şablon_Klasörü + "Ayarlar.json", Properties.Resources.Ayarlar);
-            File.WriteAllBytes(S.Şablon_Klasörü + "Senaryo1.json", Properties.Resources.Senaryo1);
+            File.WriteAllText(S.Şablon_Klasörü + "Ayarlar.cs", Properties.Resources.ÖrnekKaynakKod_CanlıEkranlama);
 
             YeniYazılımKontrolü.Başlat(new Uri("https://github.com/ArgeMup/Cizelgec/blob/main/%C3%87izelge%C3%A7/bin/Release/%C3%87izelge%C3%A7.exe?raw=true"), YeniYazılımKontrolü_GeriBildirim);
 
@@ -75,13 +73,13 @@ namespace Çizelgeç
                 if (Path.GetExtension(S.BaşlangıçParametreleri[0]) == ".csv" || Path.GetExtension(S.BaşlangıçParametreleri[0]) == ".mup")
                 {
                     S.Çalışşsın = true;
-                    ÖlüEkranlamayı_Başlat(S.BaşlangıçParametreleri[0]);
+                    ÖlüEkranlamayı_Başlat();
                 }
-                else if (Path.GetFileName(S.BaşlangıçParametreleri[0]) == "Ayarlar.json")
+                else if (Path.GetExtension(S.BaşlangıçParametreleri[0]).ToLower() == ".cs")
                 {
-                    string iş = Path.GetDirectoryName(S.BaşlangıçParametreleri[0]);
-                    DirectoryInfo iş_klasörü = new DirectoryInfo(iş);
-                    CanlıEkranlama_Başlat(iş_klasörü.Name, iş);
+                    S.BaşlangıçParametreleri[0] = Path.GetDirectoryName(S.BaşlangıçParametreleri[0]);
+                    DirectoryInfo iş_klasörü = new DirectoryInfo(S.BaşlangıçParametreleri[0]);
+                    CanlıEkranlama_Başlat(iş_klasörü.Name);
                 }
             }
 
@@ -97,7 +95,7 @@ namespace Çizelgeç
         }
         private void AnaEkran_FormClosed(object sender, FormClosedEventArgs e)
         {
-            S.BaşlatDurdur = true;
+            Yardımcıİşlemler.ÖnYüz.BaşlatDurdur = true;
             S.Çalışşsın = false;
             Bağlantılar.Durdur();
             
@@ -134,7 +132,7 @@ namespace Çizelgeç
             if (S.Ağaç.Nodes[0].Text != "Kayıtlı İşler")
             {
                 //yeni uygulamada aç
-                S.Çalıştır.UygulamayıDoğrudanÇalıştır(Kendi.DosyaYolu, files[0], false, false);
+                S.Çalıştır.UygulamayıDoğrudanÇalıştır(Kendi.DosyaYolu, files, false, false);
                 return;
             }
             else
@@ -143,8 +141,8 @@ namespace Çizelgeç
                 try 
                 {
                     S.Çalışşsın = true;
-                    ÖlüEkranlamayı_Başlat(files[0]);
                     S.BaşlangıçParametreleri = files;
+                    ÖlüEkranlamayı_Başlat();
                 }
                 catch (Exception ex) 
                 { 
@@ -153,11 +151,17 @@ namespace Çizelgeç
                 }
             }
         }
-        void AnaEkran_Ağacı_Başlat()
+        void AnaEkran_Ağacı_Başlat(bool Sıfırla = true)
         {
-            S.Çalışşsın = false;
-            Sinyaller.Tümü.Clear();
-            Bağlantılar.Tümü.Clear();
+            if (Sıfırla)
+            {
+                S.BaşlangıçParametreleri = null;
+                S.Çalışşsın = false;
+                Sinyaller.Tümü.Clear();
+                Bağlantılar.Tümü.Clear();
+                Canlı_Ekranlama = null;
+                Ölü_Ekranlama = null;
+            }
 
             Ağaç.BeginUpdate();
             Ağaç.Nodes.Clear();
@@ -181,19 +185,17 @@ namespace Çizelgeç
             Günlük.Ekle("Güncel yazılım kontrolü sonucu " + (Sonuç ? "başarılı" : "hatalı") + ". " + Açıklama, (Sonuç ? "Bilgi" : "HATA"));
         }
 
-        void CanlıEkranlama_Başlat(string İşAdı, string AyarlarDosyasıYolu)
+        //İş klasörünün yolu -> S.BaşlangıçParametreleri[0]
+        void CanlıEkranlama_Başlat(string İşAdı)
         {
             try
             {
-                if (!Directory.Exists(AyarlarDosyasıYolu)) throw new Exception(AyarlarDosyasıYolu + " klasörüne erişilemiyor");
+                if (!Directory.Exists(S.BaşlangıçParametreleri[0])) throw new Exception(S.BaşlangıçParametreleri[0] + " klasörüne erişilemiyor");
 
-                if (UygulamaOncedenCalistirildiMi_Basit.KontrolEt(AyarlarDosyasıYolu + "\\Kilit.mup"))
+                if (UygulamaOncedenCalistirildiMi_Basit.KontrolEt(S.BaşlangıçParametreleri[0] + "\\Kilit.mup"))
                 {
                     throw new Exception(İşAdı + " işi başka bir uygulamada açık olduğundan işlem durduruldu");
                 }
-
-                S.AnaEkran_ÇubuktakiYazı += " >>> " + İşAdı;
-                Text = S.AnaEkran_ÇubuktakiYazı;
 
                 S.Çalışşsın = true;
 
@@ -215,15 +217,19 @@ namespace Çizelgeç
                 Ağaç.SelectedImageIndex = 11;
                 Ağaç.ImageIndex = 0;
 
-                Canlı_Ekranlama = new Ekranlama_Canlı(İşAdı, AyarlarDosyasıYolu);
-                if (Senaryolar.Tümü.Count > 0)
-                {
-                    foreach (var biri in Senaryolar.Tümü.Values)
-                    {
-                        biri.Dal.ContextMenuStrip = SağTuşMenü_Senaryo;
-                    }
-                }
-                
+                Canlı_Ekranlama = new Ekranlama_Canlı();
+                Canlı_Ekranlama.Başlat(İşAdı, S.BaşlangıçParametreleri[0]);
+                //if (Senaryolar.Tümü.Count > 0)
+                //{
+                //    foreach (var biri in Senaryolar.Tümü.Values)
+                //    {
+                //        biri.Dal.ContextMenuStrip = SağTuşMenü_Senaryo;
+                //    }
+                //}
+
+                S.AnaEkran_ÇubuktakiYazı += " >>> " + İşAdı;
+                Text = S.AnaEkran_ÇubuktakiYazı;
+
                 Ağaç.NodeMouseDoubleClick -= Ağaç_NodeMouseDoubleClick_AçılışEkranı;
                 Ağaç.NodeMouseDoubleClick += Ağaç_NodeMouseDoubleClick_ÇalışmaEkranı;
                 Ağaç.AfterCheck += new TreeViewEventHandler(Ağaç_AfterCheck);
@@ -232,11 +238,11 @@ namespace Çizelgeç
 
                 SolMenu_BaşlatDurdur.Visible = true;
                 SolMenu_BaşlatDurdur_Ayraç.Visible = true;
-                if (Directory.Exists(S.Dosyalama_KayıtKlasörü)) SağTuşMenü_Çizelge_KayıtKlasörünüAç.Visible = true;
+                if (Directory.Exists(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü)) SağTuşMenü_Çizelge_KayıtKlasörünüAç.Visible = true;
 
                 AralıkSeçici_Baştan_Scroll(null, null);
 
-                SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked = S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla;
+                SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked = Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla;
                 SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Visible = true;
             }
             catch (Exception ex)
@@ -250,17 +256,17 @@ namespace Çizelgeç
         {
             try
             {
-                Ekranlama.AğaçVeÇizelge_Görsellerini_Üret(S.CanliÇizdirme_ÖlçümSayısı.ToString());
+                Ekranlama.AğaçVeÇizelge_Görsellerini_Üret(Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı.ToString());
                 AralıkSeçici_Baştan_Scroll(null, null);
                 S.Çizdir();
             }
             catch (Exception ex) { Günlük.Ekle(ex.Message); }
         }
-        void ÖlüEkranlamayı_Başlat(string Dosyayolu)
+        void ÖlüEkranlamayı_Başlat() //İş dosyasının yolu -> S.BaşlangıçParametreleri[0]
         {
             try
             {
-                Ölü_Ekranlama = new Ekranlama_Ölü(Dosyayolu);
+                Ölü_Ekranlama = new Ekranlama_Ölü(S.BaşlangıçParametreleri[0]);
 
                 Ağaç.NodeMouseDoubleClick -= Ağaç_NodeMouseDoubleClick_AçılışEkranı;
                 Ağaç.NodeMouseDoubleClick += Ağaç_NodeMouseDoubleClick_ÇalışmaEkranı;
@@ -272,7 +278,7 @@ namespace Çizelgeç
 
                 ÖlüEkranlama_Çizdir();
 
-                S.AnaEkran_ÇubuktakiYazı += " >>> " + Path.GetFileName(Dosyayolu);
+                S.AnaEkran_ÇubuktakiYazı += " >>> " + Path.GetFileName(S.BaşlangıçParametreleri[0]);
                 Text = S.AnaEkran_ÇubuktakiYazı;
 
                 SağTuşMenü_Çizelge_Ayırıcı1.Visible = true;
@@ -448,14 +454,14 @@ namespace Çizelgeç
         }
         private void SolMenu_BaşlatDurdur_Click(object sender, EventArgs e)
         {
-            if (S.BaşlatDurdur)
+            if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
             {
-                S.BaşlatDurdur = false;
+                Yardımcıİşlemler.ÖnYüz.BaşlatDurdur = false;
                 S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Hata;
             }
             else
             {
-                S.BaşlatDurdur = true;
+                Yardımcıİşlemler.ÖnYüz.BaşlatDurdur = true;
                 S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Tamam;
             }
         }
@@ -593,7 +599,7 @@ namespace Çizelgeç
             }
 
             int kalan_baştan = AralıkSeçici_Baştan.Value;
-            int kalan_sondan = (S.CanliÇizdirme_ÖlçümSayısı - 1) - AralıkSeçici_Sondan.Value;
+            int kalan_sondan = (Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı - 1) - AralıkSeçici_Sondan.Value;
 
             Kaydırıcı.Value = 0;
             Kaydırıcı.Maximum = kalan_baştan + kalan_sondan;
@@ -660,9 +666,9 @@ namespace Çizelgeç
                 }
             }
 
-            string açıklama = "Toplam " + S.CanliÇizdirme_ÖlçümSayısı + " ölçümün " + az + " ile " + cok + " aralığındaki " + (cok - az + 1) + " adet ölçüm gösteriliyor" + Environment.NewLine;
-            int toplam_saniye = (int)(S.Tarih.Tarihe(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[cok] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[cok]) - S.Tarih.Tarihe(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[az] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[az])).TotalSeconds;
-            açıklama += "Zaman aralığı : " + ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, toplam_saniye);
+            string açıklama = "Toplam " + Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı + " ölçümün " + az + " ile " + cok + " aralığındaki " + (cok - az + 1) + " adet ölçüm gösteriliyor" + Environment.NewLine;
+            int toplam_saniye = (int)(S.Tarih.Tarihe(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? Yardımcıİşlemler.Sinyaller.ZamanEkseni[cok] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[cok]) - S.Tarih.Tarihe(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? Yardımcıİşlemler.Sinyaller.ZamanEkseni[az] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[az])).TotalSeconds;
+            açıklama += "Zaman dilimi : " + ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, toplam_saniye);
             İpUcu.SetToolTip(Kaydırıcı, açıklama);
 
             if (Ağaç.SelectedNode == null) Ağaç.SelectedNode = Ağaç.Nodes[0];
@@ -757,8 +763,8 @@ namespace Çizelgeç
         {
             if (Ağaç.SelectedNode == null || Ağaç.SelectedNode.Parent == null) return;
 
-            string yol = S.Kulanıcı_Klasörü + Ağaç.SelectedNode.Text;
-            CanlıEkranlama_Başlat(Ağaç.SelectedNode.Text, yol);
+            S.BaşlangıçParametreleri = new string[] { S.Kulanıcı_Klasörü + Ağaç.SelectedNode.Text };
+            CanlıEkranlama_Başlat(Ağaç.SelectedNode.Text);
         }
         private void Ağaç_NodeMouseDoubleClick_ÇalışmaEkranı(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -884,7 +890,7 @@ namespace Çizelgeç
         private void Eposta_Click(object sender, EventArgs e)
         {
             string a = string.Format("mailto:{0}?Subject={1}&Body={2}", "argemup@yandex.com", Text + " Hk.", "Mesajınız");
-            S.Çalıştır.UygulamayaİşletimSistemiKararVersin(a, false);
+            S.Çalıştır.UygulamayaİşletimSistemiKararVersin(a, KapanırkenZorlaKapat:false);
         }
         private void Menu_aA_100_Click(object sender, EventArgs e)
         {
@@ -934,7 +940,7 @@ namespace Çizelgeç
 
         private void Çizelge_MouseMove(object sender, MouseEventArgs e)
         {
-            if (S.ZamanEkseni == null || S.ZamanEkseni.Length < 2 || e.Button > 0) return;
+            if (Yardımcıİşlemler.Sinyaller.ZamanEkseni == null || Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length < 2 || e.Button > 0) return;
 
             S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt = Environment.TickCount + S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt_Sabiti;
 
@@ -957,12 +963,12 @@ namespace Çizelgeç
                 return (int)Koordinat_X;
             }
 
-            return Yardımcıİşlemler.Sinyal.ZamanEkseni_EnYakın(S.Tarih.Tarihe(Koordinat_X), AralıkSeçici_Baştan.Value, AralıkSeçici_Sondan.Value);
+            return Yardımcıİşlemler.Sinyaller.ZamanEkseni_EnYakın(S.Tarih.Tarihe(Koordinat_X), AralıkSeçici_Baştan.Value, AralıkSeçici_Sondan.Value);
         }
         void SeçilenZamandakiDeğerler_AğaçtaGöster(int No)
         {
             Ağaç.BeginUpdate();
-            Ağaç.Nodes[0].Text = S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[No] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[No], S.Tarih._Şablon_uzun_Ağaç, Thread.CurrentThread.CurrentCulture) + " - İmleç Konumu (" + No + ")";
+            Ağaç.Nodes[0].Text = S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? Yardımcıİşlemler.Sinyaller.ZamanEkseni[No] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[No], S.Tarih._Şablon_uzun_Ağaç, Thread.CurrentThread.CurrentCulture) + " - İmleç Konumu (" + No + ")";
             Ağaç.Nodes[0].ImageIndex = 10;
 
             Text = S.AnaEkran_ÇubuktakiYazı + " / " + Ağaç.Nodes[0].Text + " / " + Çizelge.GetMouseCoordinates().y;
@@ -985,7 +991,7 @@ namespace Çizelgeç
         }
         string SeçilenZamandakiDeğerler_YazıHalineGetir(int No)
         {
-            string çıktı = S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[No] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[No], S.Tarih._Şablon_uzun_Ağaç, Thread.CurrentThread.CurrentCulture) + " - İmleç Konumu (" + No + ")" + Environment.NewLine;
+            string çıktı = S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? Yardımcıİşlemler.Sinyaller.ZamanEkseni[No] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[No], S.Tarih._Şablon_uzun_Ağaç, Thread.CurrentThread.CurrentCulture) + " - İmleç Konumu (" + No + ")" + Environment.NewLine;
 
             for (int i = 0; i < Sinyaller.Tümü.Count; i++)
             {
@@ -1007,11 +1013,11 @@ namespace Çizelgeç
 
         private void SağTuşMenü_Senaryo_Çalıştır_Click(object sender, EventArgs e)
         {
-            (Ağaç.SelectedNode.Tag as Senaryo_).Çalıştır();
+            //(Ağaç.SelectedNode.Tag as Senaryo_).Çalıştır();
         }
         private void SağTuşMenü_Senaryo_Durdur_Click(object sender, EventArgs e)
         {
-            (Ağaç.SelectedNode.Tag as Senaryo_).Durdur();
+            //(Ağaç.SelectedNode.Tag as Senaryo_).Durdur();
         }
 
         int SağTuşMenü_Çizelge_tick = 0;
@@ -1104,7 +1110,7 @@ namespace Çizelgeç
         {
             try
             {
-                DosyayaKaydetDialoğu.FileName = (Canlı_Ekranlama == null ? "" : Canlı_Ekranlama.İşAdı + "-") + S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[AralıkSeçici_Baştan.Value] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[AralıkSeçici_Baştan.Value]) + "-" + S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? S.ZamanEkseni[AralıkSeçici_Sondan.Value] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[AralıkSeçici_Sondan.Value]) + ".csv";
+                DosyayaKaydetDialoğu.FileName = (Canlı_Ekranlama == null ? "" : Canlı_Ekranlama.İşAdı + "-") + S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? Yardımcıİşlemler.Sinyaller.ZamanEkseni[AralıkSeçici_Baştan.Value] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[AralıkSeçici_Baştan.Value]) + "-" + S.Tarih.Yazıya(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni == null ? Yardımcıİşlemler.Sinyaller.ZamanEkseni[AralıkSeçici_Sondan.Value] : SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni[AralıkSeçici_Sondan.Value]) + ".csv";
                 DosyayaKaydetDialoğu.FileName = DosyayaKaydetDialoğu.FileName.Replace(':', '.');
                 DosyayaKaydetDialoğu.ShowDialog();
             }
@@ -1174,7 +1180,7 @@ namespace Çizelgeç
                     double[][] Liste_sadece_gerekli_olanlar = Liste_değerler.ToArray();
                     for (int x = AralıkSeçici_Baştan.Value; x <= AralıkSeçici_Sondan.Value && S.Çalışşsın; x++)
                     {
-                        yazı = S.Tarih.Yazıya(S.ZamanEkseni[x]) + ";Sinyaller";
+                        yazı = S.Tarih.Yazıya(Yardımcıİşlemler.Sinyaller.ZamanEkseni[x]) + ";Sinyaller";
 
                         for (int y = 0; y < Liste_sadece_gerekli_olanlar.Length && S.Çalışşsın; y++)
                         {
@@ -1220,7 +1226,7 @@ namespace Çizelgeç
         }
         private void SağTuşMenü_Çizelge_panoyaKopyala_Click(object sender, EventArgs e)
         {
-            if (S.ZamanEkseni == null || S.ZamanEkseni.Length < 2) return;
+            if (Yardımcıİşlemler.Sinyaller.ZamanEkseni == null || Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length < 2) return;
 
             int bulundu = SeçilenZamandakiDeğerler_FareKonumundan_EksendekiKonumuBul();
             if (bulundu < 0) return;
@@ -1230,7 +1236,7 @@ namespace Çizelgeç
         }
         private void SağTuşMenü_Çizelge_KayıtKlasörünüAç_Click(object sender, EventArgs e)
         {
-            S.Çalıştır.DosyaGezginindeGöster(S.Dosyalama_KayıtKlasörü);
+            S.Çalıştır.DosyaGezginindeGöster(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü);
         }
         public void SağTuşMenü_Çizelge_DeğerleriNormalleştir_Click(object sender, EventArgs e)
         {
@@ -1256,13 +1262,13 @@ namespace Çizelgeç
                         SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnBüyük[i] = biri.Değeri.DeğerEkseni.Max();
                         SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnKüçük[i] = biri.Değeri.DeğerEkseni.Min();
                         
-                        for (int iii = 0; iii < S.CanliÇizdirme_ÖlçümSayısı; iii++)
+                        for (int iii = 0; iii < Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı; iii++)
                         {
                             biri.Değeri.DeğerEkseni[iii] = ArgeMup.HazirKod.Hesapla.Normalleştir(biri.Değeri.DeğerEkseni[iii], SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnKüçük[i], SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnBüyük[i]);
 
                             if (SağTuşMenü_Çizelge_tick <= Environment.TickCount)
                             {
-                                Ağaç.Nodes[0].Text = "Bekleyiniz - " + i + " / " + Sinyaller.Tümü.Count + " - " + iii + " / " + S.CanliÇizdirme_ÖlçümSayısı;
+                                Ağaç.Nodes[0].Text = "Bekleyiniz - " + i + " / " + Sinyaller.Tümü.Count + " - " + iii + " / " + Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı;
                                 Ağaç.Refresh();
 
                                 SağTuşMenü_Çizelge_tick = Environment.TickCount + 1000;
@@ -1279,13 +1285,13 @@ namespace Çizelgeç
 
                     if (biri.Değeri.DeğerEkseni != null)
                     {
-                        for (int iii = 0; iii < S.CanliÇizdirme_ÖlçümSayısı; iii++)
+                        for (int iii = 0; iii < Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı; iii++)
                         {
                             biri.Değeri.DeğerEkseni[iii] = ArgeMup.HazirKod.Hesapla.Normalleştir(biri.Değeri.DeğerEkseni[iii], 0, 1, SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnKüçük[i], SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnBüyük[i]);
 
                             if (SağTuşMenü_Çizelge_tick <= Environment.TickCount)
                             {
-                                Ağaç.Nodes[0].Text = "Bekleyiniz - " + i + " / " + Sinyaller.Tümü.Count + " - " + iii + " / " + S.CanliÇizdirme_ÖlçümSayısı;
+                                Ağaç.Nodes[0].Text = "Bekleyiniz - " + i + " / " + Sinyaller.Tümü.Count + " - " + iii + " / " + Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı;
                                 Ağaç.Refresh();
 
                                 SağTuşMenü_Çizelge_tick = Environment.TickCount + 1000;
@@ -1319,16 +1325,16 @@ namespace Çizelgeç
                 Ekle_önceki.Visible = false;
                 Ekle_önceki_tümü.Visible = false;
 
-                SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni = new double[S.ZamanEkseni.Length];
-                Array.Copy(S.ZamanEkseni, SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni, S.ZamanEkseni.Length);
+                SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni = new double[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length];
+                Array.Copy(Yardımcıİşlemler.Sinyaller.ZamanEkseni, SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni, Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length);
 
-                for (int i = 0; i < S.ZamanEkseni.Length; i++)
+                for (int i = 0; i < Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length; i++)
                 {
-                    S.ZamanEkseni[i] = i;
+                    Yardımcıİşlemler.Sinyaller.ZamanEkseni[i] = i;
 
                     if (SağTuşMenü_Çizelge_tick <= Environment.TickCount)
                     {
-                        Ağaç.Nodes[0].Text = "Bekleyiniz - " + i + " / " + S.ZamanEkseni.Length;
+                        Ağaç.Nodes[0].Text = "Bekleyiniz - " + i + " / " + Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length;
                         Ağaç.Refresh();
 
                         SağTuşMenü_Çizelge_tick = Environment.TickCount + 1000;
@@ -1339,7 +1345,7 @@ namespace Çizelgeç
             }
             else
             {
-                Array.Copy(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni, S.ZamanEkseni, S.ZamanEkseni.Length);
+                Array.Copy(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni, Yardımcıİşlemler.Sinyaller.ZamanEkseni, Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length);
                 SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni = null;
 
                 S.Çizelge.plt.Ticks(dateTimeX: true);
@@ -1365,7 +1371,7 @@ namespace Çizelgeç
         }
         private void SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla_Click(object sender, EventArgs e)
         {
-            S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla = SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked;
+            Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla = SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked;
         }
 
         private void SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç_Click(object sender, EventArgs e)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Yardımcıİşlemler;
 
 namespace Çizelgeç
 {
@@ -16,30 +17,21 @@ namespace Çizelgeç
         public ScottPlot.PlottableSignalXY Çizikler = null;
         //public List<ScottPlot.PlottableText> Uyarı_Yazıları = null;
     };
-    public struct Hesaplama_
-    {
-        public string İşlem;
-        public string Değişken;
-    };
-    public struct Uyarı_
-    {
-        public string Kıstas;
-        public string[] Açıklama;
-    };
     public class Değeri_
     {
         public bool Kaydedilsin = true;
-        public double SonDeğeri = 0;
+        public double SonDeğeri = 0, GüncelDeğeri = 0;
         public DateTime SonDeğerinAlındığıAn = DateTime.Now;
         public double[] DeğerEkseni = null;
         public bool ZamanAşımıOldu = false;
-        public string ZamanAşımı_Sn = "0";
+        public double ZamanAşımı_Sn = 0;
         public UInt64 Sayac_Güncelleme = 0;
 
-        public string Önİşlem = null;
+        public Action<Sinyal_> GeriBildirimİşlemi_GüncelDeğeriGüncellendi = null;
     }
     public class Adı_
     {
+        public string Sinyal;       //<Sinyal[0]>
         public string Salkım;       //İklimsel|Sıcaklık
         public string GörünenAdı;   //TM1
         public string Csv;          //Salkım + | + GörünenAdı
@@ -51,8 +43,6 @@ namespace Çizelgeç
         public Tür_ Tür = Tür_.Boşta;
         public Adı_ Adı = new Adı_(); 
         public Değeri_ Değeri = new Değeri_();
-        public Hesaplama_[] Hesaplamalar = null;
-        public Uyarı_[] Uyarılar = null;
         public Görselleri_ Görseller = new Görselleri_();
         Sinyal_ ZamanAşımıSinyali = null;
 
@@ -62,7 +52,6 @@ namespace Çizelgeç
             else
             {
                 Tür = Tür_.Değişken;
-                Değeri.Kaydedilsin = false;
 
                 if (string.IsNullOrEmpty(Soyadı)) Soyadı = "Değişkenler";
             }
@@ -78,16 +67,13 @@ namespace Çizelgeç
             if (double.IsNaN(Girdi) || double.IsInfinity(Girdi))
             {
                 Günlük.Ekle(Adı.Csv + " güncel değeri ( " + S.Sayı.Yazıya(Girdi) + " ) sayı değil, 0 olarak değiştirildi.");
-                Girdi = 0;
+                Değeri.GüncelDeğeri = 0;
             }
+            else Değeri.GüncelDeğeri = Girdi;
 
-            if (!string.IsNullOrEmpty(Değeri.Önİşlem))
-            {
-                string işlem = Değeri.Önİşlem.Replace("<Sinyal>", S.Sayı.Yazıya(Girdi));
-                Girdi = Çevirici.Yazıdan_NoktalıSayıya(işlem);
-            }
+            Değeri.GeriBildirimİşlemi_GüncelDeğeriGüncellendi?.Invoke(this);
 
-            if (Değeri.SonDeğeri != Girdi)
+            if (Değeri.SonDeğeri != Değeri.GüncelDeğeri)
             {
                 Görseller.DaldakiYazıyıGüncelleVeKabart = true;
                 Sinyaller.EnAzBirSinyalDeğişti = true;
@@ -98,7 +84,7 @@ namespace Çizelgeç
                 }
             }
 
-            Değeri.SonDeğeri = Girdi;
+            Değeri.SonDeğeri = Değeri.GüncelDeğeri;
             Değeri.SonDeğerinAlındığıAn = DateTime.Now;
             Değeri.ZamanAşımıOldu = false;
             Değeri.Sayac_Güncelleme++;
@@ -110,10 +96,8 @@ namespace Çizelgeç
         }
         public double Güncelle_Dizi()
         {
-            if (Değeri.DeğerEkseni == null) Değeri.DeğerEkseni = Enumerable.Repeat(Değeri.SonDeğeri, S.CanliÇizdirme_ÖlçümSayısı).ToArray();
-
             #if MerdivenGörünümüİçin
-                if (!S.BilgiToplama_BirbirininAynısıOlanZamanDilimleriniAtla)
+                if (!Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla)
                 {                       
             #endif
 		            Array.Copy(Değeri.DeğerEkseni, 1, Değeri.DeğerEkseni, 0, Değeri.DeğerEkseni.Length - 1);
@@ -130,12 +114,12 @@ namespace Çizelgeç
 
             return Değeri.SonDeğeri;
         }
-        public bool Güncelle_ZamanAşımıOlduMu_SadeceTekYerdenÇağırılabilir()
+        public void Güncelle_ZamanAşımıOlduMu_SadeceTekYerdenÇağırılabilir()
         {
-            if (Tür == Tür_.Sinyal && Değeri.ZamanAşımı_Sn != "0")
+            if (Tür == Tür_.Sinyal && Değeri.ZamanAşımı_Sn > 0)
             {
                 TimeSpan fark = DateTime.Now - Değeri.SonDeğerinAlındığıAn;
-                if (fark.TotalSeconds > Çevirici.Yazıdan_NoktalıSayıya(Değeri.ZamanAşımı_Sn))
+                if (fark.TotalSeconds > Değeri.ZamanAşımı_Sn)
                 {
                     Değeri.ZamanAşımıOldu = true;
 
@@ -151,7 +135,26 @@ namespace Çizelgeç
                 }
             }
 
-            return Değeri.ZamanAşımıOldu;
+            //return Değeri.ZamanAşımıOldu;
+        }
+        public void Sil()
+        {
+            if (ÖnYüz.CanlıEkranlama) return;
+
+            if (S.AnaEkran.InvokeRequired)
+            {
+                S.AnaEkran.Invoke(new Action(() => { _ivk_(); }));
+            }
+            else _ivk_();
+
+            void _ivk_()
+            {
+                Görseller.Dal?.Remove();
+                if (Görseller.Çizikler != null) S.Çizelge.plt.Remove(Görseller.Çizikler);
+            }
+
+            Sinyaller.Tümü.Remove(Adı.Sinyal);
+            Değeri.DeğerEkseni = null;
         }
     };
  
@@ -174,11 +177,10 @@ namespace Çizelgeç
         public static Sinyal_ Ekle(string Adı)
         {
             if (!UygunMu(Adı)) throw new Exception(Adı + " sinyal adı olarak uygun değil");
-
-            Adı = Adı.Trim(' ');
             if (MevcutMu(Adı)) return Bul(Adı);
 
             Sinyal_ yeni = new Sinyal_();
+            yeni.Adı.Sinyal = Adı;
             yeni.Güncelle_Adı(Adı);
 
             Doğrudan_Ekle(Adı, yeni);
@@ -192,24 +194,12 @@ namespace Çizelgeç
         }
         public static Sinyal_ Bul(string Adı)
         {
-            Adı = Adı.Trim(' ');
-
-            //Mtx.WaitOne();
             Sinyal_ girdi;
             bool sonuç = Tümü.TryGetValue(Adı, out girdi);
-            //Mtx.ReleaseMutex();
 
             if (sonuç) return girdi;
 
             throw new Exception(Adı + " isimli sinyal listede bulunamadı");
-        }
-        public static void Yaz(string Adı, double Değeri)
-        {
-            Ekle(Adı).Güncelle_SonDeğer(Değeri);
-        }
-        public static double Oku(string Adı)
-        {
-            return Ekle(Adı).Değeri.SonDeğeri;
         }
     }
 }

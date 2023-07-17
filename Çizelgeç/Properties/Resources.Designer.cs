@@ -171,16 +171,6 @@ namespace Çizelgeç.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Ayarlar {
-            get {
-                object obj = ResourceManager.GetObject("Ayarlar", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap D_Hata {
@@ -301,6 +291,33 @@ namespace Çizelgeç.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to //sinyal sil
+        /////sinal geribildirim işlemi
+        /////sinyaller geribildirim işlemi
+        /////    kayda açıklama ekle
+        /////    uygtulamayı kapat
+        /////    bilgisayarı kapat
+        /////    bağımızız görev yada benzeri
+        ///
+        /////    arka plandaki koddan varolan sinyal ve bağlantılar silinecek kapatılacak
+        /////    birden fazla cümle başlangıcı ve ayraç
+        /////    mümkün ise tüm işlemleri çapraz görevden çağır
+        /////    çapraz işlemden çağırmak
+        /////bağlantı açma 
+        ///
+        ///namespace Yardımcıİşlemler
+        ///{
+        ///    public class Kontrolcü
+        ///    {
+        ///        Çizelgeç.Bağlan [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ÖrnekKaynakKod_CanlıEkranlama {
+            get {
+                return ResourceManager.GetString("ÖrnekKaynakKod_CanlıEkranlama", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to /* ArGeMuP Çizelgeç.exe BU KISMI DEĞİŞTİRMEYİNİZ - BAŞLANGIÇ */
         ///
         ////* ??? [[[ Detaylar ]]] %%%
@@ -342,16 +359,6 @@ namespace Çizelgeç.Properties {
         internal static byte[] ScottPlot_WinForms {
             get {
                 object obj = ResourceManager.GetObject("ScottPlot_WinForms", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Senaryo1 {
-            get {
-                object obj = ResourceManager.GetObject("Senaryo1", resourceCulture);
                 return ((byte[])(obj));
             }
         }

@@ -129,13 +129,10 @@
   <ItemGroup>
     <Compile Include="Altyapı\Ekranlama.cs" />
     <Compile Include="Altyapı\Ekranlama_Canlı.cs" />
-    <Compile Include="Altyapı\json.cs" />
     <Compile Include="Altyapı\Sabitler.cs" />
-    <Compile Include="Altyapı\Senaryolar.cs" />
     <Compile Include="Altyapı\Bağlantılar.cs" />
     <Compile Include="Altyapı\Sinyaller.cs" />
     <Compile Include="Altyapı\Dll_Yardımcıİşlemler.cs" />
-    <Compile Include="Altyapı\Çevirici.cs" />
     <Compile Include="Altyapı\Ekranlama_Ölü.cs" />
     <Compile Include="Ekranlar\AnaEkran.cs">
       <SubType>Form</SubType>
@@ -174,6 +171,7 @@
     <Compile Include="Ekranlar\YenidenHesapla.Designer.cs">
       <DependentUpon>YenidenHesapla.cs</DependentUpon>
     </Compile>
+    <None Include="Resources\ÖrnekKaynakKod_CanlıEkranlama.cs" />
     <None Include="Resources\ÖrnekKaynakKod_ÖlüEkranlama.cs" />
     <EmbeddedResource Include="Ekranlar\AnaEkran.resx">
       <DependentUpon>AnaEkran.cs</DependentUpon>
@@ -201,8 +199,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Resources\Ayarlar.json" />
-    <None Include="Resources\Senaryo1.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
