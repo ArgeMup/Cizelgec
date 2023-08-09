@@ -2,36 +2,15 @@
 
 using ArgeMup.HazirKod.Ekİşlemler;
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Yardımcıİşlemler
 {
     public class ÖnYüz
     {
-        internal static bool BaşlatDurdur_ = true;
-        public static bool BaşlatDurdur
-        {
-            get
-            {
-                return BaşlatDurdur_;
-            }
-            set
-            {
-                BaşlatDurdur_ = value;
-
-                if (Çizelgeç.S.AnaEkran.InvokeRequired)
-                {
-                    Çizelgeç.S.AnaEkran.Invoke(new Action(() => { _ivk_(); }));
-                }
-                else _ivk_();
-
-                void _ivk_()
-                {
-                    Çizelgeç.S.SolMenu_BaşlatDurdur.Image = BaşlatDurdur_ ? Çizelgeç.Properties.Resources.D_Tamam : Çizelgeç.Properties.Resources.D_Hata;
-                }
-            }
-        }
-        
         public static bool CanlıEkranlama
         {
             get
@@ -41,7 +20,7 @@ namespace Yardımcıİşlemler
         }
 
         public static bool ÇalışmayaDevamEt { get => Çizelgeç.S.Çalışşsın; }
-        
+
         public static void Güncelle()
         {
             if (Çizelgeç.S.AnaEkran.InvokeRequired)
@@ -99,7 +78,7 @@ namespace Yardımcıİşlemler
                 Çizelgeç.S.YenidenHesapla.Notlar.AppendText(Girdi + Environment.NewLine);
             }
         }
-        public static void Günlük(Exception İstisna)
+        public static void Günlük(Exception İstisna, string ÖnYazı = null)
         {
             string hata = null;
             while (İstisna != null)
@@ -108,23 +87,12 @@ namespace Yardımcıİşlemler
                 İstisna = İstisna.InnerException;
             }
 
-            Çizelgeç.Günlük.Ekle(hata);
-
-            if (Çizelgeç.S.YenidenHesapla == null || Çizelgeç.S.YenidenHesapla.Disposing || Çizelgeç.S.YenidenHesapla.IsDisposed) return;
-
-            if (Çizelgeç.S.AnaEkran.InvokeRequired)
-            {
-                Çizelgeç.S.AnaEkran.Invoke(new Action(() => { _ivk_(); }));
-            }
-            else _ivk_();
-
-            void _ivk_()
-            {
-                Çizelgeç.S.YenidenHesapla.Notlar.AppendText(hata + Environment.NewLine);
-            }
+            Günlük((ÖnYazı == null ? null : ÖnYazı + Environment.NewLine) + hata);
         }
-        public static void SadeceŞuSinyalleriGöster(Çizelgeç.Sinyal_[] Sinyaller)
+        public static void SadeceŞuSinyalleriGöster(List<Çizelgeç.Sinyal_> Sinyaller)
         {
+            if (Sinyaller == null || Sinyaller.Count == 0) return;
+
             if (Çizelgeç.S.AnaEkran.InvokeRequired)
             {
                 Çizelgeç.S.AnaEkran.Invoke(new Action(() => { _ivk_(); }));
@@ -133,6 +101,7 @@ namespace Yardımcıİşlemler
 
             void _ivk_()
             {
+                Çizelgeç.S.Ağaç.CollapseAll();
                 foreach (TreeNode t in Çizelgeç.S.Ağaç.Nodes)
                 {
                     t.Checked = false;
@@ -141,10 +110,32 @@ namespace Yardımcıİşlemler
                 foreach (Çizelgeç.Sinyal_ s in Sinyaller)
                 {
                     s.Görseller.Dal.Checked = true;
+                    _üstDallarınıDaGöster_(s.Görseller.Dal);
                 }
 
                 Çizelgeç.S.Ağaç.SelectedNode = Çizelgeç.S.Ağaç.Nodes[0];
+
+                void _üstDallarınıDaGöster_(TreeNode _Dal_)
+                {
+                    while (_Dal_ != null)
+                    {
+                        _Dal_.Expand();
+                        _Dal_ = _Dal_.Parent;
+                    }
+                }
             }
+        }
+
+        public static void AçıklamaEkle(string Açıklama, Color Renk = default)
+        {
+            if (!CanlıEkranlama) return; //Sadece canlı ekranlamadan çağırılabilir
+
+            DateTime t = DateTime.Now;
+            if (Çizelgeç.S.AnaEkran.InvokeRequired)
+            {
+                Çizelgeç.S.AnaEkran.Invoke(new Action(() => { Çizelgeç.Açıklamalar.Ekle(t, Açıklama, Renk); }));
+            }
+            else Çizelgeç.Açıklamalar.Ekle(t, Açıklama, Renk);
         }
 
         public static void UygulamayıKapat(bool BeşDkİçindeBilgisayarıKapat = false)
@@ -164,11 +155,9 @@ namespace Yardımcıİşlemler
 
     public class Bağlantılar
     {
-        public enum TanımlanmamışSinyalleri { Kullan, Kaydetme, Atla };
-
         public static Çizelgeç.Bağlantı_ Ekle_KomutSatırı(string BağlantıAdı, string Uygulama, string Parametre = null)
         {
-            if (!ÖnYüz.CanlıEkranlama) return null; //Sadece canlı ekranlamadan çağırılabilir
+            if (!ÖnYüz.CanlıEkranlama || BağlantıAdı.BoşMu(true)) return null; //Sadece canlı ekranlamadan çağırılabilir
 
             Çizelgeç.Bağlantı_ yeni = Çizelgeç.Bağlantılar.Ekle(BağlantıAdı);
             yeni.Türü = Çizelgeç.Bağlantı_Türü_.KomutSatırı;
@@ -179,7 +168,7 @@ namespace Yardımcıİşlemler
         }
         public static Çizelgeç.Bağlantı_ Ekle_Uart(string BağlantıAdı, int BitHızı, string ErişimNoktası = "COMx")
         {
-            if (!ÖnYüz.CanlıEkranlama) return null; //Sadece canlı ekranlamadan çağırılabilir
+            if (!ÖnYüz.CanlıEkranlama || BağlantıAdı.BoşMu(true)) return null; //Sadece canlı ekranlamadan çağırılabilir
 
             Çizelgeç.Bağlantı_ yeni = Çizelgeç.Bağlantılar.Ekle(BağlantıAdı);
             yeni.Türü = Çizelgeç.Bağlantı_Türü_.SeriPort;
@@ -190,7 +179,7 @@ namespace Yardımcıİşlemler
         }
         public static Çizelgeç.Bağlantı_ Ekle_Tcpİstemcisi(string BağlantıAdı, string IPveyaAdresi, int ErişimNoktası)
         {
-            if (!ÖnYüz.CanlıEkranlama) return null; //Sadece canlı ekranlamadan çağırılabilir
+            if (!ÖnYüz.CanlıEkranlama || BağlantıAdı.BoşMu(true)) return null; //Sadece canlı ekranlamadan çağırılabilir
 
             Çizelgeç.Bağlantı_ yeni = Çizelgeç.Bağlantılar.Ekle(BağlantıAdı);
             yeni.Türü = Çizelgeç.Bağlantı_Türü_.Tcpİstemci;
@@ -201,7 +190,7 @@ namespace Yardımcıİşlemler
         }
         public static Çizelgeç.Bağlantı_ Ekle_Udpİstemcisi(string BağlantıAdı, string IPveyaAdresi, int ErişimNoktası)
         {
-            if (!ÖnYüz.CanlıEkranlama) return null; //Sadece canlı ekranlamadan çağırılabilir
+            if (!ÖnYüz.CanlıEkranlama || BağlantıAdı.BoşMu(true)) return null; //Sadece canlı ekranlamadan çağırılabilir
 
             Çizelgeç.Bağlantı_ yeni = Çizelgeç.Bağlantılar.Ekle(BağlantıAdı);
             yeni.Türü = Çizelgeç.Bağlantı_Türü_.Udpİstemci;
@@ -212,7 +201,7 @@ namespace Yardımcıİşlemler
         }
         public static Çizelgeç.Bağlantı_ Ekle_TcpSunucusu(string BağlantıAdı, int ErişimNoktası)
         {
-            if (!ÖnYüz.CanlıEkranlama) return null; //Sadece canlı ekranlamadan çağırılabilir
+            if (!ÖnYüz.CanlıEkranlama || BağlantıAdı.BoşMu(true)) return null; //Sadece canlı ekranlamadan çağırılabilir
 
             Çizelgeç.Bağlantı_ yeni = Çizelgeç.Bağlantılar.Ekle(BağlantıAdı);
             yeni.Türü = Çizelgeç.Bağlantı_Türü_.TcpSunucu;
@@ -222,7 +211,7 @@ namespace Yardımcıİşlemler
         }
         public static Çizelgeç.Bağlantı_ Ekle_UdpSunucusu(string BağlantıAdı, int ErişimNoktası)
         {
-            if (!ÖnYüz.CanlıEkranlama) return null; //Sadece canlı ekranlamadan çağırılabilir
+            if (!ÖnYüz.CanlıEkranlama || BağlantıAdı.BoşMu(true)) return null; //Sadece canlı ekranlamadan çağırılabilir
 
             Çizelgeç.Bağlantı_ yeni = Çizelgeç.Bağlantılar.Ekle(BağlantıAdı);
             yeni.Türü = Çizelgeç.Bağlantı_Türü_.UdpSunucu;
@@ -231,79 +220,33 @@ namespace Yardımcıİşlemler
             return yeni;
         }
 
-        public static Çizelgeç.Bağlantı_ Bul(string BağlantıAdı)
+        public static List<Çizelgeç.Bağlantı_> Bul(string BağlantıAdıKıstası = "*", bool BüyükKüçükHarfDuyarlı = true, char Ayraç = '*')
         {
-            if (!Çizelgeç.Bağlantılar.MevcutMu(BağlantıAdı)) return null;
+            List<Çizelgeç.Bağlantı_> Bulunanlar = new List<Çizelgeç.Bağlantı_>();
 
-            return Çizelgeç.Bağlantılar.Bul(BağlantıAdı);
+            foreach (Çizelgeç.Bağlantı_ Bağlantı in Çizelgeç.Bağlantılar.Tümü.Values)
+            {
+                if (Bağlantı.Adı.BenzerMi(BağlantıAdıKıstası, BüyükKüçükHarfDuyarlı, Ayraç)) Bulunanlar.Add(Bağlantı);
+            }
+
+            return Bulunanlar;
         }
     }
 
     public class Sinyaller
     {
-        public static Func<bool, bool> GeriBildirimİşlemi_Kaydedilecek = null;
+        public enum Tanımlanmamış_Sinyali { Kullan, Kaydetme, Atla };
+
+        public static Func<bool> GeriBildirimİşlemi_Kaydedilecek = null;
 
         public static double[] ZamanEkseni;
-        public static int ZamanEkseni_EnYakın(DateTime TarihSaat, int BaşlangıçKonumu = 0, int BitişKonumu = -1)
+        public static int ZamanEkseni_EnYakın(DateTime TarihSaat)
         {
             double Koordinat_X = Çizelgeç.S.Tarih.Sayıya(TarihSaat);
+
             if (ZamanEkseni == null || ZamanEkseni.Length < 2 || Koordinat_X <= 0 || double.IsNaN(Koordinat_X) || double.IsInfinity(Koordinat_X)) return -1;
 
-            int bulundu = -1;
-            int en_yakın_konum = -1;
-            if (BitişKonumu == -1) BitişKonumu = ZamanEkseni.Length - 1;
-
-            while (bulundu == -1 && BaşlangıçKonumu != BitişKonumu && Çizelgeç.S.Çalışşsın)
-            {
-                int tahmini_konum = BaşlangıçKonumu + ((BitişKonumu - BaşlangıçKonumu) / 2);
-                if (tahmini_konum == BaşlangıçKonumu)
-                {
-                    if (en_yakın_konum == -1) en_yakın_konum = tahmini_konum; //bulunamadı, en son üye olabilir 
-                    break;
-                }
-
-                if (Koordinat_X <= ZamanEkseni[tahmini_konum])
-                {
-                    en_yakın_konum = tahmini_konum;
-                    if (Koordinat_X >= ZamanEkseni[tahmini_konum])
-                    {
-                        bulundu = tahmini_konum;
-                        break;
-                    }
-
-                    BitişKonumu = tahmini_konum;
-                }
-                else BaşlangıçKonumu = tahmini_konum;
-            }
-
-            if (bulundu == -1)
-            {
-                if (en_yakın_konum != -1)
-                {
-                    if (en_yakın_konum < 1) bulundu = 0;
-                    else if (en_yakın_konum >= BitişKonumu) bulundu = BitişKonumu;
-                    else
-                    {
-                        double fark_soldan = Math.Abs(ZamanEkseni[en_yakın_konum - 1] - Koordinat_X);
-                        double fark_sağdan = Math.Abs(ZamanEkseni[en_yakın_konum + 1] - Koordinat_X);
-
-                        if (fark_soldan < fark_sağdan)
-                        {
-                            fark_sağdan = Math.Abs(ZamanEkseni[en_yakın_konum] - Koordinat_X);
-
-                            if (fark_soldan < fark_sağdan) bulundu = en_yakın_konum - 1;
-                            else bulundu = en_yakın_konum;
-                        }
-                        else
-                        {
-                            fark_soldan = Math.Abs(ZamanEkseni[en_yakın_konum] - Koordinat_X);
-
-                            if (fark_soldan < fark_sağdan) bulundu = en_yakın_konum;
-                            else bulundu = en_yakın_konum + 1;
-                        }
-                    }
-                }
-            }
+            (_, _, int bulundu) = Çizelgeç.Sinyaller.Tümü.Values.First().Görseller.Çizikler.GetPointNearestX(Koordinat_X);
 
             return bulundu;
         }
@@ -316,16 +259,9 @@ namespace Yardımcıİşlemler
             return Çizelgeç.S.Tarih.Sayıya(TarihSaat);
         }
 
-        public static void KaydaAçıklamaEkle(string Açıklama)
-        {
-            if (!ÖnYüz.CanlıEkranlama) return; //Sadece canlı ekranlamadan çağırılabilir
-
-            Çizelgeç.Kaydedici.Ekle(DateTime.Now, null, Açıklama);
-        }
-   
         public static Çizelgeç.Sinyal_ Ekle(string SinyalAdı, string AğaçİçindekiDalınAdı, string GörünenAdı, bool Kaydedilsin = true)
         {
-            if (Çizelgeç.Sinyaller.MevcutMu(SinyalAdı)) throw new Exception("Sinyal adı " + SinyalAdı + " zaten eklendi");
+            if (SinyalAdı.BoşMu(true) || Çizelgeç.Sinyaller.MevcutMu(SinyalAdı)) return null;
 
             Çizelgeç.Sinyal_ sinyal = Çizelgeç.Sinyaller.Ekle(SinyalAdı);
             sinyal.Güncelle_Adı(SinyalAdı, AğaçİçindekiDalınAdı, GörünenAdı);
@@ -350,22 +286,144 @@ namespace Yardımcıİşlemler
 
             return sinyal;
         }
-        public static void Düzenle(Çizelgeç.Sinyal_ Sinyal, double ZamanAşımı_Sn, Action<Çizelgeç.Sinyal_> GeriBildirimİşlemi_GüncelDeğeriGüncellendi)
+        public static List<Çizelgeç.Sinyal_> Bul(string SinyalAdıKıstası = "*", bool BüyükKüçükHarfDuyarlı = true, char Ayraç = '*')
         {
-            Sinyal.Değeri.ZamanAşımı_Sn = ZamanAşımı_Sn;
-            Sinyal.Değeri.GeriBildirimİşlemi_GüncelDeğeriGüncellendi = GeriBildirimİşlemi_GüncelDeğeriGüncellendi;
-        }
-        public static Çizelgeç.Sinyal_ Bul(string SinyalAdı)
-        {
-            if (!Çizelgeç.Sinyaller.MevcutMu(SinyalAdı)) return null;
+            List<Çizelgeç.Sinyal_> Bulunanlar = new List<Çizelgeç.Sinyal_>();
 
-            return Çizelgeç.Sinyaller.Bul(SinyalAdı);
+            foreach (Çizelgeç.Sinyal_ Sinyal in Çizelgeç.Sinyaller.Tümü.Values)
+            {
+                if (Sinyal.Adı.Sinyal.BenzerMi(SinyalAdıKıstası, BüyükKüçükHarfDuyarlı, Ayraç)) Bulunanlar.Add(Sinyal);
+            }
+
+            return Bulunanlar;
         }
     };
 
+    public class İşlemler
+    {
+        public class İşlem_
+        {
+            public string Adı;
+            public Action<string, object> İşlem;
+            public object Hatırlatıcı;
+        }
+
+        public static bool DeğişiklikYapıldı = false;
+        public static List<İşlem_> Tümü = null;
+
+        public static void Ekle(string İşlemAdı, Action<string, object> İşlem, object Hatırlatıcı = null)
+        {
+            if (İşlemAdı.BoşMu(true) || İşlem == null || !ÖnYüz.CanlıEkranlama) return;  //Sadece canlı ekranlamadan çağırılabilir
+
+            if (Tümü == null) Tümü = new List<İşlem_>();
+
+            Tümü.Add(new İşlem_() { Adı = İşlemAdı, İşlem = İşlem, Hatırlatıcı = Hatırlatıcı });
+
+            DeğişiklikYapıldı = true;
+        }
+        public static void Sil(string İşlemAdıKıstası, bool BüyükKüçükHarfDuyarlı = true, char Ayraç = '*')
+        {
+            if (Tümü == null) return;
+
+            if (İşlemAdıKıstası == null) Tümü.Clear();
+            else
+            {
+                List<İşlem_> silinecekler = new List<İşlem_>();
+                foreach (İşlem_ biri in Tümü)
+                {
+                    if (biri.Adı.BenzerMi(İşlemAdıKıstası, BüyükKüçükHarfDuyarlı, Ayraç)) silinecekler.Add(biri);
+                }
+                foreach (İşlem_ biri in silinecekler)
+                {
+                    Tümü.Remove(biri);
+                }
+            }
+            
+            DeğişiklikYapıldı = true;
+        }
+    }
+
+    public class Görevler
+    {
+        protected static ArgeMup.HazirKod.ArkaPlan.Hatırlatıcı_ Tümü = null;
+
+        public static void Ekle(string TakmaAdı, DateTime İlkTetikleyeceğiZaman, Func<string, object, int> GeriBildirim_Islemi, object Hatırlatıcı = null)
+        {
+            if (TakmaAdı.BoşMu(true) || GeriBildirim_Islemi == null || !ÖnYüz.CanlıEkranlama) return; //Sadece canlı ekranlamadan çağırılabilir
+
+            if (Tümü == null) Tümü = new ArgeMup.HazirKod.ArkaPlan.Hatırlatıcı_();
+
+            Tümü.Ekle(TakmaAdı, İlkTetikleyeceğiZaman, null, GeriBildirim_Islemi, Hatırlatıcı, true);
+        }
+        public static List<ArgeMup.HazirKod.ArkaPlan.Hatırlatıcı_.Durum_> Bul(bool SüresiDolanlarıDahilEt = true, bool ÇalışmayıBekleyenleriDahilEt = true, string TakmaAdıKıstası = "*", bool BüyükKüçükHarfDuyarlı = true, char Ayraç = '*')
+        {
+            if (Tümü == null) return null; //Sadece canlı ekranlamadan çağırılabilir
+
+            return Tümü.Bul(SüresiDolanlarıDahilEt, ÇalışmayıBekleyenleriDahilEt, TakmaAdıKıstası, BüyükKüçükHarfDuyarlı, Ayraç);
+        }
+        public static void Sil(string TakmaAdıKıstası, bool BüyükKüçükHarfDuyarlı = true, char Ayraç = '*')
+        {
+            if (Tümü == null) return; //Sadece canlı ekranlamadan çağırılabilir
+
+            if (TakmaAdıKıstası == null)
+            {
+                Tümü.AyarlarıOku(true);
+                Tümü = null;
+            }
+            else Tümü.Sil(TakmaAdıKıstası, BüyükKüçükHarfDuyarlı, Ayraç);
+        }
+    }
+
     public class BilgiToplama
     {
-        public static bool ZamanDilimi_BirbirininAynısıOlanlarıAtla = true;
+        protected static bool BaşlatDurdur_ = true;
+        public static bool BaşlatDurdur
+        {
+            get
+            {
+                return BaşlatDurdur_;
+            }
+            set
+            {
+                BaşlatDurdur_ = value;
+
+                if (Çizelgeç.S.AnaEkran.InvokeRequired)
+                {
+                    Çizelgeç.S.AnaEkran.Invoke(new Action(() => { _ivk_(); }));
+                }
+                else _ivk_();
+
+                void _ivk_()
+                {
+                    Çizelgeç.S.SolMenu_BaşlatDurdur.Image = BaşlatDurdur_ ? Çizelgeç.Properties.Resources.D_Tamam : Çizelgeç.Properties.Resources.D_Hata;
+                }
+            }
+        }
+
+        protected static bool ZamanDilimi_BirbirininAynısıOlanlarıAtla_ = true;
+        public static bool ZamanDilimi_BirbirininAynısıOlanlarıAtla
+        {
+            get
+            {
+                return ZamanDilimi_BirbirininAynısıOlanlarıAtla_;
+            }
+            set
+            {
+                ZamanDilimi_BirbirininAynısıOlanlarıAtla_ = value;
+
+                if (Çizelgeç.S.AnaEkran.InvokeRequired)
+                {
+                    Çizelgeç.S.AnaEkran.Invoke(new Action(() => { _ivk_(); }));
+                }
+                else _ivk_();
+
+                void _ivk_()
+                {
+                    Çizelgeç.S.AnaEkran.SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked = ZamanDilimi_BirbirininAynısıOlanlarıAtla_;
+                }
+            }
+        }
+
         public static int ZamanDilimi_msn = 500;
         public static int ZamanDilimi_Sayısı = 5000;
 
@@ -373,35 +431,8 @@ namespace Yardımcıİşlemler
         public static long Kayıt_AzamiDosyaBoyutu_Bayt = 5 * 1024 * 1024; // 5 MiB
     }
 
-    public class Görev
-    {
-        internal static ArgeMup.HazirKod.ArkaPlan.Hatırlatıcı_ Görevler = null;
-
-        public static void Ekle(string TakmaAdı, DateTime İlkTetikleyeceğiZaman, Func<string, object, int> GeriBildirim_Islemi, object Hatırlatıcı = null)
-        {
-            if (!ÖnYüz.CanlıEkranlama) return; //Sadece canlı ekranlamadan çağırılabilir
-
-            if (Görevler == null) Görevler = new ArgeMup.HazirKod.ArkaPlan.Hatırlatıcı_();
-
-            Görevler.Kur(TakmaAdı, İlkTetikleyeceğiZaman, null, GeriBildirim_Islemi, Hatırlatıcı);
-        }
-        public static ArgeMup.HazirKod.ArkaPlan.Hatırlatıcı_.Durum_ Bul(string TakmaAdı)
-        {
-            if (Görevler == null) return null; //Sadece canlı ekranlamadan çağırılabilir
-
-            return Görevler.Bul(TakmaAdı);
-        }
-        public static void Sil(string TakmaAdı)
-        {
-            if (Görevler == null) return; //Sadece canlı ekranlamadan çağırılabilir
-            
-            Görevler.Sil(TakmaAdı);
-        }
-    }
-
     public class MupDosyasındanOkuma
     {
-        public static string CümleBaşlangıcı = ">Sinyaller";
-        public static char KelimeAyracı = ';';
+        public static List<string[]> CümleBaşlangıcıVeKelimeAyraçları = new List<string[]>();
     }
 }

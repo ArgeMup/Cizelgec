@@ -14,20 +14,22 @@ namespace Çizelgeç
         public bool DaldakiYazıyıGüncelleVeKabart = true;
        
         public TreeNode Dal = null;
-        public ScottPlot.PlottableSignalXY Çizikler = null;
-        //public List<ScottPlot.PlottableText> Uyarı_Yazıları = null;
+        public ScottPlot.Plottable.SignalPlotXY Çizikler = null;
+        public ScottPlot.Plottable.MarkerPlot SeçiliOlanNokta = null;
+        public ScottPlot.Plottable.Text SeçiliOlanNokta_Yazı = null;
     };
     public class Değeri_
     {
         public bool Kaydedilsin = true;
-        public double SonDeğeri = 0, GüncelDeğeri = 0;
+        public double SonDeğeri = 0;
         public DateTime SonDeğerinAlındığıAn = DateTime.Now;
         public double[] DeğerEkseni = null;
-        public bool ZamanAşımıOldu = false;
+        public bool ZamanAşımı_Oldu = false;
         public double ZamanAşımı_Sn = 0;
         public UInt64 Sayac_Güncelleme = 0;
 
-        public Action<Sinyal_> GeriBildirimİşlemi_GüncelDeğeriGüncellendi = null;
+        public Func<Sinyal_, double, double> GeriBildirimİşlemi_GüncelDeğeriGüncellendi = null;
+        public Action<Sinyal_, TimeSpan> GeriBildirimİşlemi_ZamanAşımı = null;
     }
     public class Adı_
     {
@@ -44,7 +46,6 @@ namespace Çizelgeç
         public Adı_ Adı = new Adı_(); 
         public Değeri_ Değeri = new Değeri_();
         public Görselleri_ Görseller = new Görselleri_();
-        Sinyal_ ZamanAşımıSinyali = null;
 
         public void Güncelle_Adı(string SinyalAdı, string Soyadı = "", string GörünenAdı = "")
         {
@@ -64,19 +65,24 @@ namespace Çizelgeç
         }
         public void Güncelle_SonDeğer(double Girdi)
         {
+            if (Değeri.GeriBildirimİşlemi_GüncelDeğeriGüncellendi != null)
+            {
+                try
+                {
+                    Girdi = Değeri.GeriBildirimİşlemi_GüncelDeğeriGüncellendi(this, Girdi);
+                }
+                catch (Exception ex) { Yardımcıİşlemler.ÖnYüz.Günlük(ex, "Sinyaller.GeriBildirimİşlemi_GüncelDeğeriGüncellendi." + Adı.Sinyal); }
+            }
+
             if (double.IsNaN(Girdi) || double.IsInfinity(Girdi))
             {
                 Günlük.Ekle(Adı.Csv + " güncel değeri ( " + S.Sayı.Yazıya(Girdi) + " ) sayı değil, 0 olarak değiştirildi.");
-                Değeri.GüncelDeğeri = 0;
+                Girdi = 0;
             }
-            else Değeri.GüncelDeğeri = Girdi;
 
-            Değeri.GeriBildirimİşlemi_GüncelDeğeriGüncellendi?.Invoke(this);
-
-            if (Değeri.SonDeğeri != Değeri.GüncelDeğeri)
+            if (Değeri.SonDeğeri != Girdi)
             {
                 Görseller.DaldakiYazıyıGüncelleVeKabart = true;
-                Sinyaller.EnAzBirSinyalDeğişti = true;
 
                 if (Değeri.Kaydedilsin)
                 {
@@ -84,10 +90,26 @@ namespace Çizelgeç
                 }
             }
 
-            Değeri.SonDeğeri = Değeri.GüncelDeğeri;
+            if (Değeri.ZamanAşımı_Oldu)
+            {
+                Değeri.ZamanAşımı_Oldu = false;
+
+                TimeSpan ts = DateTime.Now - Değeri.SonDeğerinAlındığıAn;
+                ÖnYüz.AçıklamaEkle("Zaman aşımı bitti " + Adı.Csv + " (" + ts.ToString("d\\.hh\\:mm\\:ss\\:fff").Trim('0', '.', ':') + "msn)", System.Drawing.Color.Green);
+
+                if (Değeri.GeriBildirimİşlemi_ZamanAşımı != null)
+                {
+                    try
+                    {
+                        Değeri.GeriBildirimİşlemi_ZamanAşımı(this, ts);
+                    }
+                    catch (Exception ex) { Yardımcıİşlemler.ÖnYüz.Günlük(ex, "Sinyaller.GeriBildirimİşlemi_ZamanAşımı." + Adı.Sinyal); }
+                }
+            }
+
+            Değeri.SonDeğeri = Girdi;
             Değeri.SonDeğerinAlındığıAn = DateTime.Now;
-            Değeri.ZamanAşımıOldu = false;
-            Değeri.Sayac_Güncelleme++;
+            Değeri.Sayac_Güncelleme++; 
         }
         public void Güncelle_SonDeğer(string Girdi)
         {
@@ -96,46 +118,38 @@ namespace Çizelgeç
         }
         public double Güncelle_Dizi()
         {
-            #if MerdivenGörünümüİçin
-                if (!Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla)
-                {                       
-            #endif
-		            Array.Copy(Değeri.DeğerEkseni, 1, Değeri.DeğerEkseni, 0, Değeri.DeğerEkseni.Length - 1);
-		            Değeri.DeğerEkseni[Değeri.DeğerEkseni.Length - 1] = Değeri.SonDeğeri;
-            #if MerdivenGörünümüİçin
-                }
-                else
-                {
-                    Array.Copy(Değeri.DeğerEkseni, 2, Değeri.DeğerEkseni, 0, Değeri.DeğerEkseni.Length - 2);
-                    Değeri.DeğerEkseni[Değeri.DeğerEkseni.Length - 1] = Değeri.SonDeğeri;
-                    Değeri.DeğerEkseni[Değeri.DeğerEkseni.Length - 2] = Değeri.SonDeğeri;
-                }                        
-            #endif
+            if (Değeri.DeğerEkseni != null)
+            {
+                Array.Copy(Değeri.DeğerEkseni, 1, Değeri.DeğerEkseni, 0, Değeri.DeğerEkseni.Length - 1);
+                Değeri.DeğerEkseni[Değeri.DeğerEkseni.Length - 1] = Değeri.SonDeğeri;
+            }
 
             return Değeri.SonDeğeri;
         }
         public void Güncelle_ZamanAşımıOlduMu_SadeceTekYerdenÇağırılabilir()
         {
-            if (Tür == Tür_.Sinyal && Değeri.ZamanAşımı_Sn > 0)
+            if (Değeri.ZamanAşımı_Sn > 0)
             {
                 TimeSpan fark = DateTime.Now - Değeri.SonDeğerinAlındığıAn;
                 if (fark.TotalSeconds > Değeri.ZamanAşımı_Sn)
                 {
-                    Değeri.ZamanAşımıOldu = true;
-
-                    if (ZamanAşımıSinyali == null)
+                    if (!Değeri.ZamanAşımı_Oldu)
                     {
-                        string addddı = "<ZA " + Adı.Csv + ">";
+                        Değeri.ZamanAşımı_Oldu = true;
 
-                        ZamanAşımıSinyali = Sinyaller.Ekle(addddı);
-                        ZamanAşımıSinyali.Güncelle_Adı(addddı, "Zaman Aşımları", Adı.Salkım + "|" + Adı.GörünenAdı);
-                        ZamanAşımıSinyali.Değeri.Kaydedilsin = true;
+                        ÖnYüz.AçıklamaEkle("Zaman aşımı oldu " + Adı.Csv, System.Drawing.Color.Red);
+
+                        if (Değeri.GeriBildirimİşlemi_ZamanAşımı != null)
+                        {
+                            try
+                            {
+                                Değeri.GeriBildirimİşlemi_ZamanAşımı(this, default(TimeSpan));
+                            }
+                            catch (Exception ex) { Yardımcıİşlemler.ÖnYüz.Günlük(ex, "Sinyaller.GeriBildirimİşlemi_ZamanAşımı." + Adı.Sinyal); }
+                        }
                     }
-                    else ZamanAşımıSinyali.Güncelle_SonDeğer(ZamanAşımıSinyali.Değeri.SonDeğeri + 1);
                 }
             }
-
-            //return Değeri.ZamanAşımıOldu;
         }
         public void Sil()
         {
@@ -150,7 +164,7 @@ namespace Çizelgeç
             void _ivk_()
             {
                 Görseller.Dal?.Remove();
-                if (Görseller.Çizikler != null) S.Çizelge.plt.Remove(Görseller.Çizikler);
+                if (Görseller.Çizikler != null) S.Çizelge.Plot.Remove(Görseller.Çizikler);
             }
 
             Sinyaller.Tümü.Remove(Adı.Sinyal);
@@ -161,7 +175,6 @@ namespace Çizelgeç
     public class Sinyaller
     {
         static Mutex Mtx = new Mutex();
-        public static bool EnAzBirSinyalDeğişti = true;
         public static bool EnAzBirSinyalDeğişti_KaydedilmesiGereken = true;
         public static Dictionary<string, Sinyal_> Tümü = new Dictionary<string, Sinyal_>();
         public static bool UygunMu(string Adı)

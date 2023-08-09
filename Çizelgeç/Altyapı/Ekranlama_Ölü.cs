@@ -14,6 +14,7 @@ namespace Çizelgeç
     {
         public Dictionary<double, string> dosyalar = null;
         public int önceki_dosya_sırano = 0, sonraki_dosya_sırano = 0;
+        public List<string> BirikenAçıklamalar = null;
 
         public Ekranlama_Ölü(string DosyaYolu)
         {
@@ -64,7 +65,6 @@ namespace Çizelgeç
             double[] dizi_zaman = new double[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length];
             int Kaydedilen_adet = 0;
             int hatalı_zamandamgası_sebebiyle_atlanılan = 0;
-            bool EnAz1AdetBoşGeçti = false;
        
             //ilk değer dizisinin eklenmesi
             for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
@@ -94,19 +94,6 @@ namespace Çizelgeç
 
                 if (farklı)
                 {
-                    if (EnAz1AdetBoşGeçti)
-                    {
-                        //merdiven görüntüsü olabilmesi icin bir önceki elamanın eklenmesi
-                        for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
-                        {
-                            dizi_değer[b][Kaydedilen_adet] = Sinyaller.Tümü.Values.ElementAt(b).Değeri.DeğerEkseni[a - 1];
-                        }
-                        dizi_zaman[Kaydedilen_adet] = Yardımcıİşlemler.Sinyaller.ZamanEkseni[a - 1];
-                        Kaydedilen_adet++;
-
-                        EnAz1AdetBoşGeçti = false;
-                    }
-
                     //farklı olan elemanın eklenmesi
                     for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
                     {
@@ -115,12 +102,11 @@ namespace Çizelgeç
                     dizi_zaman[Kaydedilen_adet] = Yardımcıİşlemler.Sinyaller.ZamanEkseni[a];
                     Kaydedilen_adet++;
                 }
-                else EnAz1AdetBoşGeçti = true;
             }
             
             if (Kaydedilen_adet != Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length)
             {
-                Günlük.Ekle("Toplam " + Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length + " girdinin " + hatalı_zamandamgası_sebebiyle_atlanılan + " adedi zaman damgası hatalı olduğundan ve " + (Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - Kaydedilen_adet - hatalı_zamandamgası_sebebiyle_atlanılan) + " adedi birbirinin aynısı olduğundan ram den tasarruf etmek için elendi");
+                Günlük.Ekle("Toplam " + Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length + " girdinin " + hatalı_zamandamgası_sebebiyle_atlanılan + " adedi zaman damgası hatalı olduğundan ve " + (Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - Kaydedilen_adet - hatalı_zamandamgası_sebebiyle_atlanılan) + " adedi birbirinin aynısı olduğundan ram den tasarruf etmek için elendi, toplam " + (BirikenAçıklamalar == null ? "0" : BirikenAçıklamalar.Count.ToString()) + " adet açıklama alındı");
 
                 for (int b = 0; b < Sinyaller.Tümü.Count && S.Çalışşsın; b++)
                 {
@@ -271,13 +257,11 @@ namespace Çizelgeç
                                 beklenenden_fazla_bilgi_içeren_hatalı_satır_sayısı++;
                             }
                         }
-                        else if (okunan.Contains(";Uyarı;"))
+                        else if (okunan.Contains(";Açıklama;"))
                         {
-                            //double y = S.Sayı.Yazıdan(bir_satırdakiler[3]);
-                            //Sinyal_ sinyal = Sinyaller.Bul("<" + bir_satırdakiler[2] + ">");
-                            //sinyal.Uyarı_Yazıları.Add(S.Çizelge.plt.PlotText(bir_satırdakiler[4], zaman, y, color: sinyal.Çizikler.color, rotation: 270));
-                            
-                            Günlük.Ekle(Path.GetFileName(CsvDosyasıYolu) + " satır " + SatırNo + " " + okunan);
+                            if (BirikenAçıklamalar == null) BirikenAçıklamalar = new List<string>();
+
+                            BirikenAçıklamalar.Add(okunan);
                         }
                     }
                     catch (Exception ex) { Günlük.Ekle("Problemli satır -> (" + SatırNo + ") " + okunan + " -> " + ex.ToString()); }
@@ -296,12 +280,10 @@ namespace Çizelgeç
             int tik = Environment.TickCount;
 
             #region ayarlar dosyası varmı kontrolü
-            Klasör_ kls_cs_ler = new Klasör_(MupDosyasıYolu.DosyaYolu_ÜstKlasör(), Filtre_Dosya: "*.cs");
-            if (kls_cs_ler != null && kls_cs_ler.Dosyalar.Count > 0)
+            string dsy_cs = MupDosyasıYolu.DosyaYolu_ÜstKlasör() + "\\Ölü_Ekranlama_Ayarlar.cs";
+            if (File.Exists(dsy_cs))
             {
-                string[] dsy_cs_ler = new string[kls_cs_ler.Dosyalar.Count];
-                for (int i = 0; i < dsy_cs_ler.Length; i++) { dsy_cs_ler[i] = kls_cs_ler.Kök + "\\" + kls_cs_ler.Dosyalar[i].Yolu; }
-                KodKümesi_Dll_ KodKümesi = new KodKümesi_Dll_(KodKümesi_Dll_.Derle(dsy_cs_ler));
+                KodKümesi_Dll_ KodKümesi = S.Derle(new string[] { dsy_cs });
                 KodKümesi.Çağır("Yardımcıİşlemler.Kontrolcü", "İlkAyarlamalarıYap");
             }
             foreach (var biri in Sinyaller.Tümü.Values)
@@ -330,51 +312,57 @@ namespace Çizelgeç
                     SatırNo++;
                     try
                     {
-                        int başlangıç = okunan.IndexOf(Yardımcıİşlemler.MupDosyasındanOkuma.CümleBaşlangıcı);
-                        if (başlangıç >= 0)
+                        foreach (string[] CüBaVeKeAy in Yardımcıİşlemler.MupDosyasındanOkuma.CümleBaşlangıcıVeKelimeAyraçları)
                         {
-                            if (ÖlçümSayısı >= Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı)
+                            string CümleBaşlangıcı = CüBaVeKeAy[0];
+                            char KelimeAyracı = CüBaVeKeAy[1][0];
+
+                            int başlangıç = okunan.IndexOf(CümleBaşlangıcı);
+                            if (başlangıç >= 0)
                             {
-                                Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı += 10000;
+                                if (ÖlçümSayısı >= Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı)
+                                {
+                                    Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı += 10000;
+                                    foreach (var biri in Sinyaller.Tümü.Values)
+                                    {
+                                        Array.Resize(ref biri.Değeri.DeğerEkseni, Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı);
+                                    }
+
+                                    Array.Resize(ref Yardımcıİşlemler.Sinyaller.ZamanEkseni, Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı);
+                                }
+
                                 foreach (var biri in Sinyaller.Tümü.Values)
                                 {
-                                    Array.Resize(ref biri.Değeri.DeğerEkseni, Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı);
+                                    biri.Değeri.DeğerEkseni[ÖlçümSayısı] = biri.Değeri.DeğerEkseni[ÖlçümSayısı - 1];
                                 }
 
-                                Array.Resize(ref Yardımcıİşlemler.Sinyaller.ZamanEkseni, Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı);
-                            }
-
-                            foreach (var biri in Sinyaller.Tümü.Values)
-                            {
-                                biri.Değeri.DeğerEkseni[ÖlçümSayısı] = biri.Değeri.DeğerEkseni[ÖlçümSayısı - 1];
-                            }
-
-                            string gelen = okunan.Substring(başlangıç + Yardımcıİşlemler.MupDosyasındanOkuma.CümleBaşlangıcı.Length).Trim(' ', Yardımcıİşlemler.MupDosyasındanOkuma.KelimeAyracı);
-                            string[] dizi = gelen.Split(Yardımcıİşlemler.MupDosyasındanOkuma.KelimeAyracı);
-                            for (int i = 1; i < dizi.Length; i++)
-                            {
-                                string sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
-                                Sinyal_ sinyal = Sinyaller.Ekle(sinyal_yazı);
-                                if (sinyal.Değeri.DeğerEkseni == null) sinyal.Değeri.DeğerEkseni = new double[Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı];
-
-                                double okunan_sayı = S.Sayı.Yazıdan(dizi[i]);
-                                if (double.IsNaN(okunan_sayı) || double.IsInfinity(okunan_sayı))
+                                string gelen = okunan.Substring(başlangıç + CümleBaşlangıcı.Length).Trim(' ', KelimeAyracı);
+                                string[] dizi = gelen.Split(KelimeAyracı);
+                                for (int i = 1; i < dizi.Length; i++)
                                 {
-                                    Günlük.Ekle("Satır : " + SatırNo + ", eleman : " + (i + 1) + " içeriği ( " + dizi[i] + " ) sayı değil, 0 olarak değiştirildi.");
-                                    okunan_sayı = 0;
+                                    string sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
+                                    Sinyal_ sinyal = Sinyaller.Ekle(sinyal_yazı);
+                                    if (sinyal.Değeri.DeğerEkseni == null) sinyal.Değeri.DeğerEkseni = new double[Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı];
+
+                                    double okunan_sayı = S.Sayı.Yazıdan(dizi[i]);
+                                    if (double.IsNaN(okunan_sayı) || double.IsInfinity(okunan_sayı))
+                                    {
+                                        Günlük.Ekle("Satır : " + SatırNo + ", eleman : " + (i + 1) + " içeriği ( " + dizi[i] + " ) sayı değil, 0 olarak değiştirildi.");
+                                        okunan_sayı = 0;
+                                    }
+
+                                    sinyal.Değeri.DeğerEkseni[ÖlçümSayısı] = okunan_sayı;
                                 }
 
-                                sinyal.Değeri.DeğerEkseni[ÖlçümSayısı] = okunan_sayı;
-                            }
+                                //tarihi okumaya calış
+                                if (!S.Tarih.Sayıya(okunan.Split(KelimeAyracı)[0], out Yardımcıİşlemler.Sinyaller.ZamanEkseni[ÖlçümSayısı])) Yardımcıİşlemler.Sinyaller.ZamanEkseni[ÖlçümSayısı] = ÖlçümSayısı;
+                                else
+                                {
+                                    if (Yardımcıİşlemler.Sinyaller.ZamanEkseni[ÖlçümSayısı] > bir_zamanlar) Enazbirtanedüzgüntarihbulundu = true;
+                                }
 
-                            //tarihi okumaya calış
-                            if (!S.Tarih.Sayıya(okunan.Split(Yardımcıİşlemler.MupDosyasındanOkuma.KelimeAyracı)[0], out Yardımcıİşlemler.Sinyaller.ZamanEkseni[ÖlçümSayısı])) Yardımcıİşlemler.Sinyaller.ZamanEkseni[ÖlçümSayısı] = ÖlçümSayısı;
-                            else
-                            {
-                                if (Yardımcıİşlemler.Sinyaller.ZamanEkseni[ÖlçümSayısı] > bir_zamanlar) Enazbirtanedüzgüntarihbulundu = true;
+                                ÖlçümSayısı++;
                             }
-
-                            ÖlçümSayısı++;
                         }
                     }
                     catch (Exception ex) { Günlük.Ekle("Problemli satır -> (" + SatırNo + ") " + okunan + " -> " + ex.ToString()); }
@@ -440,6 +428,7 @@ namespace Çizelgeç
 
             Dictionary<string, Sinyal_> Önceki_Sinyaller = new Dictionary<string, Sinyal_>(Sinyaller.Tümü);
             double[] Önceki_ZamanEkseni = Yardımcıİşlemler.Sinyaller.ZamanEkseni;
+            List<string> Önceki_Açıklamalar = BirikenAçıklamalar == null ? null : new List<string>(BirikenAçıklamalar);
             Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı = 10000;
             Sinyaller.Tümü.Clear();
 
@@ -454,6 +443,7 @@ namespace Çizelgeç
             catch (Exception ex) 
             {
                 Sinyaller.Tümü = Önceki_Sinyaller;
+                BirikenAçıklamalar = Önceki_Açıklamalar;
                 Yardımcıİşlemler.Sinyaller.ZamanEkseni = Önceki_ZamanEkseni;
                 Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı = Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length;
 

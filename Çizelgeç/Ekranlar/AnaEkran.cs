@@ -8,13 +8,15 @@ using System.Windows.Forms;
 using System.IO;
 using System.Threading;
 using ArgeMup.HazirKod;
+using ScottPlot;
+using ArgeMup.HazirKod.Ekİşlemler;
 
 namespace Çizelgeç
 {
     public partial class AnaEkran : Form
     {
         YeniYazılımKontrolü_ YeniYazılımKontrolü = new YeniYazılımKontrolü_();
-        Ekranlama_Ölü Ölü_Ekranlama = null;
+        public Ekranlama_Ölü Ölü_Ekranlama = null;
         public Ekranlama_Canlı Canlı_Ekranlama = null;
         string SolMenu_Kaydet_DosyaBütünlüğüKodu;
 
@@ -42,12 +44,12 @@ namespace Çizelgeç
             S.SolMenu_BaşlatDurdur = SolMenu_BaşlatDurdur;
             S.Ayraç_Ana = Ayraç_Ana;
 
-            Günlük_Panel.Visible = false;
-            Günlük_Panel.Dock = DockStyle.Fill;
-            Ağaç.Dock = DockStyle.Fill;
+            Ayraç_AğaçAçıklama_Günlük.Panel2Collapsed = true;
+            Ayraç_Ağaç_Açıklama.Panel2Collapsed = true;
 
             Directory.CreateDirectory(S.Şablon_Klasörü);
             Directory.CreateDirectory(S.Kulanıcı_Klasörü);
+            S.Derle_Başlat();
             Günlük.Ekle("Başladı", "Bilgi");
         }
         private void AnaEkran_Shown(object sender, EventArgs e)
@@ -55,12 +57,16 @@ namespace Çizelgeç
             int.TryParse(S.Ayarlar.Oku("S.Çizelge_ÇizgiKalınlığı", "1"), out S.Çizelge_ÇizgiKalınlığı);
             SağTuşMenü_Çizelge_ÇizgiKalınlığı_Değer.Text = S.Çizelge_ÇizgiKalınlığı.ToString();
 
-            Font = new Font(Font.FontFamily, Convert.ToInt32(S.Ayarlar.Oku("BuyutmeOrani", "6")));
+            Font = new Font(Font.FontFamily, (float)S.Ayarlar.Oku_Sayı("BuyutmeOrani", Font.Size));
             Ayraç_Ana.SplitterDistance = Convert.ToInt32(S.Ayarlar.Oku("Ayraç_Ana.SplitterDistance", "250"));
 
+            string ayarlar_cs = Properties.Resources.ÖrnekKaynakKod_CanlıEkranlama +
+                    Environment.NewLine + Environment.NewLine +
+                    Properties.Resources.ÖrnekKaynakKod_Ortak;
+            File.WriteAllText(S.Şablon_Klasörü + "Ayarlar.cs", ayarlar_cs);
+            var cs_ler = Directory.GetFiles(S.Kulanıcı_Klasörü, "*.cs", SearchOption.AllDirectories);
+            if (cs_ler == null || cs_ler.Length == 0) ayarlar_cs.Dosyaİçeriği_Yaz(S.Kulanıcı_Klasörü + "\\Örnek İş\\Ayarlar.cs");
             AnaEkran_Ağacı_Başlat(false);
-
-            File.WriteAllText(S.Şablon_Klasörü + "Ayarlar.cs", Properties.Resources.ÖrnekKaynakKod_CanlıEkranlama);
 
             YeniYazılımKontrolü.Başlat(new Uri("https://github.com/ArgeMup/Cizelgec/blob/main/%C3%87izelge%C3%A7/bin/Release/%C3%87izelge%C3%A7.exe?raw=true"), YeniYazılımKontrolü_GeriBildirim);
 
@@ -95,7 +101,7 @@ namespace Çizelgeç
         }
         private void AnaEkran_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Yardımcıİşlemler.ÖnYüz.BaşlatDurdur = true;
+            Yardımcıİşlemler.BilgiToplama.BaşlatDurdur = true;
             S.Çalışşsın = false;
             Bağlantılar.Durdur();
             
@@ -158,9 +164,13 @@ namespace Çizelgeç
                 S.BaşlangıçParametreleri = null;
                 S.Çalışşsın = false;
                 Sinyaller.Tümü.Clear();
-                Bağlantılar.Tümü.Clear();
+                Bağlantılar.Durdur();
                 Canlı_Ekranlama = null;
                 Ölü_Ekranlama = null;
+                Yardımcıİşlemler.Görevler.Sil(null);
+
+                string h = S.Derle_Hatalar();
+                if (h != null) Günlük.Ekle(h);
             }
 
             Ağaç.BeginUpdate();
@@ -219,13 +229,6 @@ namespace Çizelgeç
 
                 Canlı_Ekranlama = new Ekranlama_Canlı();
                 Canlı_Ekranlama.Başlat(İşAdı, S.BaşlangıçParametreleri[0]);
-                //if (Senaryolar.Tümü.Count > 0)
-                //{
-                //    foreach (var biri in Senaryolar.Tümü.Values)
-                //    {
-                //        biri.Dal.ContextMenuStrip = SağTuşMenü_Senaryo;
-                //    }
-                //}
 
                 S.AnaEkran_ÇubuktakiYazı += " >>> " + İşAdı;
                 Text = S.AnaEkran_ÇubuktakiYazı;
@@ -252,15 +255,20 @@ namespace Çizelgeç
             }
         }
 
-        void ÖlüEkranlama_Çizdir()
+        void ÖlüEkranlama_Çizdir(bool HatayıTut = true)
         {
             try
             {
                 Ekranlama.AğaçVeÇizelge_Görsellerini_Üret(Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı.ToString());
+
                 AralıkSeçici_Baştan_Scroll(null, null);
                 S.Çizdir();
             }
-            catch (Exception ex) { Günlük.Ekle(ex.Message); }
+            catch (Exception ex) 
+            {
+                if (HatayıTut) Günlük.Ekle(ex.Message);
+                else throw;
+            }
         }
         void ÖlüEkranlamayı_Başlat() //İş dosyasının yolu -> S.BaşlangıçParametreleri[0]
         {
@@ -276,7 +284,7 @@ namespace Çizelgeç
 
                 Ekle_Önceki_Sonraki_Tümü_Tuşlarını_Göster();
 
-                ÖlüEkranlama_Çizdir();
+                ÖlüEkranlama_Çizdir(false);
 
                 S.AnaEkran_ÇubuktakiYazı += " >>> " + Path.GetFileName(S.BaşlangıçParametreleri[0]);
                 Text = S.AnaEkran_ÇubuktakiYazı;
@@ -410,15 +418,15 @@ namespace Çizelgeç
             }
             else
             {
-                if (Ağaç.Visible)
+                if (!Ayraç_AğaçAçıklama_Günlük.Panel1Collapsed)
                 {
                     Ayraç_Ana.Panel1Collapsed = true;
                     Ayraç_Ana.Panel2Collapsed = false;
                 }
             }
-            
-            Günlük_Panel.Visible = false;
-            Ağaç.Visible = true;
+
+            Ayraç_AğaçAçıklama_Günlük.Panel1Collapsed = false;
+            Ayraç_AğaçAçıklama_Günlük.Panel2Collapsed = true;
         }
         private void SolMenu_Cizelge_Click(object sender, EventArgs e)
         {
@@ -440,30 +448,21 @@ namespace Çizelgeç
             }
             else
             {
-                if (Günlük_Panel.Visible)
+                if (!Ayraç_AğaçAçıklama_Günlük.Panel2Collapsed)
                 {
                     Ayraç_Ana.Panel1Collapsed = true;
                     Ayraç_Ana.Panel2Collapsed = false;
                 }
             }
 
-            Günlük_Panel.Visible = true;
-            Ağaç.Visible = false;
+            Ayraç_AğaçAçıklama_Günlük.Panel1Collapsed = true;
+            Ayraç_AğaçAçıklama_Günlük.Panel2Collapsed = false;
 
             SolMenu_Gunluk.Image = Properties.Resources.M_Gunluk;
         }
         private void SolMenu_BaşlatDurdur_Click(object sender, EventArgs e)
         {
-            if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
-            {
-                Yardımcıİşlemler.ÖnYüz.BaşlatDurdur = false;
-                S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Hata;
-            }
-            else
-            {
-                Yardımcıİşlemler.ÖnYüz.BaşlatDurdur = true;
-                S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Tamam;
-            }
+            Yardımcıİşlemler.BilgiToplama.BaşlatDurdur = !Yardımcıİşlemler.BilgiToplama.BaşlatDurdur;
         }
 
         int AralıkSeçici_KeyDown_Bastan_Sondan_Kaydırıcı = 0;
@@ -631,8 +630,8 @@ namespace Çizelgeç
             {
                 if (Sinyaller.Tümü.ElementAt(i).Value.Görseller.Çizikler == null) continue;
 
-                Sinyaller.Tümü.ElementAt(i).Value.Görseller.Çizikler.minRenderIndex = az;
-                Sinyaller.Tümü.ElementAt(i).Value.Görseller.Çizikler.maxRenderIndex = cok;
+                Sinyaller.Tümü.ElementAt(i).Value.Görseller.Çizikler.MinRenderIndex = az;
+                Sinyaller.Tümü.ElementAt(i).Value.Görseller.Çizikler.MaxRenderIndex = cok;
 
                 if (dizi.Length > 0 && Ölü_Ekranlama != null)
                 {
@@ -671,6 +670,8 @@ namespace Çizelgeç
             açıklama += "Zaman dilimi : " + ArgeMup.HazirKod.Dönüştürme.D_Süre.Yazıya.SaatDakikaSaniye(0, 0, toplam_saniye);
             İpUcu.SetToolTip(Kaydırıcı, açıklama);
 
+            Açıklamalar.AralıkSeçicilereGöreAyarla();
+
             if (Ağaç.SelectedNode == null) Ağaç.SelectedNode = Ağaç.Nodes[0];
             Ağaç_NodeMouseClick(null, new TreeNodeMouseClickEventArgs(Ağaç.SelectedNode, MouseButtons.None, 0, 0, 0));
         }
@@ -693,7 +694,6 @@ namespace Çizelgeç
             AralıkSeçici_EtkinOlanıBelirginleştir();
         }
 
-        bool enazbirtanekalınvar = false;
         private void Ağaç_AfterCheck(object sender, TreeViewEventArgs e)
         {
             if (e.Node.Tag == null || e.Node.Tag.GetType() != typeof(Sinyal_))
@@ -707,46 +707,24 @@ namespace Çizelgeç
                 if (e.Node.Parent == null && e.Node.Checked == false)
                 {
                     //tümünü yoket
-                    var snyler = Çizelge.plt.GetPlottables();
-                    while (snyler.Count > 0 && S.Çalışşsın) snyler.RemoveAt(0);
+                    foreach (Sinyal_ sinyal in Sinyaller.Tümü.Values)
+                    {
+                        sinyal.Görseller.Çizikler.IsVisible = false;
+                    }
+                }
 
-                    //S.Çizdirme_YatayÇizgi = null;
-                    //S.Çizdirme_DikeyÇizgi = null;
-                    //for (int i = 0; i < S.Çizdirme_Noktacıklar.Length; i++)
-                    //{
-                    //    S.Çizdirme_Noktacıklar[i] = null;
-                    //}
+                string Açıklamalar_Çizelgede_Görünsün = e.Node.Tag as string;
+                if (Açıklamalar_Çizelgede_Görünsün == "Açıklamalar_Çizelgede_Görünsün")
+                {
+                    S.Açıklamalar_Çizelgede_Görünsün = e.Node.Checked;
 
-                    S.Çizdir();
+                    Açıklamalar.Görünsün(S.Açıklamalar_Çizelgede_Görünsün);
                 }
             }
             else
             {
                 //sadece ilgili olan sinyali
-                if (e.Node.Checked)
-                {
-                    if (!Çizelge.plt.GetPlottables().Contains(e.Node.Tag)) Çizelge.plt.Add((e.Node.Tag as Sinyal_).Görseller.Çizikler);
-
-                    //if ((e.Node.Tag as Sinyal_).Uyarı_Yazıları != null)
-                    //{
-                    //    foreach (var biri in (e.Node.Tag as Sinyal_).Uyarı_Yazıları)
-                    //    {
-                    //        if (!Çizelge.plt.GetPlottables().Contains(biri)) Çizelge.plt.Add(biri);
-                    //    }
-                    //}
-                }
-                else
-                {
-                    Çizelge.plt.Remove((e.Node.Tag as Sinyal_).Görseller.Çizikler);
-
-                    //if ((e.Node.Tag as Sinyal_).Uyarı_Yazıları != null)
-                    //{
-                    //    foreach (var biri in (e.Node.Tag as Sinyal_).Uyarı_Yazıları)
-                    //    {
-                    //        Çizelge.plt.Remove(biri);
-                    //    }
-                    //}
-                }
+                (e.Node.Tag as Sinyal_).Görseller.Çizikler.IsVisible = e.Node.Checked;
             }
         }
         private void Ağaç_MouseEnter(object sender, EventArgs e)
@@ -781,109 +759,86 @@ namespace Çizelgeç
         {
             if (e.Node == null) return;
 
-			Ağaç.SelectedNode = e.Node;
+            Ağaç.SelectedNode = e.Node;
+            List<Sinyal_> ilgili_sny_ler = new List<Sinyal_>();
+            
             if (e.Node.Tag == null || e.Node.Tag.GetType() != typeof(Sinyal_))
             {
                 //kesinlikle bir sinyal değil
-                if (e.Node.Parent != null && e.Node.Nodes != null && e.Node.Nodes.Count > 0)
+                if (e.Node.Nodes != null)
                 {
-                    if (SağTuşMenü_Çizelge_Y_EkseniÖlçeğiniSeçiliOlanSinyaleUyarla.Checked)
+                    //belirleen sinyalleri topla
+                    for (int i = 0; i < e.Node.Nodes.Count; i++)
                     {
-                        int DaldakiSinyalSayısı = 0;
-                        double[] sınır_d = new double[e.Node.Nodes.Count], sınır_y = new double[e.Node.Nodes.Count];
-                        for (int i = 0; i < e.Node.Nodes.Count; i++)
+                        if (e.Node.Nodes[i].Tag != null && e.Node.Nodes[i].Tag.GetType() == typeof(Sinyal_) && (e.Node.Nodes[i].Tag as Sinyal_).Görseller.Çizikler != null)
                         {
-                            if (e.Node.Nodes[i].Tag != null && e.Node.Nodes[i].Tag.GetType() == typeof(Sinyal_) && (e.Node.Nodes[i].Tag as Sinyal_).Değeri.DeğerEkseni != null)
-                            {
-                                DaldakiSinyalSayısı++;
-                                sınır_d[i] = (e.Node.Nodes[i].Tag as Sinyal_).Değeri.DeğerEkseni.Min();
-                                sınır_y[i] = (e.Node.Nodes[i].Tag as Sinyal_).Değeri.DeğerEkseni.Max();
-                            }  
+                            ilgili_sny_ler.Add(e.Node.Nodes[i].Tag as Sinyal_);
                         }
-                        if (DaldakiSinyalSayısı == 0)
-                        {
-                            Çizelge.plt.AxisBounds();
-                            Çizelge.plt.YLabel("Tümü", true, null, null, Color.Black);
-                            Çizelge.plt.Style(null, null, null, Color.Black);
-                        }
-                        else
-                        {
-                            double düşük = sınır_d.Min();
-                            double yüksek = sınır_y.Max();
-
-                            if (düşük == yüksek)
-                            {
-                                if (yüksek == 0)
-                                {
-                                    yüksek = 1;
-                                    düşük = -1;
-                                }
-
-                                yüksek += yüksek * 0.1;
-                                düşük -= yüksek * 0.1;
-                            }
-                            double oran = (yüksek - düşük) * 0.05;
-                            yüksek += oran;
-                            düşük -= oran;
-
-                            Çizelge.plt.AxisBounds(double.NegativeInfinity, double.PositiveInfinity, düşük, yüksek);
-                            Çizelge.plt.YLabel(e.Node.Text, true, null, null, Color.Black);
-                            Çizelge.plt.Style(null, null, null, Color.Black);
-
-                            enazbirtanekalınvar = true;
-                        }  
                     }
-                }
-                else if (enazbirtanekalınvar)
-                {
-                    foreach (var biri in Sinyaller.Tümü) { if (biri.Value.Görseller.Çizikler != null) biri.Value.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı; }
-
-                    Çizelge.plt.AxisBounds();
-                    Çizelge.plt.YLabel("Tümü", true, null, null, Color.Black);
-                    Çizelge.plt.Style(null, null, null, Color.Black);
-
-                    enazbirtanekalınvar = false;
                 }
             }
             else
             {
                 //kesinlikle bir sinyal dalı
-                if ((e.Node.Tag as Sinyal_).Görseller.Çizikler == null || (e.Node.Tag as Sinyal_).Değeri.DeğerEkseni == null) return;
+                Sinyal_ sny = e.Node.Tag as Sinyal_;
+                if (sny.Görseller.Çizikler == null) return;
 
-                if (SağTuşMenü_Çizelge_SeçiliOlanıBelirginleştr.Checked)
-                {
-                    foreach (var biri in Sinyaller.Tümü) { if (biri.Value.Görseller.Çizikler != null) biri.Value.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı; }
-                    (e.Node.Tag as Sinyal_).Görseller.Çizikler.lineWidth = 3 * S.Çizelge_ÇizgiKalınlığı;
-                }
-
-                if (SağTuşMenü_Çizelge_Y_EkseniÖlçeğiniSeçiliOlanSinyaleUyarla.Checked)
-                {
-                    double düşük = (e.Node.Tag as Sinyal_).Değeri.DeğerEkseni.Min();
-                    double yüksek = (e.Node.Tag as Sinyal_).Değeri.DeğerEkseni.Max();
-                    
-                    if (düşük == yüksek)
-                    {
-                        if (yüksek == 0)
-                        {
-                            yüksek = 1;
-                            düşük = -1;
-                        }
-
-                        yüksek += (yüksek + 1) * 0.1;
-                        düşük -= (yüksek + 1) * 0.1;
-                    }
-                    double oran = (yüksek - düşük) * 0.05;
-                    yüksek += oran;
-                    düşük -= oran;
-
-                    Çizelge.plt.AxisBounds(double.NegativeInfinity, double.PositiveInfinity, düşük, yüksek);
-                    Çizelge.plt.YLabel((e.Node.Tag as Sinyal_).Adı.GörünenAdı, true, null, null, (e.Node.Tag as Sinyal_).Görseller.Çizikler.color);
-                    Çizelge.plt.Style(null, null, null, (e.Node.Tag as Sinyal_).Görseller.Çizikler.color);
-                }
-
-                enazbirtanekalınvar = true;
+                ilgili_sny_ler.Add(sny);
             }
-            
+
+            if (ilgili_sny_ler.Count == 0)
+            {
+                //hiç sinyal yok, hepsini sola at
+                foreach (Sinyal_ sny in Sinyaller.Tümü.Values)
+                {
+                    if (sny.Görseller.Çizikler == null) continue;
+
+                    sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.LeftAxis.AxisIndex;
+                    sny.Görseller.Çizikler.IsHighlighted = false;
+                }
+
+                Çizelge.Plot.LeftAxis.Color(Color.Black);
+                Çizelge.Plot.LeftAxis.Label("Tümü");
+                Çizelge.Plot.RightAxis.IsVisible = false;
+            }
+            else
+            {
+                string DaldakiSinyaller = null;
+                foreach (Sinyal_ sny in Sinyaller.Tümü.Values)
+                {
+                    if (sny.Görseller.Çizikler == null) continue;
+
+                    if (ilgili_sny_ler.Contains(sny))
+                    {
+                        sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.LeftAxis.AxisIndex;
+                        sny.Görseller.Çizikler.IsHighlighted = SağTuşMenü_Çizelge_SeçiliOlanıBelirginleştr.Checked;
+
+                        Çizelge.Plot.MoveLast(sny.Görseller.Çizikler);
+                        DaldakiSinyaller += sny.Adı.GörünenAdı + ", ";
+                    }
+                    else
+                    {
+                        //diğerlerini sağ eksene geçirerek yarı görünmez yap
+                        sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.RightAxis.AxisIndex;
+                        sny.Görseller.Çizikler.IsHighlighted = false;
+                    }
+                }
+
+                if (ilgili_sny_ler.Count == 1)
+                {
+                    Çizelge.Plot.LeftAxis.Color(ilgili_sny_ler[0].Görseller.Çizikler.Color);
+                    Çizelge.Plot.LeftAxis.Label(ilgili_sny_ler[0].Adı.GörünenAdı);
+                }
+                else
+                {
+                    Çizelge.Plot.LeftAxis.Color(Color.Black);
+                    Çizelge.Plot.LeftAxis.Label(DaldakiSinyaller.TrimEnd(',', ' '));
+                }
+
+                Çizelge.Plot.RightAxis.Label("Diğerleri");
+                Çizelge.Plot.RightAxis.IsVisible = true;
+            }
+
             S.Çizdir();
         }
 
@@ -892,62 +847,93 @@ namespace Çizelgeç
             string a = string.Format("mailto:{0}?Subject={1}&Body={2}", "argemup@yandex.com", Text + " Hk.", "Mesajınız");
             S.Çalıştır.UygulamayaİşletimSistemiKararVersin(a, KapanırkenZorlaKapat:false);
         }
-        private void Menu_aA_100_Click(object sender, EventArgs e)
+        public void Menu_aA_xxx_Click(object sender, EventArgs e)
         {
-            S.Ayarlar.Yaz("BuyutmeOrani", "6");
-            Font = new System.Drawing.Font(Font.FontFamily, 6);
-            
-            S.Çizelge.plt.YLabel(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizelge.plt.Ticks(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizdir();
-        }
-        private void Menu_aA_125_Click(object sender, EventArgs e)
-        {
-            S.Ayarlar.Yaz("BuyutmeOrani", "8");
-            Font = new System.Drawing.Font(Font.FontFamily, 8);
+            double Boyut;
+            if (sender == null) Boyut = S.Ayarlar.Oku_Sayı("BuyutmeOrani", Font.Size);
+            else
+            {
+                ToolStripMenuItem tsmi = sender as ToolStripMenuItem;
+                Boyut = (tsmi.Tag as string).NoktalıSayıya();
+            }
+            if (Boyut == 0) Boyut = Font.Size * 1.1;
 
-            S.Çizelge.plt.YLabel(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizelge.plt.Ticks(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizdir();
-        }
-        private void Menu_aA_150_Click(object sender, EventArgs e)
-        {
-            S.Ayarlar.Yaz("BuyutmeOrani", "10");
-            Font = new System.Drawing.Font(Font.FontFamily, 10);
+            S.Ayarlar.Yaz("BuyutmeOrani", Boyut);
+            Font = new Font(Font.FontFamily, (float)Boyut);
 
-            S.Çizelge.plt.YLabel(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizelge.plt.Ticks(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizdir();
-        }
-        private void Menu_aA_175_Click(object sender, EventArgs e)
-        {
-            S.Ayarlar.Yaz("BuyutmeOrani", "12");
-            Font = new System.Drawing.Font(Font.FontFamily, 12);
+            Boyut *= 1.25;
+            Çizelge.Plot.LeftAxis.Label(size: (float)Boyut);
+            Çizelge.Plot.LeftAxis.TickLabelStyle(fontSize: (float)Boyut);
+            Çizelge.Plot.RightAxis.Label(size: (float)Boyut);
+            Çizelge.Plot.RightAxis.TickLabelStyle(fontSize: (float)Boyut);
+            Çizelge.Plot.XAxis.TickLabelStyle(fontSize: (float)Boyut);
 
-            S.Çizelge.plt.YLabel(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizelge.plt.Ticks(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizdir();
-        }
-        private void Menu_aA_200_Click(object sender, EventArgs e)
-        {
-            S.Ayarlar.Yaz("BuyutmeOrani", "14");
-            Font = new System.Drawing.Font(Font.FontFamily, 14);
+            foreach (Sinyal_ sinyal in Sinyaller.Tümü.Values)
+            {
+                if (sinyal.Görseller.SeçiliOlanNokta == null) continue;
 
-            S.Çizelge.plt.YLabel(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
-            S.Çizelge.plt.Ticks(/*fontName: Font.Name,*/ fontSize: (float)(Font.Size * 1.25));
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.FontSize = (float)Boyut;
+            }
+
+            foreach (Açıklama_ açkl in Açıklamalar.Tümü)
+            {
+                açkl.Görsel.FontSize = (float)Boyut;
+            }
+
             S.Çizdir();
         }
 
         private void Çizelge_MouseMove(object sender, MouseEventArgs e)
         {
-            if (Yardımcıİşlemler.Sinyaller.ZamanEkseni == null || Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length < 2 || e.Button > 0) return;
+            if (Yardımcıİşlemler.Sinyaller.ZamanEkseni == null || 
+                Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length < 2 ||
+                e.Button > 0) return;
 
             S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt = Environment.TickCount + S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt_Sabiti;
 
-            int bulundu = SeçilenZamandakiDeğerler_FareKonumundan_EksendekiKonumuBul();
+            int bulundu = -1;
+            for (int i = 0; i < Sinyaller.Tümü.Count; i++)
+            {
+                Sinyal_ sinyal = Sinyaller.Tümü.Values.ElementAt(i);
+
+                if (sinyal.Görseller.SeçiliOlanNokta == null || !sinyal.Görseller.Çizikler.IsVisible) continue;
+
+                if (bulundu < 0)
+                {
+                    bulundu = SeçilenZamandakiDeğerler_FareKonumundan_EksendekiKonumuBul();
+                    if (bulundu < 0) break;
+                }
+
+                sinyal.Görseller.SeçiliOlanNokta.X = Yardımcıİşlemler.Sinyaller.ZamanEkseni[bulundu];
+                sinyal.Görseller.SeçiliOlanNokta.Y = sinyal.Değeri.DeğerEkseni[bulundu];
+                sinyal.Görseller.SeçiliOlanNokta.IsVisible = true;
+                sinyal.Görseller.SeçiliOlanNokta.YAxisIndex = sinyal.Görseller.Çizikler.YAxisIndex;
+                Çizelge.Plot.MoveLast(sinyal.Görseller.SeçiliOlanNokta);
+
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.Label = " " + sinyal.Adı.GörünenAdı + " : " + S.Sayı.Yazıya(GerçekDeğeri(sinyal, i, bulundu));
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.X = Yardımcıİşlemler.Sinyaller.ZamanEkseni[bulundu];
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.Y = sinyal.Değeri.DeğerEkseni[bulundu];
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.IsVisible = true;
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.YAxisIndex = sinyal.Görseller.Çizikler.YAxisIndex;
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.Alignment = (((AralıkSeçici_Sondan.Value - AralıkSeçici_Baştan.Value) / 2) + AralıkSeçici_Baştan.Value) < bulundu ? Alignment.LowerRight : Alignment.LowerLeft;
+                Çizelge.Plot.MoveLast(sinyal.Görseller.SeçiliOlanNokta_Yazı);
+            }
             if (bulundu < 0) return;
 
             SeçilenZamandakiDeğerler_AğaçtaGöster(bulundu);
+            S.Çizdir(false);
+        }
+        private void Çizelge_MouseLeave(object sender, EventArgs e)
+        {
+            foreach (Sinyal_ sinyal in Sinyaller.Tümü.Values)
+            {
+                if (sinyal.Görseller.SeçiliOlanNokta == null) continue;
+
+                sinyal.Görseller.SeçiliOlanNokta.IsVisible = false;
+                sinyal.Görseller.SeçiliOlanNokta_Yazı.IsVisible = false;
+            }
+
+            S.Çizdir(false);
         }
         private void Çizelge_MouseClicked(object sender, MouseEventArgs e)
         {
@@ -963,7 +949,7 @@ namespace Çizelgeç
                 return (int)Koordinat_X;
             }
 
-            return Yardımcıİşlemler.Sinyaller.ZamanEkseni_EnYakın(S.Tarih.Tarihe(Koordinat_X), AralıkSeçici_Baştan.Value, AralıkSeçici_Sondan.Value);
+            return Yardımcıİşlemler.Sinyaller.ZamanEkseni_EnYakın(S.Tarih.Tarihe(Koordinat_X));
         }
         void SeçilenZamandakiDeğerler_AğaçtaGöster(int No)
         {
@@ -984,10 +970,14 @@ namespace Çizelgeç
                     continue;
                 }
 
-                if (SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnBüyük == null) biri.Görseller.Dal.Text = biri.Adı.GörünenAdı + " : " + S.Sayı.Yazıya(biri.Değeri.DeğerEkseni[No]);
-                else biri.Görseller.Dal.Text = biri.Adı.GörünenAdı + " : " + S.Sayı.Yazıya(ArgeMup.HazirKod.Hesapla.Normalleştir(biri.Değeri.DeğerEkseni[No], 0, 1, SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnKüçük[i], SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnBüyük[i]));
+                biri.Görseller.Dal.Text = biri.Adı.GörünenAdı + " : " + S.Sayı.Yazıya(GerçekDeğeri(biri, i, No));
             }
             Ağaç.EndUpdate();
+        }
+        double GerçekDeğeri(Sinyal_ Sinyal, int SinyalSıraNo, int DeğerSıraNo)
+        {
+            if (SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnBüyük == null) return Sinyal.Değeri.DeğerEkseni[DeğerSıraNo];
+            else return Hesapla.Normalleştir(Sinyal.Değeri.DeğerEkseni[DeğerSıraNo], 0, 1, SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnKüçük[SinyalSıraNo], SağTuşMenü_Çizelge_Normalleştirme_çarpanlar_EnBüyük[SinyalSıraNo]);
         }
         string SeçilenZamandakiDeğerler_YazıHalineGetir(int No)
         {
@@ -1009,15 +999,6 @@ namespace Çizelgeç
             }
 
             return çıktı;
-        }
-
-        private void SağTuşMenü_Senaryo_Çalıştır_Click(object sender, EventArgs e)
-        {
-            //(Ağaç.SelectedNode.Tag as Senaryo_).Çalıştır();
-        }
-        private void SağTuşMenü_Senaryo_Durdur_Click(object sender, EventArgs e)
-        {
-            //(Ağaç.SelectedNode.Tag as Senaryo_).Durdur();
         }
 
         int SağTuşMenü_Çizelge_tick = 0;
@@ -1064,8 +1045,6 @@ namespace Çizelgeç
         }
         private void SağTuşMenü_Çizelge_ÇizgiKalınlığı_SadeceEtkinOlanlar_Click(object sender, EventArgs e)
         {
-            SağTuşMenü_Çizelge_SeçiliOlanıBelirginleştr.Checked = false;
-
             SağTuşMenü_Çizelge_ÇizgiKalınlığı_İşlemi(false);
         }
         private void SağTuşMenü_Çizelge_ÇizgiKalınlığı_İşlemi(bool TümüneUygula)
@@ -1086,8 +1065,8 @@ namespace Çizelgeç
                 if (TümüneUygula ||
                    (biri.Görseller.Dal != null && biri.Görseller.Dal.Checked) )
                 {
-                    biri.Görseller.Çizikler.lineWidth = S.Çizelge_ÇizgiKalınlığı;
-                    biri.Görseller.Çizikler.markerSize = ( S.Çizelge_ÇizgiKalınlığı * (float)1.5 ) + 5;
+                    biri.Görseller.Çizikler.LineWidth = S.Çizelge_ÇizgiKalınlığı;
+                    biri.Görseller.Çizikler.MarkerSize = ( S.Çizelge_ÇizgiKalınlığı * (float)1.5 ) + 5;
                 }
 
                 if (SağTuşMenü_Çizelge_tick <= Environment.TickCount)
@@ -1341,18 +1320,19 @@ namespace Çizelgeç
                     }
                 }
 
-                S.Çizelge.plt.Ticks(dateTimeX: false);
+                S.Çizelge.Plot.XAxis.DateTimeFormat(false);
             }
             else
             {
                 Array.Copy(SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni, Yardımcıİşlemler.Sinyaller.ZamanEkseni, Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length);
                 SağTuşMenü_Çizelge_Normalleştirme_ZamanEkseni = null;
 
-                S.Çizelge.plt.Ticks(dateTimeX: true);
+                S.Çizelge.Plot.XAxis.DateTimeFormat(true);
 
                 Ekle_Önceki_Sonraki_Tümü_Tuşlarını_Göster();
             }
 
+            Ekranlama.AğaçDalındakiDalıBul(Ağaç.Nodes[0].Nodes, "Açıklamalar").Checked = false;
             Ağaç.Nodes[0].Text = "Bekleyiniz çizdiriliyor";
             Ağaç.Refresh();
 
@@ -1373,10 +1353,128 @@ namespace Çizelgeç
         {
             Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla = SağTuşMenü_Çizelge_Birbirinin_aynısı_olan_zaman_dilimlerini_atla.Checked;
         }
+        private void SağTuşMenü_Çizelge_MerdivenGörüntüsüŞeklinde_Click(object sender, EventArgs e)
+        {
+            foreach (Sinyal_ sinyal in Sinyaller.Tümü.Values)
+            {
+                sinyal.Görseller.Çizikler.StepDisplay = SağTuşMenü_Çizelge_MerdivenGörüntüsüŞeklinde.Checked;
+            }
+
+            S.Çizdir(false);
+        }
 
         private void SağTuşMenü_Ağaç_ilkAçılış_işlerinBulunduğuKlasörüAç_Click(object sender, EventArgs e)
         {
             S.Çalıştır.DosyaGezginindeGöster(S.Kulanıcı_Klasörü);
+        }
+
+        bool Açıklamalar_AramaÇubuğu_Çalışıyor = false;
+        bool Açıklamalar_AramaÇubuğu_KapatmaTalebi = false;
+        int Açıklamalar_AramaÇubuğu_Tik = 0;
+        int Açıklamalar_AramaÇubuğu_Sayac_Bulundu = 0;
+        Açıklama_ Açıklamalar_Son_Kullamılan = null;
+        private void Açıklamalar_AramaÇubuğu_TextChanged(object sender, EventArgs e)
+        {
+            Açıklamalar_AramaÇubuğu_Tik = Environment.TickCount + 100;
+            if (Açıklamalar_AramaÇubuğu.Text.Length < 2)
+            {
+                if (Açıklamalar_AramaÇubuğu_Sayac_Bulundu != 0)
+                {
+                    Açıklamalar_AramaÇubuğu.BackColor = Color.Salmon;
+
+                    for (int satır = 0; satır < Açıklamalar_Tablo.RowCount; satır++)
+                    {
+                        Açıklamalar_Tablo.Rows[satır].Visible = true;
+                        if (Açıklamalar_AramaÇubuğu_Tik < Environment.TickCount) { Application.DoEvents(); Açıklamalar_AramaÇubuğu_Tik = Environment.TickCount + 100; }
+                    }
+
+                    Açıklamalar_AramaÇubuğu.BackColor = Color.White;
+                    Açıklamalar_AramaÇubuğu_Sayac_Bulundu = 0;
+                    Açıklamalar_Tablo_TarihSaat.HeaderText = "Tarih Saat";
+                }
+
+                return;
+            }
+
+            if (Açıklamalar_AramaÇubuğu_Çalışıyor) { Açıklamalar_AramaÇubuğu_KapatmaTalebi = true; return; }
+
+            Açıklamalar_AramaÇubuğu_Sayac_Bulundu = 0;
+            Açıklamalar_AramaÇubuğu_Çalışıyor = true;
+            Açıklamalar_AramaÇubuğu_KapatmaTalebi = false;
+            Açıklamalar_AramaÇubuğu_Tik = Environment.TickCount + 500;
+            Açıklamalar_AramaÇubuğu.BackColor = Color.Salmon;
+            string kıstas = "*" + Açıklamalar_AramaÇubuğu.Text + "*";
+
+            for (int satır = 0; satır < Açıklamalar_Tablo.RowCount && !Açıklamalar_AramaÇubuğu_KapatmaTalebi; satır++)
+            {
+                bool bulundu = false;
+                for (int sutun = 0; sutun < Açıklamalar_Tablo.Columns.Count; sutun++)
+                {
+                    string içerik = (string)Açıklamalar_Tablo[sutun, satır].Value;
+                    if (içerik.BenzerMi(kıstas, false))
+                    {
+                        Açıklamalar_Tablo[sutun, satır].Style.BackColor = Color.YellowGreen;
+                        bulundu = true;
+                    }
+                    else Açıklamalar_Tablo[sutun, satır].Style.BackColor = Color.White;
+                }
+
+                Açıklamalar_Tablo.Rows[satır].Visible = bulundu;
+                if (bulundu) Açıklamalar_AramaÇubuğu_Sayac_Bulundu++;
+
+                if (Açıklamalar_AramaÇubuğu_Tik < Environment.TickCount) { Application.DoEvents(); Açıklamalar_AramaÇubuğu_Tik = Environment.TickCount + 500; }
+            }
+
+            Açıklamalar_Tablo_TarihSaat.HeaderText = "Tarih Saat (" + Açıklamalar_AramaÇubuğu_Sayac_Bulundu + ")";
+            Açıklamalar_AramaÇubuğu.BackColor = Color.White;
+            Açıklamalar_AramaÇubuğu_Çalışıyor = false;
+            Açıklamalar_Tablo.ClearSelection();
+
+            if (Açıklamalar_AramaÇubuğu_KapatmaTalebi) Açıklamalar_AramaÇubuğu_TextChanged(null, null);
+            Açıklamalar_AramaÇubuğu_KapatmaTalebi = false;
+        }
+        private void Açıklamalar_Tablo_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            Açıklama_ açklm = Açıklamalar_Tablo.Rows[e.RowIndex].Tag as Açıklama_;
+
+            if (Açıklamalar_Son_Kullamılan != null) Açıklamalar_Son_Kullamılan.Görsel.FontBold = false;
+            Açıklamalar_Son_Kullamılan = açklm;
+
+            S.Çizelge.Plot.MoveLast(açklm.Görsel);
+            açklm.Görsel.IsVisible = true;
+            açklm.Görsel.FontBold = true;
+
+            S.Çizdir(false);
+        }
+        private void Açıklamalar_ÖneGetir_Click(object sender, EventArgs e)
+        {
+            foreach(DataGridViewRow dgr in Açıklamalar_Tablo.Rows)
+            {
+                if (!dgr.Visible) continue;
+
+                Açıklama_ açklm = dgr.Tag as Açıklama_;
+                S.Çizelge.Plot.MoveLast(açklm.Görsel);
+                açklm.Görsel.IsVisible = true;
+            }
+
+            S.Çizdir(false);
+        }
+
+        private void SağTuşMenü_İşlem_Çalıştır_Click(object sender, EventArgs e)
+        {
+            if (Ağaç.SelectedNode == null ||
+                Ağaç.SelectedNode.Tag == null) return;
+
+            Yardımcıİşlemler.İşlemler.İşlem_ işl = Ağaç.SelectedNode.Tag as Yardımcıİşlemler.İşlemler.İşlem_;
+            if (işl == null) return;
+
+            try
+            {
+                işl.İşlem(işl.Adı, işl.Hatırlatıcı);
+            }
+            catch (Exception ex) { Yardımcıİşlemler.ÖnYüz.Günlük(ex, "İşlemler.Çalıştır." + işl.Adı); }
         }
     }
 }

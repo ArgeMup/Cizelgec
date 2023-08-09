@@ -2,6 +2,7 @@
 
 using ArgeMup.HazirKod;
 using ArgeMup.HazirKod.DonanımHaberleşmesi;
+using ArgeMup.HazirKod.Ekİşlemler;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +20,7 @@ namespace Çizelgeç
         public string CümleBaşlangıcı = ">Sinyaller";
         public char KelimeAyracı = ';';
         public bool Kaydedilsin = true;
-        public Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri TanımlanmamışSinyalleri = Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Kullan;
+        public Yardımcıİşlemler.Sinyaller.Tanımlanmamış_Sinyali TanımlanmamışSinyalleri = Yardımcıİşlemler.Sinyaller.Tanımlanmamış_Sinyali.Kullan;
     }
 
     public class Bağlantı_
@@ -46,7 +47,7 @@ namespace Çizelgeç
 
         public GelenBilgiler_ GelenBilgiler = new GelenBilgiler_();
 
-        public void Ayıklayıcı_Ekle(string CümleBaşlangıcı = ">Sinyaller", char KelimeAyracı = ';', bool Kaydedilsin = true, Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri TanımlanmamışSinyalleri = Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Kullan)
+        public void Ayıklayıcı_Ekle(string CümleBaşlangıcı = ">Sinyaller", char KelimeAyracı = ';', bool Kaydedilsin = true, Yardımcıİşlemler.Sinyaller.Tanımlanmamış_Sinyali TanımlanmamışSinyalleri = Yardımcıİşlemler.Sinyaller.Tanımlanmamış_Sinyali.Kullan)
         {
             if (Ayıklama == null) Ayıklama = new Bağlantı_Ayıklama_[1];
             else Array.Resize(ref Ayıklama, Ayıklama.Length + 1);
@@ -75,16 +76,23 @@ namespace Çizelgeç
 
             if (Kaydedilsin)
             {
+                Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü.Trim('\\', ' ') + "\\";
+                if (!Klasör.Oluştur(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü)) throw new Exception(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + " klasörü oluşturulamadı");
+                
+                File.WriteAllText(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "silinecek.mup", "deneme");
+                if (!File.Exists(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "silinecek.mup")) throw new Exception(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + " içerisinde dosya oluşturma denemesi başarısız");
+                File.Delete(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "silinecek.mup");
+                
                 string Kaydet_DosyaAdı = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "Bağlantılar\\" + S.DosyaKlasörAdınıDüzelt(Adı);
-                Directory.CreateDirectory(Kaydet_DosyaAdı);
-
-                //cs dosyalarını çıktı klasörü içine kopyala
-                Klasör_ kls_cs_ler = new Klasör_(S.BaşlangıçParametreleri[0], Filtre_Dosya: "*.cs");
-                foreach (var d in kls_cs_ler.Dosyalar)
+                //cs dosyasını üret
+                string ayıklayıcılar = null;
+                foreach (Bağlantı_Ayıklama_ ayklayc in Ayıklama)
                 {
-                    Dosya.Kopyala(kls_cs_ler.Kök + "\\" + d.Yolu, Kaydet_DosyaAdı + "\\" + d.Yolu);
+                    ayıklayıcılar += @"Yardımcıİşlemler.MupDosyasındanOkuma.CümleBaşlangıcıVeKelimeAyraçları.Add(new string[] { """ + ayklayc.CümleBaşlangıcı + @""" , """ + ayklayc.KelimeAyracı + @""" });" + Environment.NewLine;
                 }
+                Properties.Resources.ÖrnekKaynakKod_ÖlüEkranlama_mup_dosyası.Replace("??? [[[ Detaylar ]]] %%%", ayıklayıcılar).Dosyaİçeriği_Yaz(Kaydet_DosyaAdı + "\\Ölü_Ekranlama_Ayarlar.cs");
             }
+            else Günlük.Ekle("Dosyalama KayıtKlasörü seçilmedi, ölçümler kaydedilmeyecek. Bağlantı :" + Adı);
 
             switch (Türü)
             {
@@ -163,7 +171,7 @@ namespace Çizelgeç
             else
             {
                 Günlük.Ekle(kendi.Adı + " " + Tür.ToString() + " (Eğer sürekli olarak tekrar ediyorsa ayarlar hatalı olabilir)");
-                kendi.GelenBilgiler.Ekle(kendi.Adı + " " + Kaynak + " " + Tür.ToString(), "Uyarı");
+                kendi.GelenBilgiler.Ekle(kendi.Adı + " " + Kaynak + " " + Tür.ToString(), "Açıklama");
             }
         }
     };
@@ -289,7 +297,7 @@ namespace Çizelgeç
 
                     Mtx_Ayıklama.WaitOne();
                     GelenBilgi_ sıradaki = Tümü_Ayıklama[0];
-                    if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
+                    if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur)
                     {
                         if (Tümü_Ayıklama.Count > 100000)
                         {
@@ -316,11 +324,11 @@ namespace Çizelgeç
                                 string sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
 
                                 bool TanımlanmamışVeKaydetme = false;
-                                if (a.TanımlanmamışSinyalleri != Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Kullan)
+                                if (a.TanımlanmamışSinyalleri != Yardımcıİşlemler.Sinyaller.Tanımlanmamış_Sinyali.Kullan)
                                 {
                                     if (!Sinyaller.MevcutMu(sinyal_yazı))
                                     {
-                                        if (a.TanımlanmamışSinyalleri == Yardımcıİşlemler.Bağlantılar.TanımlanmamışSinyalleri.Atla) continue;
+                                        if (a.TanımlanmamışSinyalleri == Yardımcıİşlemler.Sinyaller.Tanımlanmamış_Sinyali.Atla) continue;
                                         else TanımlanmamışVeKaydetme = true;
                                     }
                                 }
@@ -374,7 +382,7 @@ namespace Çizelgeç
                     {
                         Mtx_Kaydetme.WaitOne();
                         GelenBilgi_ sıradaki = Tümü_Kaydetme[0];
-                        if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
+                        if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur)
                         {
                             if (Tümü_Kaydetme.Count > 100000)
                             {
@@ -405,7 +413,7 @@ namespace Çizelgeç
                 while (Tümü_Kaydetme.Count > 0)
                 {
                     GelenBilgi_ sıradaki = Tümü_Kaydetme[0];
-                    if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur) Tümü_Kaydetme.RemoveAt(0);
+                    if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur) Tümü_Kaydetme.RemoveAt(0);
                     else Tümü_Kaydetme.Clear();
 
                     Görev_İşlemi_DosyayaKaydet(S.Tarih.Yazıya(sıradaki.Zaman) + " " + sıradaki.Tür + " " + sıradaki.Bilgi.Trim('\r', '\n') + Environment.NewLine);
@@ -484,7 +492,7 @@ namespace Çizelgeç
                         Thread.Sleep(1500);
                         continue;
                     }
-                    else if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur && 
+                    else if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur && 
                             (DateTime.Now - EnSonKayıtAnı).TotalSeconds < 60 && 
                             Tümü.Count < 350)
                     {
@@ -496,7 +504,6 @@ namespace Çizelgeç
 
                     if (!File.Exists(DosyaYolu))
                     {
-                        Directory.CreateDirectory(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü);
                         DosyaYolu = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + S.Tarih.Yazıya(DateTime.Now, S.Tarih._Şablon_dosyaadı) + ".csv";
                         BaşlıkSayısı = 0;
                         DosyaBütünlüğüKodu = "";
@@ -548,20 +555,20 @@ namespace Çizelgeç
                             }
                             else
                             {
-                                //uyarı
-                                yazı += ";Uyarı;" + sıradaki.mesaj;
+                                //Açıklama
+                                yazı += ";Açıklama;" + sıradaki.mesaj;
                             }
                             yazı += Environment.NewLine;
                             Ekle(fs, yazı);
 
-                            if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur && işlenen > 350)
+                            if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur && işlenen > 350)
                             {
                                 Thread.Sleep(1); //cpu yüzdesini düşürmek için
                                 break;
                             }
                         }
 
-                        if (fs.Length > Yardımcıİşlemler.BilgiToplama.Kayıt_AzamiDosyaBoyutu_Bayt || !Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
+                        if (fs.Length > Yardımcıİşlemler.BilgiToplama.Kayıt_AzamiDosyaBoyutu_Bayt || !Yardımcıİşlemler.BilgiToplama.BaşlatDurdur)
                         {
                             DosyaYolu = "";
 
@@ -569,7 +576,7 @@ namespace Çizelgeç
                             Ekle(fs, yazı);
                             yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;" + S.SonDurumMesajı.Replace(Environment.NewLine, " ") + Environment.NewLine;
                             Ekle(fs, yazı);
-                            yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;" + (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur ? "Azami dosya boyutuna ulaşıldığı için " : "Uygulama gecici olarak durdurulduğu için ") + YeniKayıtDosyasıSayısı++ + ". dosya olarak kaydedildi" + Environment.NewLine;
+                            yazı = S.Tarih.Yazıya(DateTime.Now) + ";Bilgi;" + (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur ? "Azami dosya boyutuna ulaşıldığı için " : "Uygulama gecici olarak durdurulduğu için ") + YeniKayıtDosyasıSayısı++ + ". dosya olarak kaydedildi" + Environment.NewLine;
                             Ekle(fs, yazı);
                             yazı = S.Tarih.Yazıya(DateTime.Now) + ";Doğrulama;" + DosyaBütünlüğüKodu;
                             Ekle(fs, yazı);
@@ -642,8 +649,8 @@ namespace Çizelgeç
                             }
                             else
                             {
-                                //uyarı
-                                yazı += ";Uyarı;" + sıradaki.mesaj;
+                                //Açıklama
+                                yazı += ";Açıklama;" + sıradaki.mesaj;
                             }
                             yazı += Environment.NewLine;
                             Ekle(fs, yazı);

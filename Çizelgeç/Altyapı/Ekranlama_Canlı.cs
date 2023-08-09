@@ -2,7 +2,6 @@
 
 using ArgeMup.HazirKod;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -12,7 +11,6 @@ namespace Çizelgeç
     public class Ekranlama_Canlı
     {
         UInt64 Sayac_Ölçüm = 0, Sayac_BirbirininAynısıOlduğuİçinAtlandı = 0, Sayac_BilinçliOlarakKaydedilmedi = 0;
-        TreeNode tn_Senaryolar = null;
         public string İşAdı = "";
         KodKümesi_Dll_ KodKümesi = null;
 
@@ -25,39 +23,18 @@ namespace Çizelgeç
             Application.DoEvents();
 
             Günlük.Ekle("Derleniyor : " + AyarlarDosyasıYolu + "\\*.cs", "Bilgi");
-            Klasör_ kls_cs_ler = new Klasör_(AyarlarDosyasıYolu, Filtre_Dosya: "*.cs");
+            Klasör_ kls_cs_ler = new Klasör_(AyarlarDosyasıYolu, Filtre_Dosya:new string[] { "*.cs" }, DoğrulamaKodunuÜret:false, Filtre_BüyükKüçükHarfDuyarlı:false);
             if (kls_cs_ler == null || kls_cs_ler.Dosyalar.Count == 0) throw new Exception("Hiç cs dosyası bulunamadı");
             string[] dsy_cs_ler = new string[kls_cs_ler.Dosyalar.Count];
             for (int i = 0; i < dsy_cs_ler.Length; i++) { dsy_cs_ler[i] = kls_cs_ler.Kök + "\\" + kls_cs_ler.Dosyalar[i].Yolu; }
-            KodKümesi = new KodKümesi_Dll_(KodKümesi_Dll_.Derle(dsy_cs_ler, AyarlarDosyasıYolu + "\\Ayarlar.dll"));
+            KodKümesi = S.Derle(dsy_cs_ler);
             KodKümesi.Çağır("Yardımcıİşlemler.Kontrolcü", "İlkAyarlamalarıYap");
-
-            if (!string.IsNullOrEmpty(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü))
-            {
-                Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü = Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü.Trim('\\', ' ') + "\\";
-                Directory.CreateDirectory(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü);
-                File.WriteAllText(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "silinecek.mup", "deneme");
-                if (!File.Exists(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "silinecek.mup")) throw new Exception(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + " içerisinde dosya oluşturma denemesi başarısız");
-                File.Delete(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü + "silinecek.mup");
-            }
-            else Günlük.Ekle("Dosyalama KayıtKlasörü seçilmedi, ölçümler kaydedilmeyecek.");
 
             this.İşAdı = İşAdı;
             Ekranlama.AğaçVeÇizelge_Görsellerini_Üret(İşAdı);
-            TreeNode[] snyler  = S.Ağaç.Nodes[0].Nodes.Find("Senaryolar", false);
-            if (snyler != null && snyler.Length > 0) tn_Senaryolar = snyler[0];
 
             new Thread(() => Çalıştır_Ölçme_Değerlendirme()).Start();
             new Thread(() => Çalıştır_Ekranlama()).Start();
-
-            //foreach (var biri in Senaryolar.Tümü.Values)
-            //{
-            //    if (biri.HemenÇalıştır)
-            //    {
-            //        Günlük.Ekle("Çalıştırılıyor -> " + biri.Adı, "Bilgi");
-            //        biri.Çalıştır();
-            //    }
-            //}
         }
 
         public void Çalıştır_Ölçme_Değerlendirme()
@@ -68,98 +45,78 @@ namespace Çizelgeç
             {
                 try
                 {
-                    if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
+                    if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur)
                     {
                         int gecikme = 1000;
-                        int toplam = Sinyaller.Tümü.Count;
+                        DateTime şimdi_t = DateTime.Now;
+                        double şimdi_d = S.Tarih.Sayıya(şimdi_t);
+                        bool ekle = false;
 
-                        if (toplam > 0)
+                        if (Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla)
                         {
-                            DateTime şimdi_t = DateTime.Now;
-                            double şimdi_d = S.Tarih.Sayıya(şimdi_t);
-                            bool ekle = false;
-
-                            if (Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla)
+                            if (Sinyaller.EnAzBirSinyalDeğişti_KaydedilmesiGereken)
                             {
-                                if (Sinyaller.EnAzBirSinyalDeğişti_KaydedilmesiGereken)
-                                {
-                                    Sinyaller.EnAzBirSinyalDeğişti_KaydedilmesiGereken = false;
+                                Sinyaller.EnAzBirSinyalDeğişti_KaydedilmesiGereken = false;
 
-#                                   if MerdivenGörünümüİçin
-                                        Kaydedici.Ekle(şimdi_t.AddMilliseconds(-1), kayıt_dizisi); //şimdi
-                                        Sayac_Ölçüm++;
-                                    #endif
-
-                                    ekle = true;
-                                }
-
-                                #if MerdivenGörünümüİçin
-                                else Yardımcıİşlemler.Sinyaller.ZamanEkseni[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 1] = şimdi_d; //atlandığı zamanlarda ekranın çizdirmeye devam etmesi için
-                                #endif
+                                ekle = true;
                             }
-                            else ekle = true;
+                            else Yardımcıİşlemler.Sinyaller.ZamanEkseni[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 1] = şimdi_d; //atlandığı zamanlarda ekranın çizdirmeye devam etmesi için
+                        }
+                        else ekle = true;
 
-                            foreach (var biri in Sinyaller.Tümü.Values)
+                        foreach (var biri in Sinyaller.Tümü.Values)
+                        {
+                            biri.Güncelle_ZamanAşımıOlduMu_SadeceTekYerdenÇağırılabilir();
+                        }
+
+                        if (ekle)
+                        {
+                            kayıt_dizisi = new double[Sinyaller.Tümü.Count];
+
+                            for (int i = 0; i < kayıt_dizisi.Length; i++)
                             {
-                                biri.Güncelle_ZamanAşımıOlduMu_SadeceTekYerdenÇağırılabilir();
+                                Sinyal_ biri = Sinyaller.Tümü.ElementAt(i).Value;
+
+                                kayıt_dizisi[i] = biri.Güncelle_Dizi();
                             }
 
-                            if (ekle)
+                            Array.Copy(Yardımcıİşlemler.Sinyaller.ZamanEkseni, 1, Yardımcıİşlemler.Sinyaller.ZamanEkseni, 0, Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 1);
+                            Yardımcıİşlemler.Sinyaller.ZamanEkseni[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 1] = şimdi_d;
+
+                            bool Kaydedilsin = true;
+                            if (Yardımcıİşlemler.Sinyaller.GeriBildirimİşlemi_Kaydedilecek != null)
                             {
-                                kayıt_dizisi = new double[toplam];
-
-                                for (int i = 0; i < toplam; i++)
+                                try
                                 {
-                                    Sinyal_ biri = Sinyaller.Tümü.ElementAt(i).Value;
-
-                                    kayıt_dizisi[i] = biri.Güncelle_Dizi();
+                                    Kaydedilsin = Yardımcıİşlemler.Sinyaller.GeriBildirimİşlemi_Kaydedilecek();
                                 }
-
-                                #if MerdivenGörünümüİçin
-                                if (!Yardımcıİşlemler.BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla)
-                                {
-                                #endif
-                                    Array.Copy(Yardımcıİşlemler.Sinyaller.ZamanEkseni, 1, Yardımcıİşlemler.Sinyaller.ZamanEkseni, 0, Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 1);
-                                    Yardımcıİşlemler.Sinyaller.ZamanEkseni[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 1] = şimdi_d;
-                                #if MerdivenGörünümüİçin
-                                }
-                                else
-                                {
-                                    Array.Copy(Yardımcıİşlemler.Sinyaller.ZamanEkseni, 2, Yardımcıİşlemler.Sinyaller.ZamanEkseni, 0, Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 2);
-                                    Yardımcıİşlemler.Sinyaller.ZamanEkseni[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 1] = şimdi_d;
-                                    Yardımcıİşlemler.Sinyaller.ZamanEkseni[Yardımcıİşlemler.Sinyaller.ZamanEkseni.Length - 2] = şimdi_d;
-                                }
-                                #endif
-
-                                bool Kaydedilsin = true;
-                                if (Yardımcıİşlemler.Sinyaller.GeriBildirimİşlemi_Kaydedilecek != null) Kaydedilsin = Yardımcıİşlemler.Sinyaller.GeriBildirimİşlemi_Kaydedilecek(Sinyaller.EnAzBirSinyalDeğişti);
-
-                                if (Kaydedilsin)
-                                {
-                                    Kaydedici.Ekle(şimdi_t, kayıt_dizisi);
-                                    Sayac_Ölçüm++;
-                                }
-                                else Sayac_BilinçliOlarakKaydedilmedi++;
+                                catch (Exception ex) { Yardımcıİşlemler.ÖnYüz.Günlük(ex, "Sinyaller.GeriBildirimİşlemi_Kaydedilecek"); }
                             }
-                            else Sayac_BirbirininAynısıOlduğuİçinAtlandı++;
 
-                            Sinyaller.EnAzBirSinyalDeğişti = false;
-
-                            gecikme = Yardımcıİşlemler.BilgiToplama.ZamanDilimi_msn;
-                            if (gecikme <= 1)
+                            if (Kaydedilsin)
                             {
-                                şimdi_t = şimdi_t.AddMilliseconds(1);
-                                while (şimdi_t >= DateTime.Now) Thread.Yield(); //mümkün olan en kısa bekleme
+                                Kaydedici.Ekle(şimdi_t, kayıt_dizisi);
+                                Sayac_Ölçüm++;
                             }
-                            else
+                            else Sayac_BilinçliOlarakKaydedilmedi++;
+                        }
+                        else Sayac_BirbirininAynısıOlduğuİçinAtlandı++;
+
+                        gecikme = Yardımcıİşlemler.BilgiToplama.ZamanDilimi_msn;
+                        if (gecikme <= 1)
+                        {
+                            şimdi_t = şimdi_t.AddMilliseconds(1);
+                            while (şimdi_t >= DateTime.Now) Thread.Yield(); //mümkün olan en kısa bekleme
+                        }
+                        else
+                        {
+                            while (gecikme > 1500 && S.Çalışşsın)
                             {
-                                while (gecikme > 1500 && S.Çalışşsın)
-                                {
-                                    Thread.Sleep(1500);
-                                    gecikme -= 1500;
-                                }
+                                Thread.Sleep(1500);
+                                gecikme -= 1500;
                             }
                         }
+                        
                         Thread.Sleep(gecikme);
                     }
                     else Thread.Sleep(1); //cpu yüzdesini düşürmek için
@@ -189,8 +146,9 @@ namespace Çizelgeç
                     else _1sn_gecti = false;
 
                     if (S.Çizdir_Ortalama.Ortalaması > 1500) S.Çizdir_Ortalama.Ortalaması = 1500;
+                    else if (S.Çizdir_Ortalama.Ortalaması < 30) S.Çizdir_Ortalama.Ortalaması = 30;
                     Thread.Sleep((int)S.Çizdir_Ortalama.Ortalaması);
-                    
+
                     if (_1sn_gecti)
                     {
                         fark = DateTime.Now - BaşladığıAn;
@@ -234,7 +192,7 @@ namespace Çizelgeç
                                         {
                                             biri.Görseller.Dal.Text = biri.Adı.GörünenAdı + " : " + S.Sayı.Yazıya(biri.Değeri.SonDeğeri);
 
-                                            if (biri.Değeri.ZamanAşımıOldu)
+                                            if (biri.Değeri.ZamanAşımı_Oldu)
                                             {
                                                 biri.Görseller.Dal.Text += " -> Zaman Aşımı -> ";
 
@@ -259,7 +217,7 @@ namespace Çizelgeç
                                     {
                                         if (biri.Dal == null)
                                         {
-                                            TreeNode tn = S.Ağaç.Nodes.Find("Bağlantılar", true)[0];
+                                            TreeNode tn = Ekranlama.AğaçDalındakiDalıBul(S.Ağaç.Nodes[0].Nodes, "Bağlantılar");
                                             tn = tn.Nodes.Add(biri.Adı);
                                             tn.Tag = biri;
                                             biri.Dal = tn; 
@@ -295,20 +253,28 @@ namespace Çizelgeç
                                         }
                                     }
 
-                                    //GÖREVLERDEN BURAYA TUŞ OLUŞTURMA İMKANI ????
-                                    //if (tn_Senaryolar != null && tn_Senaryolar.IsVisible)
-                                    //{
-                                    //    foreach (var sny in Senaryolar.Tümü.Values)
-                                    //    {
-                                    //        sny.Dal.Text = sny.Adı + sny.Durum;
-                                    //    }
-                                    //}
+                                    #region İşlemler
+                                    if (Yardımcıİşlemler.İşlemler.DeğişiklikYapıldı)
+                                    {
+                                        TreeNode üstteki = Ekranlama.AğaçDalındakiDalıBul(S.Ağaç.Nodes[0].Nodes, "İşlemler");
+                                        üstteki.Nodes.Clear();
+
+                                        foreach (Yardımcıİşlemler.İşlemler.İşlem_ işl in Yardımcıİşlemler.İşlemler.Tümü)
+                                        {
+                                            TreeNode tn = Ekranlama.AğacaDalEkle(işl.Adı, üstteki);
+                                            tn.ContextMenuStrip = S.AnaEkran.SağTuşMenü_İşlem;
+                                            tn.Tag = işl;
+                                        }
+
+                                        Yardımcıİşlemler.İşlemler.DeğişiklikYapıldı = false;
+                                    }
+                                    #endregion
 
                                     S.Ağaç.EndUpdate();
                                 }
                             }
 
-                            if (Yardımcıİşlemler.ÖnYüz.BaşlatDurdur)
+                            if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur)
                             {
                                 if (S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt > Environment.TickCount)
                                 {
@@ -320,7 +286,7 @@ namespace Çizelgeç
 
                         if (_1sn_gecti)
                         {
-                            if (!Yardımcıİşlemler.ÖnYüz.BaşlatDurdur && !string.IsNullOrEmpty(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü) && tik_kaydetmiyor_uyarısı < Environment.TickCount)
+                            if (!Yardımcıİşlemler.BilgiToplama.BaşlatDurdur && tik_kaydetmiyor_uyarısı < Environment.TickCount)
                             {
                                 S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Tamam;
                                 S.SolMenu_BaşlatDurdur.GetCurrentParent().Refresh();
@@ -329,6 +295,8 @@ namespace Çizelgeç
                                 S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Hata;
                                 tik_kaydetmiyor_uyarısı = Environment.TickCount + 5000;
                             }
+
+                            Açıklamalar.EskiyenleriSil();
                         }
                     }));
                 }

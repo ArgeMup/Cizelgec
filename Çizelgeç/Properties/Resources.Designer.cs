@@ -291,25 +291,25 @@ namespace Çizelgeç.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to //sinyal sil
-        /////sinal geribildirim işlemi
-        /////sinyaller geribildirim işlemi
-        /////    kayda açıklama ekle
-        /////    uygtulamayı kapat
-        /////    bilgisayarı kapat
-        /////    bağımızız görev yada benzeri
-        ///
-        /////    arka plandaki koddan varolan sinyal ve bağlantılar silinecek kapatılacak
-        /////    birden fazla cümle başlangıcı ve ayraç
-        /////    mümkün ise tüm işlemleri çapraz görevden çağır
-        /////    çapraz işlemden çağırmak
-        /////bağlantı açma 
+        ///   Looks up a localized string similar to using System;
+        ///using System.Drawing;
+        ///using System.Collections.Generic;
+        ///using ArgeMup.HazirKod;
+        ///using ArgeMup.HazirKod.Ekİşlemler;
         ///
         ///namespace Yardımcıİşlemler
         ///{
         ///    public class Kontrolcü
         ///    {
-        ///        Çizelgeç.Bağlan [rest of string was truncated]&quot;;.
+        ///        Çizelgeç.Bağlantı_ Bağlantı_1;
+        ///        Çizelgeç.Sinyal_ Sinyal_1, Sinyal_2;
+        ///
+        ///        public void İlkAyarlamalarıYap()
+        ///        {
+        ///            BilgiToplama.Kayıt_Klasörü = @&quot;C:\Çizelgeç Çıktıları&quot;;
+        ///            BilgiToplama.ZamanDilimi_msn = 50;
+        ///
+        ///            Bağlantı_1 = Bağlantılar.Ekle_Uart(&quot;Bağ [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ÖrnekKaynakKod_CanlıEkranlama {
             get {
@@ -318,28 +318,69 @@ namespace Çizelgeç.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to /* ArGeMuP Çizelgeç.exe BU KISMI DEĞİŞTİRMEYİNİZ - BAŞLANGIÇ */
+        ///   Looks up a localized string similar to using System;
+        ///using System.Drawing;
+        ///using System.Collections.Generic;
+        ///using ArgeMup.HazirKod;
+        ///using ArgeMup.HazirKod.Ekİşlemler;
         ///
-        ////* ??? [[[ Detaylar ]]] %%%
-        ///*** Örnek Kaynak Kod ***
         ///namespace Yardımcıİşlemler
         ///{
-        ///    public class ÖrnekSınıf
+        ///    public class Kontrolcü
         ///    {
-        ///        Çizelgeç.Sinyal_ SinyalA, SinyalB;
+        ///        Çizelgeç.Sinyal_ Sinyal_1, Sinyal_2;
         ///
         ///        public void Örnekİşlem()
         ///        {
-        ///            SinyalA = Sinyal.Bul(&quot;&lt;SinyalAdı[0]&gt;&quot;);
-        ///            SinyalB = Sinyal.Bul(&quot;&lt;DeğişkenAdı&gt;&quot;);
+        ///            Sinyal_1 = Sinyaller.Bul(&quot;&lt;SinyalAdı[0]&gt;&quot;);
+        ///            Sinyal_2 = Sinyaller.Bul(&quot;&lt;DeğişkenAdı&gt;&quot;);
         ///
-        ///            if (SinyalA == null)
+        ///            if (Sinyal_1 == null)
         ///            {
-        ///                SinyalA = Sinyal.Ekle(&quot;&lt;SinyalAdı[0]&gt;&quot;, &quot;Ağaç|İçindeki|Dalın [rest of string was truncated]&quot;;.
+        ///                Sinyal_1 = Sinyaller.Ekle(&quot;&lt;SinyalAd [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ÖrnekKaynakKod_ÖlüEkranlama {
             get {
                 return ResourceManager.GetString("ÖrnekKaynakKod_ÖlüEkranlama", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to namespace Yardımcıİşlemler
+        ///{
+        ///    public class Kontrolcü
+        ///    {   
+        ///        public void İlkAyarlamalarıYap()
+        ///        {
+        ///           MupDosyasındanOkuma.CümleBaşlangıcıVeKelimeAyraçları.Add(new string[] 
+        ///           { 
+        ///                ??? [[[ Detaylar ]]] %%%
+        ///           });
+        ///        }
+        ///    }
+        ///}.
+        /// </summary>
+        internal static string ÖrnekKaynakKod_ÖlüEkranlama_mup_dosyası {
+            get {
+                return ResourceManager.GetString("ÖrnekKaynakKod_ÖlüEkranlama_mup_dosyası", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /* ArGeMuP Çizelgeç.exe BU KISMI DEĞİŞTİRMEYİNİZ - BAŞLANGIÇ */
+        ///
+        ////* ??? [[[ Detaylar ]]] %%%
+        ///*** Kullanılabilir Nesneler ***
+        ///--- Sadece Canlı Ekranlama ----------------------------------------------------------
+        ///    ÖnYüz
+        ///        İşlem : ÖnYüz.AçıklamaEkle(string Açıklama, Color Renk = default);
+        ///    Bağlantılar : Bilgi kaynakları ile uygulamayı birbirine bağlamak için kullanılır
+        ///        Örnek bir bağlantı gönderisi (UTF8 destekler)
+        ///            &lt;CümleBaşlangıcı&gt;&lt;KelimeAyracı&gt;&lt;Sinyal Grubunun Adı&gt;&lt;Kel [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ÖrnekKaynakKod_Ortak {
+            get {
+                return ResourceManager.GetString("ÖrnekKaynakKod_Ortak", resourceCulture);
             }
         }
         

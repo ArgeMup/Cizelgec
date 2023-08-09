@@ -1,44 +1,50 @@
-﻿/* ArGeMuP Çizelgeç.exe BU KISMI DEĞİŞTİRMEYİNİZ - BAŞLANGIÇ */
+﻿using System;
+using System.Drawing;
+using System.Collections.Generic;
+using ArgeMup.HazirKod;
+using ArgeMup.HazirKod.Ekİşlemler;
 
-/* ??? [[[ Detaylar ]]] %%%
-*** Örnek Kaynak Kod ***
 namespace Yardımcıİşlemler
 {
-    public class ÖrnekSınıf
+    public class Kontrolcü_YenidenHesapla
     {
-        Çizelgeç.Sinyal_ SinyalA, SinyalB;
+        Çizelgeç.Sinyal_ Sinyal_1, Sinyal_2;
 
         public void Örnekİşlem()
         {
-            SinyalA = Sinyal.Bul("<SinyalAdı[0]>");
-            SinyalB = Sinyal.Bul("<DeğişkenAdı>");
+            var arama = Sinyaller.Bul("<SinyalAdı[0]>");
+            Sinyal_1 = arama.Count > 0 ? arama[0] : null;
+            arama = Sinyaller.Bul("<DeğişkenAdı>");
+            Sinyal_2 = arama.Count > 0 ? arama[0] : null;
 
-            if (SinyalA == null)
+            if (Sinyal_1 == null)
             {
-                SinyalA = Sinyal.Ekle("<SinyalAdı[0]>", "Ağaç|İçindeki|Dalın|Adı", "GörünenAdı A");
-                SinyalB = Sinyal.Ekle("<DeğişkenAdı>", "Ağaç|İçindeki|Dalın|Adı", "GörünenAdı B");
+                Sinyal_1 = Sinyaller.Ekle("<SinyalAdı[0]>", "Ağaç|İçindeki|Dalın|Adı", "GörünenAdı A");
+                Sinyal_2 = Sinyaller.Ekle("<DeğişkenAdı>", "Ağaç|İçindeki|Dalın|Adı", "GörünenAdı B");
             }
             
-            ÖnYüz.Günlük("Zaman ekseninde " + Sinyal.ZamanEkseni.Length + " adet bilgi var");
-            ÖnYüz.SadeceŞuSinyalleriGöster(new Çizelgeç.Sinyal_[] { SinyalA, SinyalB });
-            SinyalDetaylarınıYazdır(SinyalA);
-            SinyalDetaylarınıYazdır(SinyalB);
+            ÖnYüz.Günlük("Zaman ekseninde " + Sinyaller.ZamanEkseni.Length + " adet bilgi var");
+            ÖnYüz.SadeceŞuSinyalleriGöster(new List<Çizelgeç.Sinyal_>() { Sinyal_1, Sinyal_2 });
+            SinyalDetaylarınıYazdır(Sinyal_1);
+            SinyalDetaylarınıYazdır(Sinyal_2);
 
-            for (int i = 0; i < SinyalA.Değeri.DeğerEkseni.Length && ÖnYüz.ÇalışmayaDevamEt; i++)
+            for (int i = 0; i < Sinyal_1.Değeri.DeğerEkseni.Length && ÖnYüz.ÇalışmayaDevamEt; i++)
             {
-                SinyalA.Değeri.DeğerEkseni[i] = SinyalA.Değeri.DeğerEkseni[i] == 0 ? (byte)i : SinyalA.Değeri.DeğerEkseni[i] * 4;
-                ÖnYüz.İlerlemeÇubuğu(i, Sinyal.ZamanEkseni.Length);
+                Sinyal_1.Değeri.DeğerEkseni[i] = Sinyal_1.Değeri.DeğerEkseni[i] == 0 ? (byte)i : Sinyal_1.Değeri.DeğerEkseni[i] * 4;
+                ÖnYüz.İlerlemeÇubuğu(i, Sinyaller.ZamanEkseni.Length);
                 ÖnYüz.Güncelle();
                 System.Threading.Thread.Sleep(5);
             }
 
-            for (int i = 0 ; i < Sinyal.ZamanEkseni.Length && ÖnYüz.ÇalışmayaDevamEt; i++)
+            for (int i = 0 ; i < Sinyaller.ZamanEkseni.Length && ÖnYüz.ÇalışmayaDevamEt; i++)
             {
-                ÖnYüz.İlerlemeÇubuğu(i, Sinyal.ZamanEkseni.Length);
-                SinyalB.Değeri.DeğerEkseni[i] = SinyalA.Değeri.DeğerEkseni[i] * 2;
+                ÖnYüz.İlerlemeÇubuğu(i, Sinyaller.ZamanEkseni.Length);
+                Sinyal_2.Değeri.DeğerEkseni[i] = Sinyal_1.Değeri.DeğerEkseni[i] * 2;
                 ÖnYüz.Güncelle();
                 System.Threading.Thread.Sleep(5);
             }
+
+            ÖnYüz.İlerlemeÇubuğu(Sinyaller.ZamanEkseni.Length, Sinyaller.ZamanEkseni.Length);
         }
         void SinyalDetaylarınıYazdır(Çizelgeç.Sinyal_ Sinyal)
         {
@@ -47,18 +53,7 @@ namespace Yardımcıİşlemler
             ÖnYüz.Günlük("Adı.Salkım : " + Sinyal.Adı.Salkım.ToString());
             ÖnYüz.Günlük("Adı.GörünenAdı : " + Sinyal.Adı.GörünenAdı.ToString());
             ÖnYüz.Günlük("Adı.Csv : " + Sinyal.Adı.Csv.ToString());
-            ÖnYüz.Günlük("Değeri.Kaydedilsin : " + Sinyal.Değeri.Kaydedilsin.ToString());
-            ÖnYüz.Günlük("Değeri.SonDeğeri : " + Sinyal.Değeri.SonDeğeri.ToString());
-            ÖnYüz.Günlük("Değeri.SonDeğerinAlındığıAn : " + Sinyal.Değeri.SonDeğerinAlındığıAn.ToString());
             ÖnYüz.Günlük("Değeri.DeğerEkseni.Length : " + Sinyal.Değeri.DeğerEkseni.Length.ToString());
-            ÖnYüz.Günlük("Değeri.ZamanAşımıOldu : " + Sinyal.Değeri.ZamanAşımıOldu.ToString());
-            ÖnYüz.Günlük("Değeri.ZamanAşımı_Sn : " + Sinyal.Değeri.ZamanAşımı_Sn.ToString());
-            ÖnYüz.Günlük("Değeri.Sayac_Güncelleme : " + Sinyal.Değeri.Sayac_Güncelleme.ToString());
-            ÖnYüz.Günlük("Görseller.DaldakiYazıyıGüncelleVeKabart : " + Sinyal.Görseller.DaldakiYazıyıGüncelleVeKabart.ToString());
-            ÖnYüz.Günlük("Görseller.Dal.FullPath : " + Sinyal.Görseller.Dal.FullPath.ToString());
         }
     }
 }
-*/
-
-/* ArGeMuP Çizelgeç.exe BU KISMI DEĞİŞTİRMEYİNİZ - BİTİŞ */

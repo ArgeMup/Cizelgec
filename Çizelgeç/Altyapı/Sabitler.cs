@@ -1,6 +1,7 @@
 ﻿// Copyright ArgeMup GNU GENERAL PUBLIC LICENSE Version 3 <http://www.gnu.org/licenses/> <https://github.com/ArgeMup>
 
 using ArgeMup.HazirKod;
+using ArgeMup.HazirKod.Ekİşlemler;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -143,6 +144,21 @@ namespace Çizelgeç
                 return Girdi.ToString(CultureInfo.InvariantCulture);
             }
         };
+
+        public static void Derle_Başlat()
+        {
+            Dosya.Sil_SayısınaGöre(Kendi.Klasörü + "\\Kutuphane\\Diğer", 0);
+            Klasör.Oluştur(Kendi.Klasörü + "\\Kutuphane\\Diğer");
+        }
+        public static KodKümesi_Dll_ Derle(string[] dsy_cs_ler)
+        {
+            return new KodKümesi_Dll_(KodKümesi_Dll_.Derle(dsy_cs_ler, Kendi.Klasörü + "\\Kutuphane\\Diğer\\" + Path.GetRandomFileName()));
+        }
+        public static string Derle_Hatalar()
+        {
+            string yol = Kendi.Klasörü + "\\Kutuphane\\Diğer\\Derleme Hataları.txt";
+            return File.Exists(yol) ? yol.DosyaYolu_Oku_Yazı() : null;
+        }
         #endregion
 
         #region Günlük
@@ -158,6 +174,7 @@ namespace Çizelgeç
         public static bool Çalışşsın = false, BaşlatDurdur = true;
         public static int Çizelge_ÇizgiKalınlığı = 1;
         public static int CanliÇizdirme_ÖlçümSayısı = 10000;
+        public static bool Açıklamalar_Çizelgede_Görünsün = false;
         public static CheckBox _Günlük_YeniMesajaGit;
         public static ToolStripMenuItem SağTuşMenü_Çizelge_Etkin, SağTuşMenü_Çizelge_TümSinyalleriEkranaSığdır;
         public static TreeView Ağaç;
@@ -177,18 +194,14 @@ namespace Çizelgeç
         public static ArgeMup.HazirKod.Ortalama_ Çizdir_Ortalama = new ArgeMup.HazirKod.Ortalama_(15);
         public const int Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt_Sabiti = 5 * 60 * 1000;
         public static int Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt = 0;
-        //public static ScottPlot.PlottableVLine Çizdirme_DikeyÇizgi = null;
-        //public static ScottPlot.PlottableHLine Çizdirme_YatayÇizgi = null;
-        //public static ScottPlot.PlottableScatter[] Çizdirme_Noktacıklar = new ScottPlot.PlottableScatter[0];
-        public static void Çizdir()
+        public static void Çizdir(bool TümSinyalleriEkranaSığdır = true)
         {
             if (SağTuşMenü_Çizelge_Etkin.Checked && AnaEkran.WindowState != FormWindowState.Minimized && !Ayraç_Ana.Panel2Collapsed)
             {
                 int simdi = Environment.TickCount;
 
-                if (SağTuşMenü_Çizelge_TümSinyalleriEkranaSığdır.Checked) Çizelge.plt.AxisAuto();
-                Çizelge.Render(true);
-
+                if (TümSinyalleriEkranaSığdır && SağTuşMenü_Çizelge_TümSinyalleriEkranaSığdır.Checked) Çizelge.Plot.AxisAuto();
+                Çizelge.Refresh(false, true);
                 Çizdir_Ortalama.Güncelle(Environment.TickCount - simdi);
             }
         }

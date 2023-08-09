@@ -22,6 +22,8 @@ namespace Çizelgeç
                 string[] cs_ler = Directory.GetFiles(KökKlasör, "*.cs", SearchOption.AllDirectories);
                 foreach (string cs in cs_ler)
                 {
+                    if (Path.GetFileName(cs) == "Ölü_Ekranlama_Ayarlar.cs") continue;
+
                     KullanılanDosya.Items.Add(cs.Substring(KökKlasör.Length + 1));
                 }
             }
@@ -68,6 +70,10 @@ namespace Çizelgeç
                     dsy_adı = "KaynakKod_" + syc++ + ".cs";
                 }
 
+                (Properties.Resources.ÖrnekKaynakKod_ÖlüEkranlama + 
+                    Environment.NewLine + Environment.NewLine + 
+                    Properties.Resources.ÖrnekKaynakKod_Ortak).Dosyaİçeriği_Yaz(KökKlasör + "\\" + dsy_adı);
+                
                 KullanılanDosya.Items.Add(dsy_adı);
                 KullanılanDosya.SelectedIndex = KullanılanDosya.Items.Count - 1;
             }
@@ -83,7 +89,7 @@ namespace Çizelgeç
                 Notlar.AppendText("Derleniyor" + Environment.NewLine);
                 try
                 {
-                    dll = new KodKümesi_Dll_(KodKümesi_Dll_.Derle(new string[] { KökKlasör + "\\" + KullanılanDosya.Text }));
+                    dll = S.Derle(new string[] { KökKlasör + "\\" + KullanılanDosya.Text });
                     foreach (string alanadı in dll.Listele_AlanAdıVeSınıf())
                     {
                         foreach (string işlem in dll.Listele_İşlem(alanadı))
@@ -103,8 +109,7 @@ namespace Çizelgeç
                         ex = ex.InnerException;
                     }
 
-                    string dhd = Kendi.Klasörü + "\\Derleme Hataları.txt";
-                    if (File.Exists(dhd)) Notlar.AppendText(dhd.DosyaYolu_Oku_Yazı() + Environment.NewLine);
+                    Notlar.AppendText(S.Derle_Hatalar() + Environment.NewLine);
                 }
             }
         }
@@ -136,7 +141,7 @@ namespace Çizelgeç
                 güncel += i + " " + Sinyaller.Tümü.ElementAt(i).Key + " (" + sny.Adı.Csv + ")" + Environment.NewLine;
             }
 
-            içerik += Properties.Resources.ÖrnekKaynakKod_ÖlüEkranlama.Replace("??? [[[ Detaylar ]]] %%%", güncel);
+            içerik += Properties.Resources.ÖrnekKaynakKod_Ortak.Replace("??? [[[ Detaylar ]]] %%%", güncel);
 
             //kaydet
             içerik.Dosyaİçeriği_Yaz(DosyaYolu);

@@ -235,7 +235,13 @@
   <data name="ÖrnekKaynakKod_CanlıEkranlama" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ÖrnekKaynakKod_CanlıEkranlama.cs;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="ÖrnekKaynakKod_Ortak" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ÖrnekKaynakKod_Ortak.cs;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
   <data name="ÖrnekKaynakKod_ÖlüEkranlama" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ÖrnekKaynakKod_ÖlüEkranlama.cs;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ÖrnekKaynakKod_ÖlüEkranlama_mup_dosyası" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ÖrnekKaynakKod_ÖlüEkranlama_mup_dosyası.cs;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
 </root>
