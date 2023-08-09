@@ -30,7 +30,16 @@ namespace Çizelgeç
             Text = S.AnaEkran_ÇubuktakiYazı;
             Refresh();
 
-            S.Ayarlar = new ArgeMup.HazirKod.Ayarlar_(AyarlarDosyası:S.Kulanıcı_Klasörü + "Çizelgeç.exe.Ayarlar");
+            try
+            {
+                S.Ayarlar = new ArgeMup.HazirKod.Ayarlar_(AyarlarDosyası: S.Kulanıcı_Klasörü + "Çizelgeç.exe.Ayarlar");
+            }
+            catch (Exception) 
+            {
+                Dosya.Sil(S.Kulanıcı_Klasörü + "Çizelgeç.exe.Ayarlar");
+                S.Ayarlar = new ArgeMup.HazirKod.Ayarlar_(AyarlarDosyası: S.Kulanıcı_Klasörü + "Çizelgeç.exe.Ayarlar");
+            }
+            
             S.AnaEkran = this;
             S._Günlük_YeniMesajaGit = Günlük_YeniMesajaGit;
             S._Günlük_MetinKutusu = Günlük_MetinKutusu;
