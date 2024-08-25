@@ -139,6 +139,58 @@
         TgDQASA1MVpwzwAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="SolMenu_BaşlatBekletDurdur_Beklet.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
+        cQAAEnEB89x6jgAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4xMkMEa+wAAARuSURBVFhHtVZf
+        SFtXGL+Dbra1XUXWaGJSmybRJDf/jYkx1ptJ6uzWURyVvQijLz70YdAH91A2sr2uQpftqZIqyMYsFClF
+        VhiFzjFfBoM9DAZ9aBl0U+85JxH7spfm7DvHk5jEc29SdD/4IfF+5/t999zv+52jtAKqKK+9mJy26L7E
+        Df1sdAU5o+vEm6KkJ0QxkPiG4a/6SD87sILUxGwxmz0llh4cpeQ7GWT3r2IbiFkDXNSMuDtAsT1MkcWz
+        jBPZIZHm1bE9fqUT9yUfYFtzUSOytdiTWC5plztE2taw5RmMoDPhbWILShO/EiEHsqmb23a/W6Q3x2a7
+        JaR3enakyQ5A1OnZKl2YHBMycrA3/z/EK8RQBO6N+oRcPTaUrnbUo27KFh4mkS2w8cQ90SZk94C9yQeH
+        8s2bkfXEuXhByO6ipL2XadbtyKqWSXj0d2I2ijCCEPMn7vaXpc8FmdbWoBbh4sxkkENdlQVWiLvVl7jH
+        9zG9ffs48kYLMj/AVpWS9IX7dGbmdeIKfwFrTItAVt8CL+DF9LSFu5kBkdVfZuI8GEBzuePF8xcf1RXB
+        di81vkKnpt4QYQrqDX7Oi6rJVUsMn4JOXTuh6MHhG0bbCm9BsT/1mchZRfnu3WNkePwn7nps7VD2PhRW
+        Fa+AhEa+YjHS3LAOeeMzCgL/lgVwsqbsjy3hXO5NkbOKcj7fRrSLazg5tsq2Xfy7ir/n5t7C3gHTxkaO
+        yLyidziNC2Bklboj35cLhZMidxX08eMj8OZHxM8qdu7cOY2codVmU4XcsYcKUdMvZQ/ryIpIvf1Leelm
+        u9AwBY6mf+V9IctVy/4UVdjJJX3YSCiiGDv/g9AwBA6PrLfqJ+yEhQIi0ocy4i4fLb1/5ROhtQ/43Q8+
+        ZY0rWysjL6Copv+VPWzkbreP8TkXevvAfIKksj+amlUt/WnavAmBfJ5T2RXZqDWCFVFMN/iEAZEjcE/R
+        XQnTAvgcj4DD1ZhMBfTWrQ40O7tvOsrXrx+DGS80+xzIOTCvoJg2yz1cEsC2EqcnpHPOUIxnfiPxzBrO
+        5+U+MXZpzWgadk0ueVUpZqdOkTMGjQiF6d741yJnFWzOCR816HYgTmo/y3wCx9JLhk4Izf9HZVdRj3dZ
+        FsTIKtXPBed4IGAHHA45I/Umw3bKFfl24+aeT5BoatHsE6DT7rwIhUqzk0PYbtw0vAhn4Eu6uNiBPTGw
+        1/2xrOlgt76DRj2KgoMLZuLYDneC1LhXyO8CB9LLZgbCznDU5V03GzHe+aHhf8xOQVY86hv8Rsju4ZnS
+        exTG4pl00SES3v6pbKI4tl1DbnZ7lS08DOqd7r+eu+IOISfH85O2PnZ7lSU4CJl46cOPMkLGHDg66sPO
+        6EZLJ1ozsglxBJ+SZm/eiCcTE22kP1lgHStN3AKxHcYNGs7wm7eCLe1yRHeoC+zYNjKVWnKHA2NDlr48
+        0i7Vj9pBQK/lTqDwyAxyxudRf/whCY7uCYc1qvcG7sF9fx7uA1erDtcUivIfjftcwl7FmUIAAAAASUVO
+        RK5CYII=
+</value>
+  </data>
+  <data name="SolMenu_BaşlatBekletDurdur_Durdur.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
+        cQAAEnEB89x6jgAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4xMkMEa+wAAARuSURBVFhHtVZf
+        SFtXGL+Dbra1XUXWaGJSmybRJDf/jYkx1ptJ6uzWURyVvQijLz70YdAH91A2sr2uQpftqZIqyMYsFClF
+        VhiFzjFfBoM9DAZ9aBl0U+85JxH7spfm7DvHk5jEc29SdD/4IfF+5/t999zv+52jtAKqKK+9mJy26L7E
+        Df1sdAU5o+vEm6KkJ0QxkPiG4a/6SD87sILUxGwxmz0llh4cpeQ7GWT3r2IbiFkDXNSMuDtAsT1MkcWz
+        jBPZIZHm1bE9fqUT9yUfYFtzUSOytdiTWC5plztE2taw5RmMoDPhbWILShO/EiEHsqmb23a/W6Q3x2a7
+        JaR3enakyQ5A1OnZKl2YHBMycrA3/z/EK8RQBO6N+oRcPTaUrnbUo27KFh4mkS2w8cQ90SZk94C9yQeH
+        8s2bkfXEuXhByO6ipL2XadbtyKqWSXj0d2I2ijCCEPMn7vaXpc8FmdbWoBbh4sxkkENdlQVWiLvVl7jH
+        9zG9ffs48kYLMj/AVpWS9IX7dGbmdeIKfwFrTItAVt8CL+DF9LSFu5kBkdVfZuI8GEBzuePF8xcf1RXB
+        di81vkKnpt4QYQrqDX7Oi6rJVUsMn4JOXTuh6MHhG0bbCm9BsT/1mchZRfnu3WNkePwn7nps7VD2PhRW
+        Fa+AhEa+YjHS3LAOeeMzCgL/lgVwsqbsjy3hXO5NkbOKcj7fRrSLazg5tsq2Xfy7ir/n5t7C3gHTxkaO
+        yLyidziNC2Bklboj35cLhZMidxX08eMj8OZHxM8qdu7cOY2codVmU4XcsYcKUdMvZQ/ryIpIvf1Leelm
+        u9AwBY6mf+V9IctVy/4UVdjJJX3YSCiiGDv/g9AwBA6PrLfqJ+yEhQIi0ocy4i4fLb1/5ROhtQ/43Q8+
+        ZY0rWysjL6Copv+VPWzkbreP8TkXevvAfIKksj+amlUt/WnavAmBfJ5T2RXZqDWCFVFMN/iEAZEjcE/R
+        XQnTAvgcj4DD1ZhMBfTWrQ40O7tvOsrXrx+DGS80+xzIOTCvoJg2yz1cEsC2EqcnpHPOUIxnfiPxzBrO
+        5+U+MXZpzWgadk0ueVUpZqdOkTMGjQiF6d741yJnFWzOCR816HYgTmo/y3wCx9JLhk4Izf9HZVdRj3dZ
+        FsTIKtXPBed4IGAHHA45I/Umw3bKFfl24+aeT5BoatHsE6DT7rwIhUqzk0PYbtw0vAhn4Eu6uNiBPTGw
+        1/2xrOlgt76DRj2KgoMLZuLYDneC1LhXyO8CB9LLZgbCznDU5V03GzHe+aHhf8xOQVY86hv8Rsju4ZnS
+        exTG4pl00SES3v6pbKI4tl1DbnZ7lS08DOqd7r+eu+IOISfH85O2PnZ7lSU4CJl46cOPMkLGHDg66sPO
+        6EZLJ1ozsglxBJ+SZm/eiCcTE22kP1lgHStN3AKxHcYNGs7wm7eCLe1yRHeoC+zYNjKVWnKHA2NDlr48
+        0i7Vj9pBQK/lTqDwyAxyxudRf/whCY7uCYc1qvcG7sF9fx7uA1erDtcUivIfjftcwl7FmUIAAAAASUVO
+        RK5CYII=
+</value>
+  </data>
   <metadata name="SağTuşMenü_Ağaç_ilkAçılış.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>1005, 17</value>
   </metadata>

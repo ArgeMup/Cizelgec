@@ -27,7 +27,8 @@ namespace Çizelgeç
             S.Çizelge.Plot.SetCulture(System.Globalization.CultureInfo.CreateSpecificCulture("tr"));
             S.Çizelge.Plot.YAxis.Label("Tümü", size:(float)(S.AnaEkran.Font.Size * 1.25));
             S.Çizelge.Plot.XAxis.TickLabelStyle(fontSize: (float)(S.AnaEkran.Font.Size * 1.25));
-            S.Çizelge.Plot.RightAxis.IsVisible = false; S.Çizelge.Plot.RightAxis.Ticks(true);
+            S.Çizelge.Plot.RightAxis.IsVisible = true; S.Çizelge.Plot.RightAxis.Ticks(true);
+            S.Çizelge.Plot.LeftAxis.IsVisible = false; S.Çizelge.Plot.LeftAxis.Ticks(true);
             S.Çizelge.Plot.XAxis.DateTimeFormat(true);
             S.Çizelge.RightClicked -= S.Çizelge.DefaultRightClickEvent;
             S.Çizelge.Configuration.DoubleClickBenchmark = true;

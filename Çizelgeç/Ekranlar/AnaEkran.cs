@@ -50,7 +50,7 @@ namespace Çizelgeç
             S.Ağaç = Ağaç;
             S.AralıkSeçici_Baştan = AralıkSeçici_Baştan;
             S.AralıkSeçici_Sondan = AralıkSeçici_Sondan;
-            S.SolMenu_BaşlatDurdur = SolMenu_BaşlatDurdur;
+            S.SolMenu_BaşlatBekletDurdur = SolMenu_BaşlatBekletDurdur;
             S.Ayraç_Ana = Ayraç_Ana;
 
             Ayraç_AğaçAçıklama_Günlük.Panel2Collapsed = true;
@@ -110,9 +110,9 @@ namespace Çizelgeç
         }
         private void AnaEkran_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Yardımcıİşlemler.BilgiToplama.BaşlatDurdur = true;
+            Yardımcıİşlemler.BilgiToplama.BaşlatBeklet = true;
             S.Çalışşsın = false;
-            Bağlantılar.Durdur();
+            Bağlantılar.Tamamen_Durdur();
             
             S.Ayarlar.Yaz("Ayraç_Ana.SplitterDistance", Ayraç_Ana.SplitterDistance.ToString());
             S.Ayarlar.Yaz("S.Çizelge_ÇizgiKalınlığı", S.Çizelge_ÇizgiKalınlığı.ToString());
@@ -173,7 +173,7 @@ namespace Çizelgeç
                 S.BaşlangıçParametreleri = null;
                 S.Çalışşsın = false;
                 Sinyaller.Tümü.Clear();
-                Bağlantılar.Durdur();
+                Bağlantılar.Tamamen_Durdur();
                 Canlı_Ekranlama = null;
                 Ölü_Ekranlama = null;
                 Yardımcıİşlemler.Görevler.Sil(null);
@@ -248,8 +248,8 @@ namespace Çizelgeç
                 Ağaç.NodeMouseClick += new TreeNodeMouseClickEventHandler(Ağaç_NodeMouseClick);
                 Ağaç.MouseEnter += new EventHandler(Ağaç_MouseEnter);
 
-                SolMenu_BaşlatDurdur.Visible = true;
-                SolMenu_BaşlatDurdur_Ayraç.Visible = true;
+                SolMenu_BaşlatBekletDurdur.Visible = true;
+                SolMenu_BaşlatBekletDurdur_Ayraç.Visible = true;
                 if (Directory.Exists(Yardımcıİşlemler.BilgiToplama.Kayıt_Klasörü)) SağTuşMenü_Çizelge_KayıtKlasörünüAç.Visible = true;
 
                 AralıkSeçici_Baştan_Scroll(null, null);
@@ -469,9 +469,19 @@ namespace Çizelgeç
 
             SolMenu_Gunluk.Image = Properties.Resources.M_Gunluk;
         }
-        private void SolMenu_BaşlatDurdur_Click(object sender, EventArgs e)
+        private void SolMenu_BaşlatBekletDurdur_Başlat_Click(object sender, EventArgs e)
         {
-            Yardımcıİşlemler.BilgiToplama.BaşlatDurdur = !Yardımcıİşlemler.BilgiToplama.BaşlatDurdur;
+            Bağlantılar._Aç();
+            Yardımcıİşlemler.BilgiToplama.BaşlatBeklet = true;
+        }
+        private void SolMenu_BaşlatBekletDurdur_Beklet_Click(object sender, EventArgs e)
+        {
+            Yardımcıİşlemler.BilgiToplama.BaşlatBeklet = false;
+        }
+        private void SolMenu_BaşlatBekletDurdur_Durdur_Click(object sender, EventArgs e)
+        {
+            Bağlantılar._Kapat();
+            Yardımcıİşlemler.BilgiToplama.BaşlatBeklet = false;
         }
 
         int AralıkSeçici_KeyDown_Bastan_Sondan_Kaydırıcı = 0;
@@ -718,6 +728,8 @@ namespace Çizelgeç
                     //tümünü yoket
                     foreach (Sinyal_ sinyal in Sinyaller.Tümü.Values)
                     {
+                        if (sinyal.Görseller.Çizikler == null) continue;
+
                         sinyal.Görseller.Çizikler.IsVisible = false;
                     }
                 }
@@ -802,13 +814,14 @@ namespace Çizelgeç
                 {
                     if (sny.Görseller.Çizikler == null) continue;
 
-                    sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.LeftAxis.AxisIndex;
+                    sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.RightAxis.AxisIndex;
                     sny.Görseller.Çizikler.IsHighlighted = false;
                 }
 
-                Çizelge.Plot.LeftAxis.Color(Color.Black);
-                Çizelge.Plot.LeftAxis.Label("Tümü");
-                Çizelge.Plot.RightAxis.IsVisible = false;
+                Çizelge.Plot.RightAxis.Color(Color.Black);
+                Çizelge.Plot.RightAxis.Label("Tümü", size: Font.Size, bold:false);
+                Çizelge.Plot.RightAxis.TickLabelStyle(fontSize: Font.Size, fontBold:false);
+                Çizelge.Plot.LeftAxis.IsVisible = false;
             }
             else
             {
@@ -819,7 +832,7 @@ namespace Çizelgeç
 
                     if (ilgili_sny_ler.Contains(sny))
                     {
-                        sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.LeftAxis.AxisIndex;
+                        sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.RightAxis.AxisIndex;
                         sny.Görseller.Çizikler.IsHighlighted = SağTuşMenü_Çizelge_SeçiliOlanıBelirginleştr.Checked;
 
                         Çizelge.Plot.MoveLast(sny.Görseller.Çizikler);
@@ -828,24 +841,26 @@ namespace Çizelgeç
                     else
                     {
                         //diğerlerini sağ eksene geçirerek yarı görünmez yap
-                        sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.RightAxis.AxisIndex;
+                        sny.Görseller.Çizikler.YAxisIndex = Çizelge.Plot.LeftAxis.AxisIndex;
                         sny.Görseller.Çizikler.IsHighlighted = false;
                     }
                 }
 
                 if (ilgili_sny_ler.Count == 1)
                 {
-                    Çizelge.Plot.LeftAxis.Color(ilgili_sny_ler[0].Görseller.Çizikler.Color);
-                    Çizelge.Plot.LeftAxis.Label(ilgili_sny_ler[0].Adı.GörünenAdı);
+                    Çizelge.Plot.RightAxis.Color(ilgili_sny_ler[0].Görseller.Çizikler.Color);
+                    Çizelge.Plot.RightAxis.Label(ilgili_sny_ler[0].Adı.GörünenAdı, size: Font.Size * 1.5f, bold: true);
+                    Çizelge.Plot.RightAxis.TickLabelStyle(fontSize: Font.Size * 1.5f, fontBold: true);
                 }
                 else
                 {
-                    Çizelge.Plot.LeftAxis.Color(Color.Black);
-                    Çizelge.Plot.LeftAxis.Label(DaldakiSinyaller.TrimEnd(',', ' '));
+                    Çizelge.Plot.RightAxis.Color(Color.Black);
+                    Çizelge.Plot.RightAxis.Label(DaldakiSinyaller.TrimEnd(',', ' '), size: Font.Size * 1.5f, bold: true);
+                    Çizelge.Plot.RightAxis.TickLabelStyle(fontSize: Font.Size * 1.5f, fontBold: true);
                 }
 
-                Çizelge.Plot.RightAxis.Label("Diğerleri");
-                Çizelge.Plot.RightAxis.IsVisible = true;
+                Çizelge.Plot.LeftAxis.Label("Diğerleri");
+                Çizelge.Plot.LeftAxis.IsVisible = true;
             }
 
             S.Çizdir();
@@ -871,10 +886,10 @@ namespace Çizelgeç
             Font = new Font(Font.FontFamily, (float)Boyut);
 
             Boyut *= 1.25;
-            Çizelge.Plot.LeftAxis.Label(size: (float)Boyut);
-            Çizelge.Plot.LeftAxis.TickLabelStyle(fontSize: (float)Boyut);
             Çizelge.Plot.RightAxis.Label(size: (float)Boyut);
             Çizelge.Plot.RightAxis.TickLabelStyle(fontSize: (float)Boyut);
+            Çizelge.Plot.LeftAxis.Label(size: (float)Boyut);
+            Çizelge.Plot.LeftAxis.TickLabelStyle(fontSize: (float)Boyut);
             Çizelge.Plot.XAxis.TickLabelStyle(fontSize: (float)Boyut);
 
             foreach (Sinyal_ sinyal in Sinyaller.Tümü.Values)

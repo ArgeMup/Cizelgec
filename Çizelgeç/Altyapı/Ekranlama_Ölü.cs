@@ -363,6 +363,26 @@ namespace Çizelgeç
 
                                 ÖlçümSayısı++;
                             }
+                            else if (CüBaVeKeAy.Length == 3) //baslıklar anahtarı varsa
+                            {
+                                CümleBaşlangıcı = CüBaVeKeAy[2];
+                                başlangıç = okunan.IndexOf(CümleBaşlangıcı);
+                                if (başlangıç >= 0)
+                                {
+                                    string gelen = okunan.Substring(başlangıç + CümleBaşlangıcı.Length).Trim(' ', KelimeAyracı);
+                                    string[] dizi = gelen.Split(KelimeAyracı);
+                                    for (int i = 1; i < dizi.Length; i++)
+                                    {
+                                        string sinyal_yazı = "<" + dizi[0] + "[" + (i - 1).ToString() + "]>";
+                                        Sinyal_ sinyal = Sinyaller.Ekle(sinyal_yazı);
+                                        if (sinyal.Adı.GörünenAdı != dizi[i]) sinyal.Güncelle_Adı(sinyal_yazı, dizi[0], dizi[i]);
+                                        if (sinyal.Değeri.DeğerEkseni == null)
+                                        {
+                                            sinyal.Değeri.DeğerEkseni = new double[Yardımcıİşlemler.BilgiToplama.ZamanDilimi_Sayısı];
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     catch (Exception ex) { Günlük.Ekle("Problemli satır -> (" + SatırNo + ") " + okunan + " -> " + ex.ToString()); }
@@ -372,6 +392,13 @@ namespace Çizelgeç
             if (Sinyaller.Tümü.Count == 0 || ÖlçümSayısı <= 1)
             {
                 throw new Exception("Hiç bilgi alınamadı. Cümle başlangıcı ve kelime ayracı uygun olmayabilir. Kaynak dosyanın olduğu klasörün içerisine kaynak dosya için düzenlenmiş bir Ayarlar.cs dosyası kopyalayın ve Mup Dosyasından Okuma anahtarlarını doldurun");
+            }
+            else
+            {
+                foreach (Sinyal_ Sinyal in Sinyaller.Tümü.Values)
+                {
+                    if (Sinyal.Adı.Salkım.BoşMu()) Sinyal.Adı.Salkım = "Tanımlanmamış Sinyaller";
+                }
             }
 
             #region daraltma

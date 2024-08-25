@@ -45,7 +45,7 @@ namespace Çizelgeç
             {
                 try
                 {
-                    if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur)
+                    if (Yardımcıİşlemler.BilgiToplama.BaşlatBeklet)
                     {
                         int gecikme = 1000;
                         DateTime şimdi_t = DateTime.Now;
@@ -274,7 +274,7 @@ namespace Çizelgeç
                                 }
                             }
 
-                            if (Yardımcıİşlemler.BilgiToplama.BaşlatDurdur)
+                            if (Yardımcıİşlemler.BilgiToplama.BaşlatBeklet)
                             {
                                 if (S.Çizdir_msnBoyuncaHızlıcaÇizdirmeyeDevamEt > Environment.TickCount)
                                 {
@@ -286,13 +286,13 @@ namespace Çizelgeç
 
                         if (_1sn_gecti)
                         {
-                            if (!Yardımcıİşlemler.BilgiToplama.BaşlatDurdur && tik_kaydetmiyor_uyarısı < Environment.TickCount)
+                            if (!Yardımcıİşlemler.BilgiToplama.BaşlatBeklet && tik_kaydetmiyor_uyarısı < Environment.TickCount)
                             {
-                                S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Tamam;
-                                S.SolMenu_BaşlatDurdur.GetCurrentParent().Refresh();
+                                S.SolMenu_BaşlatBekletDurdur.Image = Properties.Resources.D_Tamam;
+                                S.SolMenu_BaşlatBekletDurdur.GetCurrentParent().Refresh();
                                 System.Media.SystemSounds.Asterisk.Play();
                                 Thread.Sleep(250);
-                                S.SolMenu_BaşlatDurdur.Image = Properties.Resources.D_Hata;
+                                S.SolMenu_BaşlatBekletDurdur.Image = Properties.Resources.D_Hata;
                                 tik_kaydetmiyor_uyarısı = Environment.TickCount + 5000;
                             }
 

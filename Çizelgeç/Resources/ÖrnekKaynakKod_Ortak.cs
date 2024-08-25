@@ -10,7 +10,7 @@
             <CümleBaşlangıcı><KelimeAyracı><Sinyal Grubunun Adı><KelimeAyracı><Gruptaki 1. Sinyalin Değeri><KelimeAyracı><Gruptaki 2. Sinyalin Değeri><KelimeAyracı>...<CRLF>
             _Gürültü_>Sinyaller;GrupAdı;3.5;5;0CRLF
             Bu durumda uygulama <GrupAdı[0]>, <GrupAdı[1]> ve <GrupAdı[2]> sinyallerini üretir. İlk değerleri sırasıyla 3,5     5     0
-            Aynı şekilde bilgi gelmeye devam ettikçe çizim oluşmaya başlar. 
+            Aynı şekilde bilgi gelmeye devam ettikçe çizim oluşmaya başlar.
         İşlem : Çizelgeç.Bağlantı_ Bağlantılar.Ekle_KomutSatırı(string BağlantıAdı, string Uygulama, string Parametre = null);
         İşlem : Çizelgeç.Bağlantı_ Bağlantılar.Ekle_Uart(string BağlantıAdı, int BitHızı, string ErişimNoktası = "COMx");
         İşlem : Çizelgeç.Bağlantı_ Bağlantılar.Ekle_Tcpİstemcisi(string BağlantıAdı, string IPveyaAdresi, int ErişimNoktası);
@@ -19,7 +19,7 @@
         İşlem : Çizelgeç.Bağlantı_ Bağlantılar.Ekle_UdpSunucusu(string BağlantıAdı, int ErişimNoktası);
         İşlem : List<Çizelgeç.Bağlantı_> Bağlantılar.Bul(string BağlantıAdıKıstası = "*", bool BüyükKüçükHarfDuyarlı = true, char Ayraç = '*');
             İşlem Çıktısı : Çizelgeç.Bağlantı_ -> Bağlantı_1
-                İşlem : Bağlantı_1.Ayıklayıcı_Ekle(string CümleBaşlangıcı = ">Sinyaller", char KelimeAyracı = ';', bool Kaydedilsin = true, Sinyaller.Tanımlanmamış_Sinyali TanımlanmamışSinyalleri = Sinyaller.Tanımlanmamış_Sinyali.Kullan veya Kaydetme veya Atla);
+                İşlem : Bağlantı_1.Ayıklayıcı_Ekle(string CümleBaşlangıcı_Sinyaller = ">Sinyaller", char KelimeAyracı = ';', bool Kaydedilsin = true, Sinyaller.Tanımlanmamış_Sinyali TanımlanmamışSinyalleri = Sinyaller.Tanımlanmamış_Sinyali.Kullan veya Kaydetme veya Atla, string CümleBaşlangıcı_Başlıklar = ">Basliklar");
                 İşlem : Bağlantı_1.Başlat();
                 İşlem : Bağlantı_1.Gönder(string Mesaj); //Sonuna uygulama tarafından CRLF eklenir
                 İşlem : Bağlantı_1.Gönder(byte[] Mesaj);
@@ -50,7 +50,7 @@
                 Değişken : object Durum_1.Hatırlatıcı;
         İşlem : Görevler.Sil(string TakmaAdıKıstası, bool BüyükKüçükHarfDuyarlı = true, char Ayraç = '*'); // TakmaAdı == null ise tümünü siler
     BilgiToplama
-        Değişken : bool BilgiToplama.BaşlatDurdur
+        Değişken : bool BilgiToplama.BaşlatBeklet
             = true;     //Bağlantılar ve bağımlılıklalarını geçici olarak durdurur. 
             = false;    //Kaldığı yerden devam eder.
         Değişken : bool BilgiToplama.ZamanDilimi_BirbirininAynısıOlanlarıAtla = true;
@@ -64,7 +64,7 @@
     ÖnYüz
         İşlem : ÖnYüz.İlerlemeÇubuğu(int Güncel, int Toplam); //uzun sürebilecek işlemlerde çağırılarak kullanıcıya fikir verilebilir.
     MupDosyasındanOkuma
-        Değişken : MupDosyasındanOkuma.CümleBaşlangıcıVeKelimeAyraçları.Add(new string[] { ">Sinyaller", ";" });
+        Değişken : MupDosyasındanOkuma.CümleBaşlangıcıVeKelimeAyraçları.Add(new string[] { ">Sinyaller", ";", ">Basliklar" });
 
 --- Ortak ---------------------------------------------------------------------------
     ÖnYüz

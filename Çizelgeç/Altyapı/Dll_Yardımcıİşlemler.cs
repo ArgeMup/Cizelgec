@@ -376,16 +376,16 @@ namespace Yardımcıİşlemler
 
     public class BilgiToplama
     {
-        protected static bool BaşlatDurdur_ = true;
-        public static bool BaşlatDurdur
+        protected static bool BaşlatBeklet_ = true;
+        public static bool BaşlatBeklet
         {
             get
             {
-                return BaşlatDurdur_;
+                return BaşlatBeklet_;
             }
             set
             {
-                BaşlatDurdur_ = value;
+                BaşlatBeklet_ = value;
 
                 if (Çizelgeç.S.AnaEkran.InvokeRequired)
                 {
@@ -395,7 +395,7 @@ namespace Yardımcıİşlemler
 
                 void _ivk_()
                 {
-                    Çizelgeç.S.SolMenu_BaşlatDurdur.Image = BaşlatDurdur_ ? Çizelgeç.Properties.Resources.D_Tamam : Çizelgeç.Properties.Resources.D_Hata;
+                    Çizelgeç.S.SolMenu_BaşlatBekletDurdur.Image = BaşlatBeklet_ ? Çizelgeç.Properties.Resources.D_Tamam : Çizelgeç.Properties.Resources.D_Hata;
                 }
             }
         }
