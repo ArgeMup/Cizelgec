@@ -185,6 +185,7 @@ namespace Çizelgeç
         public static YenidenHesapla YenidenHesapla;
         public static TrackBar AralıkSeçici_Baştan, AralıkSeçici_Sondan;
         public static ToolStripDropDownButton SolMenu_BaşlatBekletDurdur;
+        public static ContextMenuStrip SağTuşMenü_Açıklama;
         public static SplitContainer Ayraç_Ana;
         public static string[] BaşlangıçParametreleri = null;
         public static Çalıştır_ Çalıştır = new Çalıştır_();

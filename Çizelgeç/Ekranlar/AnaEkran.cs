@@ -51,6 +51,7 @@ namespace Çizelgeç
             S.AralıkSeçici_Baştan = AralıkSeçici_Baştan;
             S.AralıkSeçici_Sondan = AralıkSeçici_Sondan;
             S.SolMenu_BaşlatBekletDurdur = SolMenu_BaşlatBekletDurdur;
+            S.SağTuşMenü_Açıklama = SağTuşMenü_Açıklama;
             S.Ayraç_Ana = Ayraç_Ana;
 
             Ayraç_AğaçAçıklama_Günlük.Panel2Collapsed = true;
@@ -1499,6 +1500,24 @@ namespace Çizelgeç
                 işl.İşlem(işl.Adı, işl.Hatırlatıcı);
             }
             catch (Exception ex) { Yardımcıİşlemler.ÖnYüz.Günlük(ex, "İşlemler.Çalıştır." + işl.Adı); }
+        }
+
+        private void SağTuşMenü_Açıklama_Ekle_Click(object sender, EventArgs e)
+        {
+            if (SağTuşMenü_Açıklama_Açıklama.Text.BoşMu(true)) return;
+
+            Açıklamalar.Ekle(DateTime.Now, SağTuşMenü_Açıklama_Açıklama.Text,
+                SağTuşMenü_Açıklama_Çerçeve_Siyah.Checked ? Color.Black :
+                SağTuşMenü_Açıklama_Çerçeve_Kırmızı.Checked ? Color.Red :
+                SağTuşMenü_Açıklama_Çerçeve_Mavi.Checked ? Color.Blue :
+                SağTuşMenü_Açıklama_Çerçeve_Yeşil.Checked ? Color.Green : Color.Yellow);
+        }
+        private void SağTuşMenü_Açıklama_Çerçeve_x_Click(object sender, EventArgs e)
+        {
+            foreach (ToolStripMenuItem biri in SağTuşMenü_Açıklama_Çerçeve.DropDownItems)
+            {
+                biri.Checked = biri == sender;
+            } 
         }
     }
 }

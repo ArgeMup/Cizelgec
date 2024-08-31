@@ -72,6 +72,10 @@ namespace Çizelgeç
                 TreeNode b = t.Nodes.Add("Bağlantılar");
                 b.Collapse(false);
                 #endregion
+
+                #region Açıklamalar
+                a.ContextMenuStrip = S.SağTuşMenü_Açıklama;
+                #endregion
             }
 
             S.Ağaç.Nodes.Clear();
@@ -142,15 +146,26 @@ namespace Çizelgeç
             else if (Sinyal.Value.Tür == Tür_.Sinyal)
             {
                 bulunan = AğaçDalındakiDalıBul(S.Ağaç.Nodes[0].Nodes, "Sinyaller");
-                TreeNode dal = AğaçDalındakiDalıBul(bulunan.Nodes, "Tanımlanmamış Sinyaller");
-                if (dal != null) bulunan = dal;
+                if (Sinyal.Value.Adı.Salkım.DoluMu())
+                {
+                    TreeNode dal = AğaçDalındakiDalıBul(bulunan.Nodes, "Ekletilen Sinyaller");
+                    if (dal != null) bulunan = dal;
+                    else
+                    {
+                        bulunan = bulunan.Nodes.Add("Ekletilen Sinyaller");
+                        bulunan.Checked = true;
+                    }
+                }
                 else
                 {
-                    bulunan = bulunan.Nodes.Add("Tanımlanmamış Sinyaller");
-                    bulunan.Checked = true;
-                }
-
-                Sinyal.Value.Güncelle_Adı(Sinyal.Key, "Tanımlanmamış Sinyaller");
+	                TreeNode dal = AğaçDalındakiDalıBul(bulunan.Nodes, "Tanımlanmamış Sinyaller");
+	                if (dal != null) bulunan = dal;
+	                else
+	                {
+	                    bulunan = bulunan.Nodes.Add("Tanımlanmamış Sinyaller");
+	                    bulunan.Checked = true;
+	                }
+                } 
             }
 
             SinyaliAğacaEkle(Sinyal.Value, bulunan);
@@ -169,7 +184,7 @@ namespace Çizelgeç
         static public TreeNode AğacaDalEkle(string Dal, TreeNode Üstteki = null)
         {
             List<string> l = new List<string>();
-            l.AddRange(Dal.Split('|'));
+            l.AddRange(Dal.Trim('|').Split('|'));
 
             if (Üstteki == null) Üstteki = AğaçDalındakiDalıBul(S.Ağaç.Nodes[0].Nodes, "Sinyaller");
 
